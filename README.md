@@ -63,7 +63,7 @@ Do not use explicit `commit()`. `Transactional` class automatically do.
 
 ### Multiple databases
 
-Go to `core/config.py` and edit `WRITER_DB_URL` and `READER_DB_URL` in the config class.
+Go to `core/config.py` and edit `DB_URL` and `DB_URL` in the config class.
 
 
 If you need additional logic to use the database, refer to the `get_bind()` method of `RoutingClass`.

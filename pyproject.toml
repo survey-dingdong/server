@@ -1,8 +1,8 @@
 [tool.poetry]
-name = "fastapi-boilerplate"
-version = "0.2.0"
-description = "FastAPI Boilerplate"
-authors = ["Hide <padocon@naver.com>"]
+name = "survey-dingdong"
+version = "0.0.1"
+description = "Survey DingDong"
+authors = ["whdvlf94@gmail.com"]
 
 [tool.poetry.dependencies]
 python = "3.11.7"

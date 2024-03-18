@@ -7,7 +7,7 @@ from fastapi.openapi.models import APIKey, APIKeyIn
 from fastapi.security.base import SecurityBase
 from starlette import status
 
-from app.container import Container
+from app.user.container import UserContainer
 from app.user.domain.usecase.user import UserUseCase
 from core.exceptions import CustomException
 
@@ -40,7 +40,7 @@ class IsAdmin(BasePermission):
     async def has_permission(
         self,
         request: Request,
-        usecase: UserUseCase = Depends(Provide[Container.user_service]),
+        usecase: UserUseCase = Depends(Provide[UserContainer.user_service]),
     ) -> bool:
         user_id = request.user.id
         if not user_id:

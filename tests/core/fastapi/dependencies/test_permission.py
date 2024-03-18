@@ -3,7 +3,7 @@ from unittest.mock import AsyncMock, Mock
 import pytest
 from fastapi import Request
 
-from app.container import Container
+from app.user.container import UserContainer
 from core.fastapi.dependencies import (
     AllowAll,
     IsAdmin,
@@ -12,7 +12,7 @@ from core.fastapi.dependencies import (
 )
 from core.fastapi.dependencies.permission import UnauthorizedException
 
-container = Container()
+container = UserContainer()
 
 
 @pytest.mark.asyncio
