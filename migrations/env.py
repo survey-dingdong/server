@@ -24,6 +24,9 @@ fileConfig(config.config_file_name)
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
 
+from app.user.domain.entity.user import User
+from app.workspace.domain.entity.workspace import Workspace
+
 # For auto generate schemas
 from core.config import config
 from core.db import Base
