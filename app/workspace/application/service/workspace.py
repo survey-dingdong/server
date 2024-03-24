@@ -1,8 +1,14 @@
 from app.workspace.adapter.output.persistence.repository_adapter import (
     WorkspaceRepositoryAdapter,
 )
-from app.workspace.application.dto import CreateWorkspaceResponseDTO
-from app.workspace.application.exception import TooManyWorkspacesException
+from app.workspace.application.dto import (
+    CreateWorkspaceResponseDTO,
+    GetWorkspaceListRepsonseDTO,
+)
+from app.workspace.application.exception import (
+    TooManyWorkspacesException,
+    WorkspaceNotFoundeException,
+)
 from app.workspace.domain.command import CreateWorkspaceCommand
 from app.workspace.domain.entity.workspace import Workspace, WorkspaceRead
 from app.workspace.domain.usecase.workspace import WorkspaceUseCase
@@ -34,3 +40,30 @@ class WorkspaceService(WorkspaceUseCase):
         )
 
         return CreateWorkspaceResponseDTO(id=workspace.id)
+
+    @Transactional()
+    async def update_workspace(
+        self, workspace_id: int, title: str | None, order: int | None
+    ) -> GetWorkspaceListRepsonseDTO:
+        workspace = await self.repository.get_workspace_by_id(workspace_id=workspace_id)
+        if workspace is None:
+            raise WorkspaceNotFoundeException
+
+        if title:
+            workspace.change_title(title=title)
+
+        if order:
+            workspace.change_order(order=order)
+            await self.repository.reorder_workspace(changed_order=order)
+
+        return GetWorkspaceListRepsonseDTO(
+            id=workspace.id, title=workspace.title, order=workspace.order
+        )
+
+    @Transactional()
+    async def delete_workspace(self, workspace_id: int) -> None:
+        workspace = await self.repository.get_workspace_by_id(workspace_id=workspace_id)
+        if workspace is None:
+            raise WorkspaceNotFoundeException
+
+        await self.repository.delete(workspace_id=workspace_id)
