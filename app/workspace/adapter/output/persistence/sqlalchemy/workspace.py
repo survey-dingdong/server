@@ -10,7 +10,11 @@ class WorkspaceSQLAlchemyRepo(WorkspaceRepo):
         self,
         user_id: int,
     ) -> list[Workspace]:
-        query = select(Workspace).where(Workspace.user_id == user_id)
+        query = (
+            select(Workspace)
+            .where(Workspace.user_id == user_id)
+            .order_by(Workspace.order)
+        )
         result = await session.execute(query)
         return result.scalars().all()
 
