@@ -3,7 +3,7 @@ import sys
 from logging.config import fileConfig
 
 from alembic import context
-from sqlalchemy import pool, create_engine
+from sqlalchemy import create_engine, pool
 
 parent_dir = os.path.abspath(os.path.join(os.getcwd(), ".."))
 sys.path.append(parent_dir)
@@ -23,6 +23,9 @@ fileConfig(config.config_file_name)
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
+
+from app.user.domain.entity.user import User
+from app.workspace.domain.entity.workspace import Workspace
 
 # For auto generate schemas
 from core.config import config
@@ -47,7 +50,7 @@ def run_migrations_offline():
     """
     url = config.get_main_option("sqlalchemy.url")
     context.configure(
-        url=config.WRITER_DB_URL,
+        url=config.DB_URL,
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
@@ -70,7 +73,7 @@ def run_migrations_online():
     and associate a connection with the context.
     """
     connectable = create_engine(
-        config.WRITER_DB_URL.replace("aiomysql", "pymysql"),
+        config.DB_URL.replace("aiomysql", "pymysql"),
         poolclass=pool.NullPool,
     )
 

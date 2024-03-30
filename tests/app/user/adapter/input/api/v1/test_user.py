@@ -5,11 +5,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.server import app
 from app.user.adapter.output.persistence.sqlalchemy.user import UserSQLAlchemyRepo
 from app.user.application.exception import (
-    PasswordDoesNotMatchException,
     DuplicateEmailOrNicknameException,
+    PasswordDoesNotMatchException,
     UserNotFoundException,
 )
-from tests.support.token import USER_ID_1_TOKEN
+from tests.support.constants import USER_ID_1_TOKEN
 from tests.support.user_fixture import make_user
 
 HEADERS = {"Authorization": f"Bearer {USER_ID_1_TOKEN}"}

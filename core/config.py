@@ -8,8 +8,7 @@ class Config(BaseSettings):
     DEBUG: bool = True
     APP_HOST: str = "0.0.0.0"
     APP_PORT: int = 8000
-    WRITER_DB_URL: str = "mysql+aiomysql://fastapi:fastapi@localhost:3306/fastapi"
-    READER_DB_URL: str = "mysql+aiomysql://fastapi:fastapi@localhost:3306/fastapi"
+    DB_URL: str = "mysql+aiomysql://admin:devpassword@127.0.0.1:3306/survey_dingdong"
     JWT_SECRET_KEY: str = "fastapi"
     JWT_ALGORITHM: str = "HS256"
     SENTRY_SDN: str = ""
@@ -20,8 +19,7 @@ class Config(BaseSettings):
 
 
 class TestConfig(Config):
-    WRITER_DB_URL: str = "mysql+aiomysql://fastapi:fastapi@localhost:3306/fastapi_test"
-    READER_DB_URL: str = "mysql+aiomysql://fastapi:fastapi@localhost:3306/fastapi_test"
+    DB_URL: str = "mysql+aiomysql://admin:devpassword@127.0.0.1:3306/survey_dingdong"
 
 
 class LocalConfig(Config):

@@ -1,5 +1,4 @@
 from contextvars import ContextVar, Token
-from enum import Enum
 
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
@@ -7,8 +6,7 @@ from sqlalchemy.ext.asyncio import (
     async_sessionmaker,
     create_async_engine,
 )
-from sqlalchemy.orm import Session, DeclarativeBase
-from sqlalchemy.sql.expression import Delete, Insert, Update
+from sqlalchemy.orm import DeclarativeBase
 
 from core.config import config
 
@@ -27,28 +25,12 @@ def reset_session_context(context: Token) -> None:
     session_context.reset(context)
 
 
-class EngineType(Enum):
-    WRITER = "writer"
-    READER = "reader"
-
-
-engines = {
-    EngineType.WRITER: create_async_engine(config.WRITER_DB_URL, pool_recycle=3600),
-    EngineType.READER: create_async_engine(config.READER_DB_URL, pool_recycle=3600),
-}
-
-
-class RoutingSession(Session):
-    def get_bind(self, mapper=None, clause=None, **kw):
-        if self._flushing or isinstance(clause, (Update, Delete, Insert)):
-            return engines[EngineType.WRITER].sync_engine
-        else:
-            return engines[EngineType.READER].sync_engine
+engine = create_async_engine(config.DB_URL, pool_recycle=3600)
 
 
 async_session_factory = async_sessionmaker(
+    bind=engine,
     class_=AsyncSession,
-    sync_session_class=RoutingSession,
     expire_on_commit=False,
 )
 session = async_scoped_session(

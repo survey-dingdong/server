@@ -1,6 +1,6 @@
 from alembic import command
 from alembic.config import Config as AlembicConfig
-from sqlalchemy import create_engine, inspect, Engine, text
+from sqlalchemy import Engine, create_engine, inspect, text
 
 from core.config import config
 
@@ -15,7 +15,7 @@ class TestDbCoordinator:
         command.upgrade(alembic_cfg, "head")
 
     def truncate_all(self) -> None:
-        url = config.WRITER_DB_URL.replace("aiomysql", "pymysql")
+        url = config.DB_URL.replace("aiomysql", "pymysql")
         engine = create_engine(url=url)
         tables = self._get_all_tables(engine=engine)
         for table in tables:
