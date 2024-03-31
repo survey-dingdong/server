@@ -3,7 +3,7 @@ from app.workspace.domain.repository.workspace import WorkspaceRepo
 
 
 class WorkspaceRepositoryAdapter:
-    def __init__(self, *, workspace_repo: WorkspaceRepo):
+    def __init__(self, workspace_repo: WorkspaceRepo):
         self.workspace_repo = workspace_repo
 
     async def get_workspaces(self, user_id: int) -> list[WorkspaceRead]:

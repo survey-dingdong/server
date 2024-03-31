@@ -3,7 +3,7 @@ from app.workspace.adapter.output.persistence.repository_adapter import (
 )
 from app.workspace.application.dto import (
     CreateWorkspaceResponseDTO,
-    GetWorkspaceListRepsonseDTO,
+    GetWorkspaceRepsonseDTO,
 )
 from app.workspace.application.exception import (
     TooManyWorkspacesException,
@@ -44,7 +44,7 @@ class WorkspaceService(WorkspaceUseCase):
     @Transactional()
     async def update_workspace(
         self, workspace_id: int, title: str | None, order: int | None
-    ) -> GetWorkspaceListRepsonseDTO:
+    ) -> GetWorkspaceRepsonseDTO:
         workspace = await self.repository.get_workspace_by_id(workspace_id=workspace_id)
         if workspace is None:
             raise WorkspaceNotFoundeException
@@ -56,7 +56,7 @@ class WorkspaceService(WorkspaceUseCase):
             workspace.change_order(order=order)
             await self.repository.reorder_workspace(changed_order=order)
 
-        return GetWorkspaceListRepsonseDTO(
+        return GetWorkspaceRepsonseDTO(
             id=workspace.id, title=workspace.title, order=workspace.order
         )
 

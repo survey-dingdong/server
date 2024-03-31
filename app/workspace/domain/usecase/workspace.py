@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 
 from app.workspace.application.dto import (
     CreateWorkspaceResponseDTO,
-    GetWorkspaceListRepsonseDTO,
+    GetWorkspaceRepsonseDTO,
 )
 from app.workspace.domain.command import CreateWorkspaceCommand
 from app.workspace.domain.entity.workspace import WorkspaceRead
@@ -22,7 +22,7 @@ class WorkspaceUseCase(ABC):
     @abstractmethod
     async def update_workspace(
         self, workspace_id: int, title: str | None, order: int | None
-    ) -> GetWorkspaceListRepsonseDTO:
+    ) -> GetWorkspaceRepsonseDTO:
         """Update workspace"""
 
     @abstractmethod

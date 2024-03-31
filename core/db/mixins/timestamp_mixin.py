@@ -9,6 +9,7 @@ class TimestampMixin:
         DateTime,
         default=func.now(),
         nullable=False,
+        index=True,
     )
     updated_at: Mapped[datetime] = mapped_column(
         DateTime,

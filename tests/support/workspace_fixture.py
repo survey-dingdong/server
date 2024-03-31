@@ -2,7 +2,7 @@ from app.workspace.domain.entity.workspace import Workspace
 
 
 def make_workspace(
-    id: int | None = None,
+    id: int,
     title: str = "workspace",
     order: int = 1,
 ):
