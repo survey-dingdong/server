@@ -2,15 +2,19 @@ from datetime import date
 
 from pydantic import BaseModel, Field
 
-from app.project.adapter.input.api.v1.request import ExperimentTimeSlotRequest
 from app.project.domain.vo.type import ExperimentTypeEnum
 
 
-class CreateProjectResponseDTO(BaseModel):
+class ExperimentTimeSlotRequest(BaseModel):
     id: int = Field(..., description="ID")
+    start_time: str = Field(..., description="Experiment start time")
+    end_time: str = Field(..., description="Experiment end time")
+    max_participants: int = Field(
+        ..., description="Maximum number of experiment participants"
+    )
 
 
-class PatchProjectRequestDTO(BaseModel):
+class PatchProjectRequest(BaseModel):
     title: str | None = Field(None, description="Title")
     description: str | None = Field(None, description="Description")
     is_public: bool | None = Field(None, description="Whether the project is public")
@@ -26,4 +30,4 @@ class PatchProjectRequestDTO(BaseModel):
         None, description="Maximum number of experiment participants"
     )
     experiment_type: ExperimentTypeEnum | None = Field(None)
-    location: str | None = Field(None, description="Experiment location")
+    location: str = Field(None, description="Experiment location")

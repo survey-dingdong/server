@@ -1,7 +1,7 @@
 from app.project.adapter.output.persistence.repository_adapter import (
     ProjectRepositoryAdapter,
 )
-from app.project.application.dto import CreateProjectResponseDTO
+from app.project.application.dto import CreateProjectResponseDTO, PatchProjectRequestDTO
 from app.project.application.exception import ProjectNotFoundeException
 from app.project.domain.command import CreateProjectCommand
 from app.project.domain.entity.experiment import ExperimentProject
@@ -18,23 +18,23 @@ class ProjectService(ProjectUseCsae):
     async def get_project_list(
         self,
         workspace_id: int,
-        filter_project_type: ProjectTypeEnum,
+        project_type: ProjectTypeEnum,
     ) -> list[ProjectRead]:
         return await self.repository.get_projects(
             workspace_id=workspace_id,
-            filter_project_type=filter_project_type,
+            project_type=project_type,
         )
 
     async def get_project(
         self,
         workspace_id: int,
         project_id: int,
-        filter_project_type: ProjectTypeEnum,
+        project_type: ProjectTypeEnum,
     ) -> ExperimentProject | None:
         return await self.repository.get_project_by_id(
             workspace_id=workspace_id,
             project_id=project_id,
-            filter_project_type=filter_project_type,
+            project_type=project_type,
         )
 
     @Transactional()
@@ -53,26 +53,36 @@ class ProjectService(ProjectUseCsae):
         self,
         workspace_id: int,
         project_id: int,
-        filter_project_type: ProjectTypeEnum,
+        project_type: ProjectTypeEnum,
+        project_dto: PatchProjectRequestDTO,
     ) -> None:
         project = await self.repository.get_project_by_id(
             workspace_id=workspace_id,
             project_id=project_id,
-            filter_project_type=filter_project_type,
+            project_type=project_type,
         )
         if project is None:
             raise ProjectNotFoundeException
 
-        return None
+        for column, value in project_dto.model_dump(exclude_unset=True).items():
+            setattr(project, column, value)
 
     async def delete_project(
         self,
         workspace_id: int,
         project_id: int,
-        filter_project_type: ProjectTypeEnum,
+        project_type: ProjectTypeEnum,
     ) -> None:
-        return await self.repository.delete(
+        project = await self.repository.get_project_by_id(
             workspace_id=workspace_id,
             project_id=project_id,
-            filter_project_type=filter_project_type,
+            project_type=project_type,
+        )
+
+        if project is None:
+            raise ProjectNotFoundeException
+        await self.repository.delete(
+            workspace_id=workspace_id,
+            project_id=project_id,
+            project_type=project_type,
         )

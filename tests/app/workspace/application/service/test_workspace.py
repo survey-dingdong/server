@@ -132,8 +132,5 @@ async def test_delete_workspace():
     repository_mock.get_workspace_by_id.return_value = workspace
     workspace_service.repository = repository_mock
 
-    # When
-    sut = await workspace_service.delete_workspace(workspace_id=workspace.id)
-
-    # Then
-    assert sut is None
+    # When, Then
+    await workspace_service.delete_workspace(workspace_id=workspace.id)

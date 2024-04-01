@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from app.project.application.dto import CreateProjectResponseDTO
+from app.project.application.dto import CreateProjectResponseDTO, PatchProjectRequestDTO
 from app.project.domain.entity.experiment import ExperimentProject
 from app.project.domain.entity.project import ProjectRead
 from app.project.domain.vo.type import ProjectTypeEnum
@@ -11,7 +11,7 @@ class ProjectUseCsae(ABC):
     async def get_project_list(
         self,
         workspace_id: int,
-        filter_project_type: ProjectTypeEnum,
+        project_type: ProjectTypeEnum,
     ) -> list[ProjectRead]:
         """Get project list"""
 
@@ -20,7 +20,7 @@ class ProjectUseCsae(ABC):
         self,
         workspace_id: int,
         project_id: int,
-        filter_project_type: ProjectTypeEnum,
+        project_type: ProjectTypeEnum,
     ) -> ExperimentProject | None:
         """Get experiment project"""
 
@@ -33,7 +33,8 @@ class ProjectUseCsae(ABC):
         self,
         workspace_id: int,
         project_id: int,
-        filter_project_type: ProjectTypeEnum,
+        project_type: ProjectTypeEnum,
+        project_dto: PatchProjectRequestDTO,
     ) -> None:
         """Update project"""
 
@@ -42,6 +43,6 @@ class ProjectUseCsae(ABC):
         self,
         workspace_id: int,
         project_id: int,
-        filter_project_type: ProjectTypeEnum,
+        project_type: ProjectTypeEnum,
     ) -> None:
         """Delete project"""

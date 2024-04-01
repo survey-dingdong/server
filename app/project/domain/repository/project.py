@@ -10,7 +10,7 @@ class ProjectRepo(ABC):
     async def get_projects(
         self,
         workspace_id: int,
-        filter_project_type: ProjectTypeEnum,
+        project_type: ProjectTypeEnum,
     ) -> list[ProjectRead]:
         """Get project list"""
 
@@ -19,7 +19,7 @@ class ProjectRepo(ABC):
         self,
         workspace_id: int,
         project_id: int,
-        filter_project_type: ProjectTypeEnum,
+        project_type: ProjectTypeEnum,
     ) -> ExperimentProject | None:
         """Get project by id"""
 
@@ -28,7 +28,7 @@ class ProjectRepo(ABC):
         self,
         workspace_id: int,
         project_id: int,
-        filter_project_type: ProjectTypeEnum,
+        project_type: ProjectTypeEnum,
     ) -> None:
         """Delete project"""
 

@@ -1,6 +1,8 @@
 from datetime import date
 
 from pydantic import BaseModel, Field
+from sqlalchemy import DATE, JSON, Enum, String
+from sqlalchemy.orm import Mapped, mapped_column
 
 from app.project.domain.vo.type import ExperimentTypeEnum
 from core.db import Base
@@ -10,6 +12,13 @@ from .project import Project, ProjectRead
 
 class ExperimentProject(Base, Project):
     __tablename__ = "experiment_project"
+    start_date: Mapped[date] = mapped_column(DATE)
+    end_date: Mapped[date] = mapped_column(DATE)
+    excluded_dates: Mapped[list[str]] = mapped_column(JSON, nullable=False, default=[])
+    experiment_type: Mapped[ExperimentTypeEnum] = mapped_column(
+        Enum(ExperimentTypeEnum), nullable=False
+    )
+    location: Mapped[str] = mapped_column(String(255), nullable=False)
 
     @classmethod
     def create(cls, workspace_id: int, title: str) -> "ExperimentProject":

@@ -18,7 +18,6 @@ class Project(TimestampMixin):
     )
     title: Mapped[str] = mapped_column(String(20), nullable=False)
     description: Mapped[str] = mapped_column(String(512))
-    project_type: Mapped[ProjectTypeEnum] = mapped_column(index=True)
     is_public: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     max_participants: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
 
