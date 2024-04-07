@@ -26,7 +26,7 @@ async def test_get_workspace_list():
     workspace_service.repository = repository_mock
 
     # When
-    sut = await workspace_service.get_workspace_list(user_id=1)
+    sut = await workspace_service.get_workspace_list(user_id=1, page=1, size=12)
 
     # Then
     assert len(sut) == 1

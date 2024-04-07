@@ -1,9 +1,14 @@
+from typing import TYPE_CHECKING
+
 from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy import ForeignKey, Integer, String
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from core.db import Base
 from core.db.mixins import TimestampMixin
+
+if TYPE_CHECKING:
+    from app.project.domain.entity.experiment import ExperimentProject
 
 
 class Workspace(Base, TimestampMixin):
@@ -14,9 +19,17 @@ class Workspace(Base, TimestampMixin):
         Integer,
         ForeignKey("user.id"),
         nullable=False,
+        index=True,
     )
     title: Mapped[str] = mapped_column(String(20), nullable=False)
     order: Mapped[int] = mapped_column(Integer, autoincrement=True)
+
+    experiment_projects: Mapped[list["ExperimentProject"]] = relationship(
+        "ExperimentProject",
+        back_populates="workspace",
+        cascade="all, delete-orphan",
+        lazy="selectin",
+    )
 
     @classmethod
     def create(cls, user_id: int, title: str) -> "Workspace":

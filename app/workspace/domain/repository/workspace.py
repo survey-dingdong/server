@@ -5,7 +5,9 @@ from app.workspace.domain.entity.workspace import Workspace
 
 class WorkspaceRepo(ABC):
     @abstractmethod
-    async def get_workspaces(self, user_id: int) -> list[Workspace]:
+    async def get_workspaces(
+        self, user_id: int, page: int, size: int
+    ) -> list[Workspace]:
         """Get workspace list"""
 
     @abstractmethod

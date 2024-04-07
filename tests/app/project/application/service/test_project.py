@@ -25,7 +25,6 @@ async def test_get_project_list():
         id=1,
         workspace_id=1,
         title="project",
-        project_type=ProjectTypeEnum.EXPERIMENT,
         is_public=False,
         joined_participants=0,
         max_participants=0,
@@ -37,7 +36,10 @@ async def test_get_project_list():
 
     # When
     sut = await project_service.get_project_list(
-        workspace_id=1, project_type=ProjectTypeEnum.EXPERIMENT
+        workspace_id=1,
+        project_type=ProjectTypeEnum.EXPERIMENT,
+        page=1,
+        size=12,
     )
 
     # Then
@@ -46,7 +48,6 @@ async def test_get_project_list():
     assert result.id == project.id
     assert result.workspace_id == project.workspace_id
     assert result.title == project.title
-    assert result.project_type == project.project_type
 
 
 @pytest.mark.asyncio
@@ -58,7 +59,6 @@ async def test_get_project_by_id():
 
     # When
     sut = await project_service.get_project(
-        workspace_id=1,
         project_id=project.id,
         project_type=ProjectTypeEnum.EXPERIMENT,
     )
@@ -92,7 +92,6 @@ async def test_update_project_not_exist():
     # When, Then
     with pytest.raises(ProjectNotFoundeException):
         await project_service.update_project(
-            workspace_id=1,
             project_id=2,
             project_type=ProjectTypeEnum.EXPERIMENT,
             project_dto=project_dto,
@@ -112,7 +111,6 @@ async def test_updated_project():
     )
     # When
     await project_service.update_project(
-        workspace_id=1,
         project_id=1,
         project_type=ProjectTypeEnum.EXPERIMENT,
         project_dto=project_dto,
@@ -128,7 +126,6 @@ async def test_delete_project_not_exist():
     # When, Then
     with pytest.raises(ProjectNotFoundeException):
         await project_service.delete_project(
-            workspace_id=1,
             project_id=2,
             project_type=ProjectTypeEnum.EXPERIMENT,
         )
@@ -143,7 +140,6 @@ async def test_delete_project():
 
     # When, Then
     await project_service.delete_project(
-        workspace_id=project.workspace_id,
         project_id=project.id,
         project_type=ProjectTypeEnum.EXPERIMENT,
     )

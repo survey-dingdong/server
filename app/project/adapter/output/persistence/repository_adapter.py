@@ -12,32 +12,23 @@ class ProjectRepositoryAdapter:
         self,
         workspace_id: int,
         project_type: ProjectTypeEnum,
+        page: int,
+        size: int,
     ) -> list[ProjectRead]:
         projects: list[ExperimentProject] = await self.project_repo.get_projects(
-            workspace_id=workspace_id, project_type=project_type
+            workspace_id=workspace_id,
+            project_type=project_type,
+            page=page,
+            size=size,
         )
         return [ProjectRead.model_validate(project) for project in projects]
 
     async def get_project_by_id(
         self,
-        workspace_id: int,
         project_id: int,
         project_type: ProjectTypeEnum,
     ) -> ExperimentProject | None:
         return await self.project_repo.get_project_by_id(
-            workspace_id=workspace_id,
-            project_id=project_id,
-            project_type=project_type,
-        )
-
-    async def delete(
-        self,
-        workspace_id: int,
-        project_id: int,
-        project_type: ProjectTypeEnum,
-    ):
-        await self.project_repo.delete(
-            workspace_id=workspace_id,
             project_id=project_id,
             project_type=project_type,
         )

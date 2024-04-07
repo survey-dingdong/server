@@ -19,20 +19,22 @@ class ProjectService(ProjectUseCsae):
         self,
         workspace_id: int,
         project_type: ProjectTypeEnum,
+        page: int,
+        size: int,
     ) -> list[ProjectRead]:
         return await self.repository.get_projects(
             workspace_id=workspace_id,
             project_type=project_type,
+            page=page,
+            size=size,
         )
 
     async def get_project(
         self,
-        workspace_id: int,
         project_id: int,
         project_type: ProjectTypeEnum,
     ) -> ExperimentProject | None:
         return await self.repository.get_project_by_id(
-            workspace_id=workspace_id,
             project_id=project_id,
             project_type=project_type,
         )
@@ -51,13 +53,11 @@ class ProjectService(ProjectUseCsae):
     @Transactional()
     async def update_project(
         self,
-        workspace_id: int,
         project_id: int,
         project_type: ProjectTypeEnum,
         project_dto: PatchProjectRequestDTO,
     ) -> None:
         project = await self.repository.get_project_by_id(
-            workspace_id=workspace_id,
             project_id=project_id,
             project_type=project_type,
         )
@@ -69,20 +69,15 @@ class ProjectService(ProjectUseCsae):
 
     async def delete_project(
         self,
-        workspace_id: int,
         project_id: int,
         project_type: ProjectTypeEnum,
     ) -> None:
         project = await self.repository.get_project_by_id(
-            workspace_id=workspace_id,
-            project_id=project_id,
             project_type=project_type,
+            project_id=project_id,
         )
 
         if project is None:
             raise ProjectNotFoundeException
-        await self.repository.delete(
-            workspace_id=workspace_id,
-            project_id=project_id,
-            project_type=project_type,
-        )
+
+        project.is_deleted = True

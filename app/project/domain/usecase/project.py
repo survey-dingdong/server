@@ -12,13 +12,14 @@ class ProjectUseCsae(ABC):
         self,
         workspace_id: int,
         project_type: ProjectTypeEnum,
+        page: int,
+        size: int,
     ) -> list[ProjectRead]:
         """Get project list"""
 
     @abstractmethod
     async def get_project(
         self,
-        workspace_id: int,
         project_id: int,
         project_type: ProjectTypeEnum,
     ) -> ExperimentProject | None:
@@ -31,7 +32,6 @@ class ProjectUseCsae(ABC):
     @abstractmethod
     async def update_project(
         self,
-        workspace_id: int,
         project_id: int,
         project_type: ProjectTypeEnum,
         project_dto: PatchProjectRequestDTO,
@@ -41,7 +41,6 @@ class ProjectUseCsae(ABC):
     @abstractmethod
     async def delete_project(
         self,
-        workspace_id: int,
         project_id: int,
         project_type: ProjectTypeEnum,
     ) -> None:

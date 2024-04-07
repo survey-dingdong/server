@@ -6,9 +6,11 @@ class WorkspaceRepositoryAdapter:
     def __init__(self, workspace_repo: WorkspaceRepo):
         self.workspace_repo = workspace_repo
 
-    async def get_workspaces(self, user_id: int) -> list[WorkspaceRead]:
+    async def get_workspaces(
+        self, user_id: int, page: int, size: int
+    ) -> list[WorkspaceRead]:
         workspaces: list[Workspace] = await self.workspace_repo.get_workspaces(
-            user_id=user_id
+            user_id=user_id, page=page, size=size
         )
         return [WorkspaceRead.model_validate(workspace) for workspace in workspaces]
 

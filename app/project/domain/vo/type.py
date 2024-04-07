@@ -6,6 +6,12 @@ class ProjectTypeEnum(Enum):
     EXPERIMENT = "experiment"
 
 
-class ExperimentTypeEnum(str, Enum):
+class ExperimentTypeEnum(Enum):
     ONLINE = "online"
     OFFLINE = "offline"
+
+
+class ExperimentAttendanceStatus(Enum):
+    SCHEDULED = "scheduled"
+    NOT_ATTENDED = "not_attended"
+    ATTENDED = "attended"

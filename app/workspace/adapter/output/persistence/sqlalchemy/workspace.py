@@ -7,14 +7,15 @@ from core.db.session import session
 
 class WorkspaceSQLAlchemyRepo(WorkspaceRepo):
     async def get_workspaces(
-        self,
-        user_id: int,
+        self, user_id: int, page: int, size: int
     ) -> list[Workspace]:
         query = (
             select(Workspace)
             .where(Workspace.user_id == user_id)
             .order_by(Workspace.order)
         )
+
+        query = query.offset((page - 1) * size).limit(size)
         result = await session.execute(query)
         return result.scalars().all()
 

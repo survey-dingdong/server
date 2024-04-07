@@ -19,8 +19,12 @@ class WorkspaceService(WorkspaceUseCase):
     def __init__(self, repository: WorkspaceRepositoryAdapter) -> None:
         self.repository = repository
 
-    async def get_workspace_list(self, user_id: int) -> list[WorkspaceRead]:
-        return await self.repository.get_workspaces(user_id=user_id)
+    async def get_workspace_list(
+        self, user_id: int, page: int, size: int
+    ) -> list[WorkspaceRead]:
+        return await self.repository.get_workspaces(
+            user_id=user_id, page=page, size=size
+        )
 
     @Transactional()
     async def create_workspace(
