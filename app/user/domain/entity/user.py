@@ -1,10 +1,15 @@
-from pydantic import BaseModel, Field, ConfigDict
+from typing import TYPE_CHECKING
+
+from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy import String
-from sqlalchemy.orm import Mapped, mapped_column, composite
+from sqlalchemy.orm import Mapped, composite, mapped_column, relationship
 
 from app.user.domain.vo.location import Location
 from core.db import Base
 from core.db.mixins import TimestampMixin
+
+if TYPE_CHECKING:
+    from app.project.domain.entity.experiment import ExperimentParticipantTimeSlot
 
 
 class User(Base, TimestampMixin):
@@ -16,6 +21,14 @@ class User(Base, TimestampMixin):
     nickname: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
     is_admin: Mapped[bool] = mapped_column(default=False)
     location: Mapped[Location] = composite(mapped_column("lat"), mapped_column("lng"))
+
+    experiment_participant_time_slots: Mapped[
+        "ExperimentParticipantTimeSlot"
+    ] = relationship(
+        "ExperimentParticipantTimeSlot",
+        back_populates="user",
+        lazy="selectin",
+    )
 
     @classmethod
     def create(

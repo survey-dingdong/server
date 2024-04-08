@@ -1,19 +1,25 @@
-from datetime import date, time
+from datetime import date, datetime, time
+from typing import TYPE_CHECKING
 
 from pydantic import BaseModel, Field
 from sqlalchemy import DATE, JSON, Boolean, Enum, ForeignKey, Integer, String, Time
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.project.domain.vo.type import ExperimentAttendanceStatus, ExperimentTypeEnum
-from app.workspace.domain.entity.workspace import Workspace
 from core.db import Base
 from core.db.mixins import TimestampMixin
+from core.helpers.utils import add_am_pm_indicator, generate_random_uppercase_letters
 
-from .project import Project, ProjectRead
+from .project import Project
+
+if TYPE_CHECKING:
+    from app.user.domain.entity.user import User
+    from app.workspace.domain.entity.workspace import Workspace
 
 
 class ExperimentProject(Base, Project):
     __tablename__ = "experiment_project"
+
     start_date: Mapped[date] = mapped_column(DATE, index=True)
     end_date: Mapped[date] = mapped_column(DATE, index=True)
     excluded_dates: Mapped[list[str]] = mapped_column(JSON, nullable=False, default=[])
@@ -21,6 +27,9 @@ class ExperimentProject(Base, Project):
         Enum(ExperimentTypeEnum), nullable=False
     )
     location: Mapped[str] = mapped_column(String(255), nullable=False)
+    participant_code: Mapped[str] = mapped_column(
+        String(4), nullable=False, default=generate_random_uppercase_letters
+    )
     is_deleted: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
 
     workspace: Mapped["Workspace"] = relationship(
@@ -28,7 +37,7 @@ class ExperimentProject(Base, Project):
     )
     experiment_time_slots: Mapped[list["ExperimentTimeSlot"]] = relationship(
         "ExperimentTimeSlot",
-        back_populates="experiment_time_slot",
+        back_populates="experiment_project",
         lazy="selectin",
     )
 
@@ -54,7 +63,7 @@ class ExperimentTimeSlot(Base, TimestampMixin):
     end_time: Mapped[time] = mapped_column(Time, nullable=False, index=True)
     max_participants: Mapped[int] = mapped_column(Integer, nullable=False)
 
-    experiment_time_slot: Mapped["ExperimentProject"] = relationship(
+    experiment_project: Mapped["ExperimentProject"] = relationship(
         "ExperimentProject", back_populates="experiment_time_slots"
     )
 
@@ -91,9 +100,16 @@ class ExperimentParticipantTimeSlot(Base, TimestampMixin):
     )
     is_deleted: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
 
+    user: Mapped["User"] = relationship(
+        "User", back_populates="experiment_participant_time_slots"
+    )
     experiment_time_slot: Mapped["ExperimentTimeSlot"] = relationship(
         "ExperimentTimeSlot", back_populates="experiment_participant_time_slots"
     )
+
+    @property
+    def reserved_date(self) -> str:
+        return f"{self.experiment_date} {add_am_pm_indicator(self.experiment_time_slot.start_time)} ~ {add_am_pm_indicator(self.experiment_time_slot.end_time)}"
 
 
 class ExperimentTimeSlotRead(BaseModel):
@@ -105,15 +121,30 @@ class ExperimentTimeSlotRead(BaseModel):
     )
 
 
-class ExperimentProjectRead(ProjectRead):
+class ExperimentProjectRead(BaseModel):
+    id: int = Field(..., description="ID")
+    title: str = Field(..., description="Title")
+    description: str | None = Field(None, description="Description")
+    is_public: bool = Field(..., description="Whether the project is public")
     start_date: date = Field(..., description="Experiment start date")
     end_date: date = Field(..., description="Experiment end date")
-    excluded_dates: list[date] = Field(..., description="Experimental exclusion days")
-    timeslots: list[ExperimentTimeSlotRead] = Field(
+    excluded_dates: list[str] = Field(..., description="Experimental exclusion days")
+    time_slots: list[ExperimentTimeSlotRead] = Field(
         ..., description="Time information of experiment"
     )
     experiment_type: ExperimentTypeEnum = Field(...)
     location: str = Field(..., description="Experiment location")
-    participant_code: str | None = Field(
-        None, description="Experiment participant code"
+    participant_code: str = Field(..., description="Experiment participant code")
+    created_at: datetime = Field(..., description="Created datetime")
+    updated_at: datetime = Field(..., description="Updated datetime")
+
+
+class ExperimentParticipantTimeSlotRead(BaseModel):
+    id: int = Field(..., description="Participant ID")
+    username: str = Field(..., description="Username")
+    reserved_date: str = Field(..., description="Reserved Date")
+    attendance_status: ExperimentAttendanceStatus = Field(
+        ..., description="Attendance Status"
     )
+    created_at: datetime = Field(..., description="Created datetime")
+    updated_at: datetime = Field(..., description="Updated datetime")

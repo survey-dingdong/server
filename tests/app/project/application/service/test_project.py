@@ -10,9 +10,17 @@ from app.project.application.dto import PatchProjectRequestDTO
 from app.project.application.exception import ProjectNotFoundeException
 from app.project.application.service.project import ProjectService
 from app.project.domain.command import CreateProjectCommand
+from app.project.domain.entity.experiment import ExperimentParticipantTimeSlotRead
 from app.project.domain.entity.project import ProjectRead
-from app.project.domain.vo.type import ExperimentTypeEnum, ProjectTypeEnum
-from tests.support.project_fixture import make_experiment_project
+from app.project.domain.vo.type import (
+    ExperimentAttendanceStatus,
+    ExperimentTypeEnum,
+    ProjectTypeEnum,
+)
+from tests.support.project_fixture import (
+    make_experiment_project,
+    make_experiment_project_participant,
+)
 
 repository_mock = AsyncMock(spec=ProjectRepositoryAdapter)
 project_service = ProjectService(repository=repository_mock)
@@ -141,5 +149,51 @@ async def test_delete_project():
     # When, Then
     await project_service.delete_project(
         project_id=project.id,
+        project_type=ProjectTypeEnum.EXPERIMENT,
+    )
+
+
+@pytest.mark.asyncio
+async def test_get_project_participant_list():
+    # Given
+    experiment_participant_time_slot = ExperimentParticipantTimeSlotRead(
+        id=1,
+        username="username",
+        reserved_date="2024-04-09 10:00AM ~ 11:00AM",
+        attendance_status=ExperimentAttendanceStatus.ATTENDED.value,
+        created_at=datetime.now(),
+        updated_at=datetime.now(),
+    )
+    repository_mock.get_project_participants.return_value = [
+        experiment_participant_time_slot
+    ]
+    project_service.repository = repository_mock
+
+    # When
+    sut = await project_service.get_project_participant_list(
+        project_id=1,
+        project_type=ProjectTypeEnum.EXPERIMENT,
+        page=1,
+        size=12,
+    )
+    # Then
+    assert len(sut) == 1
+    result = sut[0]
+    assert result.id == experiment_participant_time_slot.id
+    assert (
+        result.attendance_status == experiment_participant_time_slot.attendance_status
+    )
+
+
+@pytest.mark.asyncio
+async def test_delete_project_participant():
+    # Given
+    project_participant = make_experiment_project_participant(id=1)
+    repository_mock.get_project_participant_by_id.return_value = project_participant
+    project_service.repository = repository_mock
+
+    # When, Then
+    await project_service.delete_project_participant(
+        participant_id=project_participant.id,
         project_type=ProjectTypeEnum.EXPERIMENT,
     )

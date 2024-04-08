@@ -1,7 +1,10 @@
 from abc import ABC, abstractmethod
 
 from app.project.application.dto import CreateProjectResponseDTO, PatchProjectRequestDTO
-from app.project.domain.entity.experiment import ExperimentProject
+from app.project.domain.entity.experiment import (
+    ExperimentParticipantTimeSlotRead,
+    ExperimentProjectRead,
+)
 from app.project.domain.entity.project import ProjectRead
 from app.project.domain.vo.type import ProjectTypeEnum
 
@@ -22,7 +25,7 @@ class ProjectUseCsae(ABC):
         self,
         project_id: int,
         project_type: ProjectTypeEnum,
-    ) -> ExperimentProject | None:
+    ) -> ExperimentProjectRead | None:
         """Get experiment project"""
 
     @abstractmethod
@@ -45,3 +48,21 @@ class ProjectUseCsae(ABC):
         project_type: ProjectTypeEnum,
     ) -> None:
         """Delete project"""
+
+    @abstractmethod
+    async def get_project_participant_list(
+        self,
+        project_id: int,
+        project_type: ProjectTypeEnum,
+        page: int,
+        size: int,
+    ) -> list[ExperimentParticipantTimeSlotRead]:
+        """Get project participant list"""
+
+    @abstractmethod
+    async def delete_project_participant(
+        self,
+        participant_id: int,
+        project_type: ProjectTypeEnum,
+    ) -> None:
+        """Delete project paticipant"""
