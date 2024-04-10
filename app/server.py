@@ -7,6 +7,8 @@ from app.auth.adapter.input.api import router as auth_router
 from app.container import Container
 from app.user.adapter.input.api import router as user_router
 from app.user.container import UserContainer
+from app.workspace.adapter.input.api import router as workspace_router
+from app.workspace.container import WorkspaceContainer
 from core.config import config
 from core.exceptions import CustomException
 from core.fastapi.dependencies import Logging
@@ -21,11 +23,17 @@ from core.helpers.cache import Cache, CustomKeyMaker, RedisBackend
 
 def init_routers(app_: FastAPI) -> None:
     container = Container()
-    user_container = UserContainer()
     auth_router.container = container
+
+    user_container = UserContainer()
     user_router.container = user_container
-    app_.include_router(user_router)
+
+    workspace_container = WorkspaceContainer()
+    workspace_router.container = workspace_container
+
     app_.include_router(auth_router)
+    app_.include_router(user_router)
+    app_.include_router(workspace_router)
 
 
 def init_listeners(app_: FastAPI) -> None:

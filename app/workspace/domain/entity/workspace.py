@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING
 
 from pydantic import BaseModel, ConfigDict, Field
-from sqlalchemy import ForeignKey, Integer, String
+from sqlalchemy import Boolean, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from core.db import Base
@@ -23,6 +23,7 @@ class Workspace(Base, TimestampMixin):
     )
     title: Mapped[str] = mapped_column(String(20), nullable=False)
     order: Mapped[int] = mapped_column(Integer, autoincrement=True)
+    is_deleted: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
 
     experiment_projects: Mapped[list["ExperimentProject"]] = relationship(
         "ExperimentProject",
@@ -35,13 +36,11 @@ class Workspace(Base, TimestampMixin):
     def create(cls, user_id: int, title: str) -> "Workspace":
         return cls(user_id=user_id, title=title)
 
-    @classmethod
-    def change_title(cls, title: str) -> None:
-        cls.title = title
+    def change_title(self, title: str) -> None:
+        self.title = title
 
-    @classmethod
-    def change_order(cls, order: int) -> None:
-        cls.order = order
+    def change_order(self, order: int) -> None:
+        self.order = order
 
 
 class WorkspaceRead(BaseModel):

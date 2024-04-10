@@ -5,14 +5,14 @@ from app.workspace.application.dto import (
     GetWorkspaceRepsonseDTO,
 )
 from app.workspace.domain.command import CreateWorkspaceCommand
-from app.workspace.domain.entity.workspace import WorkspaceRead
+from app.workspace.domain.entity.workspace import Workspace
 
 
 class WorkspaceUseCase(ABC):
     @abstractmethod
     async def get_workspace_list(
         self, user_id: int, page: int, size: int
-    ) -> list[WorkspaceRead]:
+    ) -> list[Workspace]:
         """Get workspace list"""
 
     @abstractmethod
@@ -23,10 +23,10 @@ class WorkspaceUseCase(ABC):
 
     @abstractmethod
     async def update_workspace(
-        self, workspace_id: int, title: str | None, order: int | None
+        self, user_id: int, workspace_id: int, title: str | None, new_order: int | None
     ) -> GetWorkspaceRepsonseDTO:
         """Update workspace"""
 
     @abstractmethod
-    async def delete_workspace(self, workspace_id: int) -> None:
+    async def delete_workspace(self, user_id: int, workspace_id: int) -> None:
         """Delete workspace"""

@@ -25,9 +25,7 @@ class User(Base, TimestampMixin):
     experiment_participant_time_slots: Mapped[
         "ExperimentParticipantTimeSlot"
     ] = relationship(
-        "ExperimentParticipantTimeSlot",
-        back_populates="user",
-        lazy="selectin",
+        "ExperimentParticipantTimeSlot", back_populates="user", lazy="selectin"
     )
 
     @classmethod
