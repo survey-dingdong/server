@@ -10,6 +10,10 @@ from app.workspace.domain.entity.workspace import Workspace
 
 class WorkspaceUseCase(ABC):
     @abstractmethod
+    async def get_workspace_by_id(self, user_id: int, workspace_id: int) -> Workspace:
+        """Check workspace owner"""
+
+    @abstractmethod
     async def get_workspace_list(
         self, user_id: int, page: int, size: int
     ) -> list[Workspace]:

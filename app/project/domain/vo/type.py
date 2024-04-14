@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import Enum, StrEnum
 
 
-class ProjectTypeEnum(Enum):
+class ProjectTypeEnum(StrEnum):
     SURVEY = "survey"
     EXPERIMENT = "experiment"
 

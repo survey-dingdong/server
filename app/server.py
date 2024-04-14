@@ -5,6 +5,8 @@ from fastapi.responses import JSONResponse
 
 from app.auth.adapter.input.api import router as auth_router
 from app.container import Container
+from app.project.adapter.input.api import router as project_router
+from app.project.container import ProjectContainer
 from app.user.adapter.input.api import router as user_router
 from app.user.container import UserContainer
 from app.workspace.adapter.input.api import router as workspace_router
@@ -31,9 +33,13 @@ def init_routers(app_: FastAPI) -> None:
     workspace_container = WorkspaceContainer()
     workspace_router.container = workspace_container
 
+    project_container = ProjectContainer()
+    project_router.container = project_container
+
     app_.include_router(auth_router)
     app_.include_router(user_router)
     app_.include_router(workspace_router)
+    app_.include_router(project_router)
 
 
 def init_listeners(app_: FastAPI) -> None:

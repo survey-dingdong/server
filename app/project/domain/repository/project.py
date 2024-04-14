@@ -39,6 +39,7 @@ class ProjectRepo(ABC):
     @abstractmethod
     async def get_project_participant_by_id(
         self,
+        project_id: int,
         participant_id: int,
         project_type: ProjectTypeEnum,
     ) -> ExperimentParticipantTimeSlot | None:

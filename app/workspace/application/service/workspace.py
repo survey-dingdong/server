@@ -20,6 +20,16 @@ class WorkspaceService(WorkspaceUseCase):
     def __init__(self, repository: WorkspaceRepositoryAdapter) -> None:
         self.repository = repository
 
+    async def get_workspace_by_id(self, user_id: int, workspace_id: int) -> Workspace:
+        workspace = await self.repository.get_workspace_by_id(workspace_id=workspace_id)
+        if workspace is None:
+            raise WorkspaceNotFoundeException
+
+        if workspace.user_id != user_id:
+            raise WorkspaceAccessDeniedException
+
+        return workspace
+
     async def get_workspace_list(
         self, user_id: int, page: int, size: int
     ) -> list[WorkspaceRead]:
