@@ -7,6 +7,7 @@ from app.workspace.adapter.output.persistence.repository_adapter import (
 )
 from app.workspace.application.exception import (
     TooManyWorkspacesException,
+    WorkspaceAccessDeniedException,
     WorkspaceNotFoundeException,
 )
 from app.workspace.application.service.workspace import WorkspaceService
@@ -71,7 +72,23 @@ async def test_update_workspace_not_exist():
 
     # When, Then
     with pytest.raises(WorkspaceNotFoundeException):
-        await workspace_service.update_workspace(workspace_id=2, title="title", order=1)
+        await workspace_service.update_workspace(
+            user_id=1, workspace_id=2, title="title", new_order=1
+        )
+
+
+@pytest.mark.asyncio
+async def test_update_workspace_access_denied():
+    # Given
+    workspace = make_workspace(id=1)
+    repository_mock.get_workspace_by_id.return_value = workspace
+    workspace_service.repository = repository_mock
+
+    # When, Then
+    with pytest.raises(WorkspaceAccessDeniedException):
+        await workspace_service.update_workspace(
+            user_id=2, workspace_id=1, title="title", new_order=None
+        )
 
 
 @pytest.mark.asyncio
@@ -83,9 +100,10 @@ async def test_update_workspace_title():
 
     # When
     sut = await workspace_service.update_workspace(
+        user_id=1,
         workspace_id=workspace.id,
         title=workspace.title,
-        order=workspace.order,
+        new_order=workspace.order,
     )
 
     # Then
@@ -103,9 +121,10 @@ async def test_update_workspace_order():
 
     # When
     sut = await workspace_service.update_workspace(
+        user_id=1,
         workspace_id=workspace.id,
         title=workspace.title,
-        order=workspace.order,
+        new_order=workspace.order,
     )
 
     # Then
@@ -122,7 +141,19 @@ async def test_delete_workspace_not_exist():
 
     # When, Then
     with pytest.raises(WorkspaceNotFoundeException):
-        await workspace_service.delete_workspace(workspace_id=2)
+        await workspace_service.delete_workspace(user_id=1, workspace_id=2)
+
+
+@pytest.mark.asyncio
+async def test_delete_workspace_access_denied():
+    # Given
+    workspace = make_workspace(id=1)
+    repository_mock.get_workspace_by_id.return_value = workspace
+    workspace_service.repository = repository_mock
+
+    # When, Then
+    with pytest.raises(WorkspaceAccessDeniedException):
+        await workspace_service.delete_workspace(user_id=2, workspace_id=2)
 
 
 @pytest.mark.asyncio
@@ -133,4 +164,4 @@ async def test_delete_workspace():
     workspace_service.repository = repository_mock
 
     # When, Then
-    await workspace_service.delete_workspace(workspace_id=workspace.id)
+    await workspace_service.delete_workspace(user_id=1, workspace_id=workspace.id)

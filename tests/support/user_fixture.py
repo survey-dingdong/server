@@ -1,5 +1,4 @@
 from app.user.domain.entity.user import User
-from app.user.domain.vo.location import Location
 
 
 def make_user(
@@ -8,8 +7,6 @@ def make_user(
     email: str = "h@id.e",
     nickname: str = "hide",
     is_admin: bool = False,
-    lat: float = 37.123,
-    lng: float = 127.123,
 ):
     return User(
         id=id,
@@ -17,5 +14,4 @@ def make_user(
         email=email,
         nickname=nickname,
         is_admin=is_admin,
-        location=Location(lat=lat, lng=lng),
     )

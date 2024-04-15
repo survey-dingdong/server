@@ -14,6 +14,10 @@ class ExperimentTimeSlotRequest(BaseModel):
     )
 
 
+class CreateProjectRequest(BaseModel):
+    title: str = Field(..., description="Title")
+
+
 class PatchProjectRequest(BaseModel):
     title: str | None = Field(None, description="Title")
     description: str | None = Field(None, description="Description")
@@ -30,4 +34,4 @@ class PatchProjectRequest(BaseModel):
         None, description="Maximum number of experiment participants"
     )
     experiment_type: ExperimentTypeEnum | None = Field(None)
-    location: str = Field(None, description="Experiment location")
+    location: str | None = Field(None, description="Experiment location")

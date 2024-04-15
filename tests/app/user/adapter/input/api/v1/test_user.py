@@ -9,6 +9,7 @@ from app.user.application.exception import (
     PasswordDoesNotMatchException,
     UserNotFoundException,
 )
+from core.helpers.auth import generate_hashed_password
 from tests.support.constants import USER_ID_1_TOKEN
 from tests.support.user_fixture import make_user
 
@@ -20,13 +21,10 @@ BASE_URL = "http://test"
 async def test_get_users(session: AsyncSession):
     # Given
     user = make_user(
-        id=1,
         password="password",
         email="a@b.c",
         nickname="hide",
         is_admin=True,
-        lat=37.123,
-        lng=127.123,
     )
     session.add(user)
     await session.commit()
@@ -49,8 +47,6 @@ async def test_create_user_password_does_not_match(session: AsyncSession):
         "password1": "a",
         "password2": "b",
         "nickname": "hide",
-        "lat": 37.123,
-        "lng": 127.123,
     }
     exc = PasswordDoesNotMatchException
 
@@ -69,13 +65,10 @@ async def test_create_user_password_does_not_match(session: AsyncSession):
 async def test_create_user_duplicated_user(session: AsyncSession):
     # Given
     user = make_user(
-        id=1,
         password="password",
         email="a@b.c",
         nickname="hide",
         is_admin=True,
-        lat=37.123,
-        lng=127.123,
     )
     session.add(user)
     await session.commit()
@@ -85,8 +78,6 @@ async def test_create_user_duplicated_user(session: AsyncSession):
         "password1": "a",
         "password2": "a",
         "nickname": "hide",
-        "lat": 37.123,
-        "lng": 127.123,
     }
     exc = DuplicateEmailOrNicknameException
 
@@ -111,8 +102,6 @@ async def test_create_user(session: AsyncSession):
         "password1": "a",
         "password2": "a",
         "nickname": nickname,
-        "lat": 37.123,
-        "lng": 127.123,
     }
 
     # When
@@ -154,13 +143,10 @@ async def test_login(session: AsyncSession):
     email = "h@id.e"
     password = "password"
     user = make_user(
-        id=1,
-        password=password,
+        password=generate_hashed_password(password=password),
         email=email,
         nickname="hide",
         is_admin=True,
-        lat=37.123,
-        lng=127.123,
     )
     session.add(user)
     await session.commit()

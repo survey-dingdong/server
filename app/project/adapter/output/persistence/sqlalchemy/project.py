@@ -15,7 +15,7 @@ from core.db.session import session
 class ProjectSQLAlchemyRepo(ProjectRepo):
     @staticmethod
     def _get_entity_by_project_type(project_type: ProjectTypeEnum) -> Any:
-        return {ProjectTypeEnum.EXPERIMENT: ExperimentProject}[project_type]
+        return {ProjectTypeEnum.EXPERIMENT: ExperimentProject}.get(project_type)
 
     async def get_projects(
         self,
@@ -27,12 +27,15 @@ class ProjectSQLAlchemyRepo(ProjectRepo):
         project: ExperimentProject = ProjectSQLAlchemyRepo._get_entity_by_project_type(
             project_type
         )
+        if project is None:
+            return []
 
         query = (
             select(project)
             .where(
                 and_(
                     ExperimentProject.workspace_id == workspace_id,
+                    ExperimentProject.workspace.is_deleted == False,  # noqa: E712
                     ExperimentProject.is_deleted == False,  # noqa: E712
                 )
             )
@@ -49,6 +52,8 @@ class ProjectSQLAlchemyRepo(ProjectRepo):
         project: ExperimentProject = ProjectSQLAlchemyRepo._get_entity_by_project_type(
             project_type
         )
+        if project is None:
+            return None
 
         query = (
             select(project)
@@ -73,6 +78,8 @@ class ProjectSQLAlchemyRepo(ProjectRepo):
     ) -> list[ExperimentParticipantTimeSlot]:
         if project_type == ProjectTypeEnum.EXPERIMENT:
             participant_time_slot = ExperimentParticipantTimeSlot
+        else:
+            return []
 
         query = (
             select(participant_time_slot, ExperimentTimeSlot)
@@ -94,13 +101,17 @@ class ProjectSQLAlchemyRepo(ProjectRepo):
         return result.scalars().all()
 
     async def get_project_participant_by_id(
-        self, participant_id: int, project_type: ProjectTypeEnum
+        self, project_id: int, participant_id: int, project_type: ProjectTypeEnum
     ) -> ExperimentParticipantTimeSlot | None:
         if project_type == ProjectTypeEnum.EXPERIMENT:
             participant_time_slot = ExperimentParticipantTimeSlot
+        else:
+            return None
 
         query = select(participant_time_slot).where(
             and_(
+                ExperimentParticipantTimeSlot.experiment_time_slot.experiment_project_id
+                == project_id,
                 ExperimentParticipantTimeSlot.id == participant_id,
                 ExperimentParticipantTimeSlot.is_deleted == False,  # noqa: E712
             ),

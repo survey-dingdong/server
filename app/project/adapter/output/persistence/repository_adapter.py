@@ -66,11 +66,14 @@ class ProjectRepositoryAdapter:
 
     async def get_project_participant_by_id(
         self,
+        project_id: int,
         participant_id: int,
         project_type: ProjectTypeEnum,
     ) -> ExperimentParticipantTimeSlot | None:
         return await self.project_repo.get_project_participant_by_id(
-            participant_id=participant_id, project_type=project_type
+            project_id=project_id,
+            participant_id=participant_id,
+            project_type=project_type,
         )
 
     async def save(

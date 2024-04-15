@@ -15,16 +15,12 @@ class WorkspaceRepo(ABC):
         """Get workspace by id"""
 
     @abstractmethod
-    async def reorder_workspace(self, changed_order: int) -> None:
+    async def reorder_workspace(self, order: int) -> None:
         """Reorder workspace"""
 
     @abstractmethod
     async def count(self, user_id: int) -> int:
         """Count workspaces"""
-
-    @abstractmethod
-    async def delete(self, workspace_id: int) -> None:
-        """Delete workspace"""
 
     @abstractmethod
     async def save(self, workspace: Workspace, auto_flush: bool) -> Workspace:

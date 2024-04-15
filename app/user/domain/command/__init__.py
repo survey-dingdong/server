@@ -1,10 +1,8 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, SecretStr
 
 
 class CreateUserCommand(BaseModel):
     email: str
-    password1: str
-    password2: str
+    password1: SecretStr
+    password2: SecretStr
     nickname: str
-    lat: float
-    lng: float

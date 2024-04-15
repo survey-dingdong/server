@@ -18,9 +18,11 @@ class TestDbCoordinator:
         url = config.DB_URL.replace("aiomysql", "pymysql")
         engine = create_engine(url=url)
         tables = self._get_all_tables(engine=engine)
-        for table in tables:
-            with engine.begin() as conn:
+        with engine.begin() as conn:
+            conn.execute(text("SET FOREIGN_KEY_CHECKS = 0"))
+            for table in tables:
                 conn.execute(text(f"TRUNCATE TABLE {table}"))
+            conn.execute(text("SET FOREIGN_KEY_CHECKS = 1"))
 
     def _get_all_tables(self, *, engine: Engine) -> list[str]:
         inspector = inspect(engine)

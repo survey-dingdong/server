@@ -7,6 +7,7 @@ from app.workspace.application.dto import (
 )
 from app.workspace.application.exception import (
     TooManyWorkspacesException,
+    WorkspaceAccessDeniedException,
     WorkspaceNotFoundeException,
 )
 from app.workspace.domain.command import CreateWorkspaceCommand
@@ -18,6 +19,16 @@ from core.db import Transactional
 class WorkspaceService(WorkspaceUseCase):
     def __init__(self, repository: WorkspaceRepositoryAdapter) -> None:
         self.repository = repository
+
+    async def get_workspace_by_id(self, user_id: int, workspace_id: int) -> Workspace:
+        workspace = await self.repository.get_workspace_by_id(workspace_id=workspace_id)
+        if workspace is None:
+            raise WorkspaceNotFoundeException
+
+        if workspace.user_id != user_id:
+            raise WorkspaceAccessDeniedException
+
+        return workspace
 
     async def get_workspace_list(
         self, user_id: int, page: int, size: int
@@ -47,27 +58,33 @@ class WorkspaceService(WorkspaceUseCase):
 
     @Transactional()
     async def update_workspace(
-        self, workspace_id: int, title: str | None, order: int | None
+        self, user_id: int, workspace_id: int, title: str | None, new_order: int | None
     ) -> GetWorkspaceRepsonseDTO:
         workspace = await self.repository.get_workspace_by_id(workspace_id=workspace_id)
         if workspace is None:
             raise WorkspaceNotFoundeException
 
+        if workspace.user_id != user_id:
+            raise WorkspaceAccessDeniedException
+
         if title:
             workspace.change_title(title=title)
 
-        if order:
-            workspace.change_order(order=order)
-            await self.repository.reorder_workspace(changed_order=order)
+        if new_order:
+            workspace.change_order(order=new_order)
+            await self.repository.reorder_workspace(order=new_order)
 
         return GetWorkspaceRepsonseDTO(
             id=workspace.id, title=workspace.title, order=workspace.order
         )
 
     @Transactional()
-    async def delete_workspace(self, workspace_id: int) -> None:
+    async def delete_workspace(self, user_id: int, workspace_id: int) -> None:
         workspace = await self.repository.get_workspace_by_id(workspace_id=workspace_id)
         if workspace is None:
             raise WorkspaceNotFoundeException
 
-        await self.repository.delete(workspace_id=workspace_id)
+        if workspace.user_id != user_id:
+            raise WorkspaceAccessDeniedException
+
+        workspace.is_deleted = True

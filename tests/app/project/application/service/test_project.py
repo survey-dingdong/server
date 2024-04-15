@@ -7,7 +7,10 @@ from app.project.adapter.output.persistence.repository_adapter import (
     ProjectRepositoryAdapter,
 )
 from app.project.application.dto import PatchProjectRequestDTO
-from app.project.application.exception import ProjectNotFoundeException
+from app.project.application.exception import (
+    ProjectAccessDeniedException,
+    ProjectNotFoundException,
+)
 from app.project.application.service.project import ProjectService
 from app.project.domain.command import CreateProjectCommand
 from app.project.domain.entity.experiment import ExperimentParticipantTimeSlotRead
@@ -59,6 +62,39 @@ async def test_get_project_list():
 
 
 @pytest.mark.asyncio
+async def test_get_project_not_exist():
+    # Given
+    repository_mock.get_project_by_id.return_value = None
+    project_service.repository = repository_mock
+
+    # When
+    # When, Then
+    with pytest.raises(ProjectNotFoundException):
+        await project_service.get_project(
+            workspace_id=1,
+            project_id=2,
+            project_type=ProjectTypeEnum.EXPERIMENT,
+        )
+
+
+@pytest.mark.asyncio
+async def test_get_project_access_denied():
+    # Given
+    project = make_experiment_project(id=1)
+    repository_mock.get_project_by_id.return_value = project
+    project_service.repository = repository_mock
+
+    # When
+    # When, Then
+    with pytest.raises(ProjectAccessDeniedException):
+        await project_service.get_project(
+            workspace_id=2,
+            project_id=2,
+            project_type=ProjectTypeEnum.EXPERIMENT,
+        )
+
+
+@pytest.mark.asyncio
 async def test_get_project_by_id():
     # Given
     project = make_experiment_project(id=1)
@@ -67,6 +103,7 @@ async def test_get_project_by_id():
 
     # When
     sut = await project_service.get_project(
+        workspace_id=1,
         project_id=project.id,
         project_type=ProjectTypeEnum.EXPERIMENT,
     )
@@ -98,8 +135,28 @@ async def test_update_project_not_exist():
     project_dto = PatchProjectRequestDTO(title="Chnage title")
 
     # When, Then
-    with pytest.raises(ProjectNotFoundeException):
+    with pytest.raises(ProjectNotFoundException):
         await project_service.update_project(
+            workspace_id=1,
+            project_id=2,
+            project_type=ProjectTypeEnum.EXPERIMENT,
+            project_dto=project_dto,
+        )
+
+
+@pytest.mark.asyncio
+async def test_update_project_access_denied():
+    # Given
+    project = make_experiment_project(id=1)
+    repository_mock.get_project_by_id.return_value = project
+    project_service.repository = repository_mock
+
+    project_dto = PatchProjectRequestDTO(title="Chnage title")
+
+    # When, Then
+    with pytest.raises(ProjectAccessDeniedException):
+        await project_service.update_project(
+            workspace_id=2,
             project_id=2,
             project_type=ProjectTypeEnum.EXPERIMENT,
             project_dto=project_dto,
@@ -119,6 +176,7 @@ async def test_updated_project():
     )
     # When
     await project_service.update_project(
+        workspace_id=1,
         project_id=1,
         project_type=ProjectTypeEnum.EXPERIMENT,
         project_dto=project_dto,
@@ -132,8 +190,25 @@ async def test_delete_project_not_exist():
     project_service.repository = repository_mock
 
     # When, Then
-    with pytest.raises(ProjectNotFoundeException):
+    with pytest.raises(ProjectNotFoundException):
         await project_service.delete_project(
+            workspace_id=1,
+            project_id=2,
+            project_type=ProjectTypeEnum.EXPERIMENT,
+        )
+
+
+@pytest.mark.asyncio
+async def test_delete_project_access_denied():
+    # Given
+    project = make_experiment_project(id=1)
+    repository_mock.get_project_by_id.return_value = project
+    project_service.repository = repository_mock
+
+    # When, Then
+    with pytest.raises(ProjectAccessDeniedException):
+        await project_service.delete_project(
+            workspace_id=2,
             project_id=2,
             project_type=ProjectTypeEnum.EXPERIMENT,
         )
@@ -148,6 +223,7 @@ async def test_delete_project():
 
     # When, Then
     await project_service.delete_project(
+        workspace_id=1,
         project_id=project.id,
         project_type=ProjectTypeEnum.EXPERIMENT,
     )
@@ -171,6 +247,7 @@ async def test_get_project_participant_list():
 
     # When
     sut = await project_service.get_project_participant_list(
+        workspace_id=1,
         project_id=1,
         project_type=ProjectTypeEnum.EXPERIMENT,
         page=1,
@@ -194,6 +271,8 @@ async def test_delete_project_participant():
 
     # When, Then
     await project_service.delete_project_participant(
+        workspace_id=1,
+        project_id=1,
         participant_id=project_participant.id,
         project_type=ProjectTypeEnum.EXPERIMENT,
     )

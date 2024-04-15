@@ -3,6 +3,7 @@ from datetime import date, datetime
 from app.project.domain.entity.experiment import (
     ExperimentParticipantTimeSlot,
     ExperimentProject,
+    ExperimentTimeSlot,
 )
 from app.project.domain.vo.type import ExperimentAttendanceStatus, ExperimentTypeEnum
 from core.helpers.utils import generate_random_uppercase_letters
@@ -45,6 +46,7 @@ def make_experiment_project(
 def make_experiment_project_participant(
     id: int,
     user_id: int | None = 1,
+    project_id: int | None = 1,
     experiment_time_slot_id: int | None = 1,
     experiment_date: date | None = datetime.now().date(),
     attendance_status: (
@@ -57,4 +59,5 @@ def make_experiment_project_participant(
         experiment_time_slot_id=experiment_time_slot_id,
         experiment_date=experiment_date,
         attendance_status=attendance_status,
+        experiment_time_slot=ExperimentTimeSlot(experiment_project_id=project_id),
     )

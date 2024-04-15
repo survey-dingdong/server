@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, Field
 from sqlalchemy import Boolean, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -16,15 +16,13 @@ class Project(TimestampMixin):
         index=True,
     )
     title: Mapped[str] = mapped_column(String(20), nullable=False)
-    description: Mapped[str] = mapped_column(String(512))
+    description: Mapped[str] = mapped_column(String(512), nullable=True)
     is_public: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     joined_participants: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     max_participants: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
 
 
 class ProjectRead(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-
     id: int = Field(..., description="ID")
     workspace_id: int = Field(..., description="Workspace ID")
     title: str = Field(..., description="Title")
