@@ -1,15 +1,13 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, EmailStr, Field, SecretStr
 
 
 class LoginRequest(BaseModel):
-    email: str = Field(..., description="Email")
+    email: EmailStr = Field(..., description="Email")
     password: str = Field(..., description="Password")
 
 
 class CreateUserRequest(BaseModel):
-    email: str = Field(..., description="Email")
-    password1: str = Field(..., description="Password1")
-    password2: str = Field(..., description="Password2")
+    email: EmailStr = Field(..., description="Email")
+    password1: SecretStr = Field(..., description="Password1")
+    password2: SecretStr = Field(..., description="Password2")
     nickname: str = Field(..., description="Nickname")
-    lat: float = Field(..., description="Lat")
-    lng: float = Field(..., description="Lng")

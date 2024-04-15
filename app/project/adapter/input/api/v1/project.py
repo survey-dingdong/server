@@ -1,12 +1,12 @@
 from dependency_injector.wiring import Provide, inject
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, Query, Request
 
 from app.project.adapter.input.api.v1.request import PatchProjectRequest
 from app.project.adapter.input.api.v1.response import (
     CreateProjectResponse,
     GetExperimentParticipantResponse,
     GetExperimentProjectResponse,
-    ProjectResponse,
+    GetProjectListResponse,
 )
 from app.project.container import ProjectContainer
 from app.project.domain.command import CreateProjectCommand
@@ -21,7 +21,7 @@ project_router = APIRouter()
 
 @project_router.get(
     "/{workspace_id}/projects",
-    response_model=list[ProjectResponse],
+    response_model=list[GetProjectListResponse],
     dependencies=[Depends(PermissionDependency([IsAuthenticated]))],
 )
 @inject
@@ -29,8 +29,8 @@ async def get_project_list(
     auth_info: Request,
     workspace_id: int,
     project_type: ProjectTypeEnum,
-    page: int,
-    size: int,
+    page: int = Query(default=1),
+    size: int = Query(default=10),
     workspace_usecase: WorkspaceUseCase = Depends(
         Provide[WorkspaceContainer.workspace_service]
     ),
@@ -161,8 +161,8 @@ async def get_project_participant_list(
     workspace_id: int,
     project_id: int,
     project_type: ProjectTypeEnum,
-    page: int,
-    size: int,
+    page: int = Query(default=1),
+    size: int = Query(default=10),
     workspace_usecase: WorkspaceUseCase = Depends(
         Provide[WorkspaceContainer.workspace_service]
     ),

@@ -2,9 +2,8 @@ from typing import TYPE_CHECKING
 
 from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy import String
-from sqlalchemy.orm import Mapped, composite, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.user.domain.vo.location import Location
 from core.db import Base
 from core.db.mixins import TimestampMixin
 
@@ -20,7 +19,6 @@ class User(Base, TimestampMixin):
     email: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
     nickname: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
     is_admin: Mapped[bool] = mapped_column(default=False)
-    location: Mapped[Location] = composite(mapped_column("lat"), mapped_column("lng"))
 
     experiment_participant_time_slots: Mapped[
         "ExperimentParticipantTimeSlot"
@@ -29,15 +27,12 @@ class User(Base, TimestampMixin):
     )
 
     @classmethod
-    def create(
-        cls, *, email: str, password: str, nickname: str, location: Location
-    ) -> "User":
+    def create(cls, *, email: str, password: str, nickname: str) -> "User":
         return cls(
             email=email,
             password=password,
             nickname=nickname,
             is_admin=False,
-            location=location,
         )
 
 

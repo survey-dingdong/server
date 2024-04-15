@@ -10,7 +10,7 @@ class CreateProjectResponse(BaseModel):
     id: int = Field(..., description="ID")
 
 
-class ProjectResponse(BaseModel):
+class GetProjectListResponse(BaseModel):
     id: int = Field(..., description="ID")
     workspace_id: int = Field(..., description="Workspace ID")
     title: str = Field(..., description="Title")

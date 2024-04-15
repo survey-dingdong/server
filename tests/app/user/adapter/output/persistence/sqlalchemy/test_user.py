@@ -16,22 +16,18 @@ async def test_get_users(session: AsyncSession):
         email="a@b.c",
         nickname="hide",
         is_admin=True,
-        lat=37.123,
-        lng=127.123,
     )
     user_2 = make_user(
         password="password2",
         email="b@b.c",
         nickname="test",
         is_admin=False,
-        lat=37.123,
-        lng=127.123,
     )
     session.add_all([user_1, user_2])
     await session.commit()
 
     # When
-    sut = await user_repo.get_users(limit=15, prev=12)
+    sut = await user_repo.get_users(page=1, size=12)
 
     # Then
     assert len(sut) == 2
@@ -40,16 +36,12 @@ async def test_get_users(session: AsyncSession):
     assert saved_user_1.email == user_1.email
     assert saved_user_1.nickname == user_1.nickname
     assert saved_user_1.is_admin == user_1.is_admin
-    assert saved_user_1.location.lat == user_1.location.lat
-    assert saved_user_1.location.lng == user_1.location.lng
 
     saved_user_2 = sut[1]
     assert saved_user_2.password == user_2.password
     assert saved_user_2.email == user_2.email
     assert saved_user_2.nickname == user_2.nickname
     assert saved_user_2.is_admin == user_2.is_admin
-    assert saved_user_2.location.lat == user_2.location.lat
-    assert saved_user_2.location.lng == user_2.location.lng
 
 
 @pytest.mark.asyncio
@@ -62,8 +54,6 @@ async def test_get_user_by_email_or_nickname(session: AsyncSession):
         email=email,
         nickname=nickname,
         is_admin=False,
-        lat=37.123,
-        lng=127.123,
     )
     session.add(user)
     await session.commit()
@@ -91,7 +81,7 @@ async def test_get_user_by_id(session: AsyncSession):
 
 
 @pytest.mark.asyncio
-async def test_get_user_by_email_and_password(session: AsyncSession):
+async def test_get_user_by_email(session: AsyncSession):
     # Given
     email = "b@c.d"
     password = "hide"
@@ -100,14 +90,12 @@ async def test_get_user_by_email_and_password(session: AsyncSession):
         email=email,
         nickname="hide",
         is_admin=False,
-        lat=37.123,
-        lng=127.123,
     )
     session.add(user)
     await session.commit()
 
     # When
-    sut = await user_repo.get_user_by_email_and_password(email=email, password=password)
+    sut = await user_repo.get_user_by_email(email=email)
 
     # Then
     assert isinstance(sut, User)
@@ -126,8 +114,6 @@ async def test_save(session: AsyncSession):
         email=email,
         nickname="hide",
         is_admin=False,
-        lat=37.123,
-        lng=127.123,
     )
 
     # When, Then

@@ -8,26 +8,21 @@ from app.user.application.exception import (
 from app.user.domain.command import CreateUserCommand
 from app.user.domain.entity.user import User, UserRead
 from app.user.domain.usecase.user import UserUseCase
-from app.user.domain.vo.location import Location
 from core.db import Transactional
+from core.helpers.auth import generate_hashed_password, validate_hashed_password
 from core.helpers.token import TokenHelper
 
 
 class UserService(UserUseCase):
-    def __init__(self, *, repository: UserRepositoryAdapter):
+    def __init__(self, repository: UserRepositoryAdapter):
         self.repository = repository
 
-    async def get_user_list(
-        self,
-        *,
-        limit: int = 12,
-        prev: int | None = None,
-    ) -> list[UserRead]:
-        return await self.repository.get_users(limit=limit, prev=prev)
+    async def get_user_list(self, page: int, size: int) -> list[UserRead]:
+        return await self.repository.get_users(page=page, size=size)
 
     @Transactional()
-    async def create_user(self, *, command: CreateUserCommand) -> None:
-        if command.password1 != command.password2:
+    async def create_user(self, command: CreateUserCommand) -> None:
+        if command.password1.get_secret_value() != command.password2.get_secret_value():
             raise PasswordDoesNotMatchException
 
         is_exist = await self.repository.get_user_by_email_or_nickname(
@@ -39,13 +34,14 @@ class UserService(UserUseCase):
 
         user = User.create(
             email=command.email,
-            password=command.password1,
+            password=generate_hashed_password(
+                password=command.password1.get_secret_value()
+            ),
             nickname=command.nickname,
-            location=Location(lat=command.lat, lng=command.lng),
         )
         await self.repository.save(user=user)
 
-    async def is_admin(self, *, user_id: int) -> bool:
+    async def is_admin(self, user_id: int) -> bool:
         user = await self.repository.get_user_by_id(user_id=user_id)
         if not user:
             return False
@@ -55,13 +51,15 @@ class UserService(UserUseCase):
 
         return True
 
-    async def login(self, *, email: str, password: str) -> LoginResponseDTO:
-        user = await self.repository.get_user_by_email_and_password(
-            email=email,
-            password=password,
-        )
+    async def login(self, email: str, password: str) -> LoginResponseDTO:
+        user = await self.repository.get_user_by_email(email=email)
         if not user:
             raise UserNotFoundException
+
+        if not validate_hashed_password(
+            password=password, hashed_password=user.password
+        ):
+            raise PasswordDoesNotMatchException
 
         response = LoginResponseDTO(
             token=TokenHelper.encode(payload={"user_id": user.id}),

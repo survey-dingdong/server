@@ -7,7 +7,10 @@ from app.project.adapter.output.persistence.repository_adapter import (
     ProjectRepositoryAdapter,
 )
 from app.project.application.dto import PatchProjectRequestDTO
-from app.project.application.exception import ProjectNotFoundException
+from app.project.application.exception import (
+    ProjectAccessDeniedException,
+    ProjectNotFoundException,
+)
 from app.project.application.service.project import ProjectService
 from app.project.domain.command import CreateProjectCommand
 from app.project.domain.entity.experiment import ExperimentParticipantTimeSlotRead
@@ -56,6 +59,39 @@ async def test_get_project_list():
     assert result.id == project.id
     assert result.workspace_id == project.workspace_id
     assert result.title == project.title
+
+
+@pytest.mark.asyncio
+async def test_get_project_not_exist():
+    # Given
+    repository_mock.get_project_by_id.return_value = None
+    project_service.repository = repository_mock
+
+    # When
+    # When, Then
+    with pytest.raises(ProjectNotFoundException):
+        await project_service.get_project(
+            workspace_id=1,
+            project_id=2,
+            project_type=ProjectTypeEnum.EXPERIMENT,
+        )
+
+
+@pytest.mark.asyncio
+async def test_get_project_access_denied():
+    # Given
+    project = make_experiment_project(id=1)
+    repository_mock.get_project_by_id.return_value = project
+    project_service.repository = repository_mock
+
+    # When
+    # When, Then
+    with pytest.raises(ProjectAccessDeniedException):
+        await project_service.get_project(
+            workspace_id=2,
+            project_id=2,
+            project_type=ProjectTypeEnum.EXPERIMENT,
+        )
 
 
 @pytest.mark.asyncio
@@ -109,6 +145,25 @@ async def test_update_project_not_exist():
 
 
 @pytest.mark.asyncio
+async def test_update_project_access_denied():
+    # Given
+    project = make_experiment_project(id=1)
+    repository_mock.get_project_by_id.return_value = project
+    project_service.repository = repository_mock
+
+    project_dto = PatchProjectRequestDTO(title="Chnage title")
+
+    # When, Then
+    with pytest.raises(ProjectAccessDeniedException):
+        await project_service.update_project(
+            workspace_id=2,
+            project_id=2,
+            project_type=ProjectTypeEnum.EXPERIMENT,
+            project_dto=project_dto,
+        )
+
+
+@pytest.mark.asyncio
 async def test_updated_project():
     # Given
     project = make_experiment_project(id=1)
@@ -138,6 +193,22 @@ async def test_delete_project_not_exist():
     with pytest.raises(ProjectNotFoundException):
         await project_service.delete_project(
             workspace_id=1,
+            project_id=2,
+            project_type=ProjectTypeEnum.EXPERIMENT,
+        )
+
+
+@pytest.mark.asyncio
+async def test_delete_project_access_denied():
+    # Given
+    project = make_experiment_project(id=1)
+    repository_mock.get_project_by_id.return_value = project
+    project_service.repository = repository_mock
+
+    # When, Then
+    with pytest.raises(ProjectAccessDeniedException):
+        await project_service.delete_project(
+            workspace_id=2,
             project_id=2,
             project_type=ProjectTypeEnum.EXPERIMENT,
         )

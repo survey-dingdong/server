@@ -1,5 +1,5 @@
 from dependency_injector.wiring import Provide, inject
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, Query, Request
 
 from app.workspace.adapter.input.api.v1.request import (
     CreateWorkspaceRequest,
@@ -7,8 +7,8 @@ from app.workspace.adapter.input.api.v1.request import (
 )
 from app.workspace.adapter.input.api.v1.response import (
     CreateWorkspaceResponse,
+    GetWorkspaceListResponse,
     UpdateWorkspaceRepsonse,
-    WorkspaceResponse,
 )
 from app.workspace.container import WorkspaceContainer
 from app.workspace.domain.command import CreateWorkspaceCommand
@@ -20,14 +20,14 @@ workspace_router = APIRouter()
 
 @workspace_router.get(
     "",
-    response_model=list[WorkspaceResponse],
+    response_model=list[GetWorkspaceListResponse],
     dependencies=[Depends(PermissionDependency([IsAuthenticated]))],
 )
 @inject
 async def get_workspace_list(
     auth_info: Request,
-    page: int,
-    size: int,
+    page: int = Query(default=1),
+    size: int = Query(default=10),
     usecase: WorkspaceUseCase = Depends(Provide[WorkspaceContainer.workspace_service]),
 ):
     return await usecase.get_workspace_list(
