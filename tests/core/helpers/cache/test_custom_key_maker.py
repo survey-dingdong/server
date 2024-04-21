@@ -12,10 +12,10 @@ async def test_make_no_args():
         pass
 
     # When
-    sut = await key_maker.make(function=test, prefix="hide")
+    sut = await key_maker.make(function=test, prefix="survey-dingdong")
 
     # Then
-    assert sut == "hide::tests.core.helpers.cache.test_custom_key_maker.test"
+    assert sut == "survey-dingdong::tests.core.helpers.cache.test_custom_key_maker.test"
 
 
 @pytest.mark.asyncio
@@ -25,7 +25,9 @@ async def test_make_with_args():
         pass
 
     # When
-    sut = await key_maker.make(function=test, prefix="hide")
+    sut = await key_maker.make(function=test, prefix="survey-dingdong")
 
     # Then
-    assert sut == "hide::tests.core.helpers.cache.test_custom_key_maker.test.a"
+    assert (
+        sut == "survey-dingdong::tests.core.helpers.cache.test_custom_key_maker.test.a"
+    )

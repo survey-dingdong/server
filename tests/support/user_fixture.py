@@ -5,7 +5,7 @@ def make_user(
     id: int | None = None,
     password: str = "password",
     email: str = "h@id.e",
-    nickname: str = "hide",
+    nickname: str = "survey-dingdong",
     is_admin: bool = False,
 ):
     return User(

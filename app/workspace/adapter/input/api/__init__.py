@@ -5,8 +5,6 @@ from app.workspace.adapter.input.api.v1.workspace import (
 )
 
 router = APIRouter()
-router.include_router(
-    workspace_v1_router, prefix="/api/v1/workspaces", tags=["Workspace"]
-)
+router.include_router(workspace_v1_router, prefix="/workspaces", tags=["Workspace"])
 
 __all__ = ["router"]

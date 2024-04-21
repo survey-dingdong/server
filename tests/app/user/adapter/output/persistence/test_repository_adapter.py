@@ -20,7 +20,7 @@ async def test_get_users(session: AsyncSession):
         id=1,
         password="password",
         email="a@b.c",
-        nickname="hide",
+        nickname="survey-dingdong",
         is_admin=True,
     )
     user_repo_mock.get_users.return_value = [user]
@@ -45,7 +45,7 @@ async def test_get_user_by_email_or_nickname(session: AsyncSession):
     user = make_user(
         password="password",
         email="a@b.c",
-        nickname="hide",
+        nickname="survey-dingdong",
         is_admin=True,
     )
     user_repo_mock.get_user_by_email_or_nickname.return_value = user
@@ -76,7 +76,7 @@ async def test_get_user_by_id(session: AsyncSession):
     user = make_user(
         password="password",
         email="a@b.c",
-        nickname="hide",
+        nickname="survey-dingdong",
         is_admin=True,
     )
     user_repo_mock.get_user_by_id.return_value = user
@@ -103,7 +103,7 @@ async def test_get_user_by_email(session: AsyncSession):
     user = make_user(
         password="password",
         email="a@b.c",
-        nickname="hide",
+        nickname="survey-dingdong",
         is_admin=True,
     )
     user_repo_mock.get_user_by_email.return_value = user
@@ -130,7 +130,7 @@ async def test_save(session: AsyncSession):
     user = make_user(
         password="password",
         email="a@b.c",
-        nickname="hide",
+        nickname="survey-dingdong",
         is_admin=True,
     )
     user_repo_mock.save.return_value = None

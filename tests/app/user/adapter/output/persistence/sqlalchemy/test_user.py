@@ -14,7 +14,7 @@ async def test_get_users(session: AsyncSession):
     user_1 = make_user(
         password="password",
         email="a@b.c",
-        nickname="hide",
+        nickname="survey-dingdong",
         is_admin=True,
     )
     user_2 = make_user(
@@ -48,7 +48,7 @@ async def test_get_users(session: AsyncSession):
 async def test_get_user_by_email_or_nickname(session: AsyncSession):
     # Given
     email = "a@b.c"
-    nickname = "hide"
+    nickname = "survey-dingdong"
     user = make_user(
         password="password2",
         email=email,
@@ -84,11 +84,11 @@ async def test_get_user_by_id(session: AsyncSession):
 async def test_get_user_by_email(session: AsyncSession):
     # Given
     email = "b@c.d"
-    password = "hide"
+    password = "survey-dingdong"
     user = make_user(
         password=password,
         email=email,
-        nickname="hide",
+        nickname="survey-dingdong",
         is_admin=False,
     )
     session.add(user)
@@ -108,11 +108,11 @@ async def test_get_user_by_email(session: AsyncSession):
 async def test_save(session: AsyncSession):
     # Given
     email = "b@c.d"
-    password = "hide"
+    password = "survey-dingdong"
     user = make_user(
         password=password,
         email=email,
-        nickname="hide",
+        nickname="survey-dingdong",
         is_admin=False,
     )
 

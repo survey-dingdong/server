@@ -23,7 +23,7 @@ async def test_get_users(session: AsyncSession):
     user = make_user(
         password="password",
         email="a@b.c",
-        nickname="hide",
+        nickname="survey-dingdong",
         is_admin=True,
     )
     session.add(user)
@@ -31,12 +31,12 @@ async def test_get_users(session: AsyncSession):
 
     # When
     async with AsyncClient(app=app, base_url="http://test") as client:
-        response = await client.get("/api/v1/user", headers=HEADERS)
+        response = await client.get("/users", headers=HEADERS)
 
     # Then
     sut = response.json()
     assert len(sut) == 1
-    assert sut[0] == {"id": 1, "email": "a@b.c", "nickname": "hide"}
+    assert sut[0] == {"id": 1, "email": "a@b.c", "nickname": "survey-dingdong"}
 
 
 @pytest.mark.asyncio
@@ -46,13 +46,13 @@ async def test_create_user_password_does_not_match(session: AsyncSession):
         "email": "h@id.e",
         "password1": "a",
         "password2": "b",
-        "nickname": "hide",
+        "nickname": "survey-dingdong",
     }
     exc = PasswordDoesNotMatchException
 
     # When
     async with AsyncClient(app=app, base_url="http://test") as client:
-        response = await client.post("/api/v1/user", headers=HEADERS, json=body)
+        response = await client.post("/users", headers=HEADERS, json=body)
 
     # Then
     assert response.json() == {
@@ -67,7 +67,7 @@ async def test_create_user_duplicated_user(session: AsyncSession):
     user = make_user(
         password="password",
         email="a@b.c",
-        nickname="hide",
+        nickname="survey-dingdong",
         is_admin=True,
     )
     session.add(user)
@@ -77,13 +77,13 @@ async def test_create_user_duplicated_user(session: AsyncSession):
         "email": "a@b.c",
         "password1": "a",
         "password2": "a",
-        "nickname": "hide",
+        "nickname": "survey-dingdong",
     }
     exc = DuplicateEmailOrNicknameException
 
     # When
     async with AsyncClient(app=app, base_url="http://test") as client:
-        response = await client.post("/api/v1/user", headers=HEADERS, json=body)
+        response = await client.post("/users", headers=HEADERS, json=body)
 
     # Then
     assert response.json() == {
@@ -96,7 +96,7 @@ async def test_create_user_duplicated_user(session: AsyncSession):
 async def test_create_user(session: AsyncSession):
     # Given
     email = "h@id.e"
-    nickname = "hide"
+    nickname = "survey-dingdong"
     body = {
         "email": email,
         "password1": "a",
@@ -106,7 +106,7 @@ async def test_create_user(session: AsyncSession):
 
     # When
     async with AsyncClient(app=app, base_url="http://test") as client:
-        response = await client.post("/api/v1/user", headers=HEADERS, json=body)
+        response = await client.post("/users", headers=HEADERS, json=body)
 
     # Then
     assert response.json() == {"email": email, "nickname": nickname}
@@ -128,7 +128,7 @@ async def test_login_user_not_found(session: AsyncSession):
 
     # When
     async with AsyncClient(app=app, base_url="http://test") as client:
-        response = await client.post("/api/v1/user/login", headers=HEADERS, json=body)
+        response = await client.post("/users/login", headers=HEADERS, json=body)
 
     # Then
     assert response.json() == {
@@ -145,7 +145,7 @@ async def test_login(session: AsyncSession):
     user = make_user(
         password=generate_hashed_password(password=password),
         email=email,
-        nickname="hide",
+        nickname="survey-dingdong",
         is_admin=True,
     )
     session.add(user)
@@ -155,7 +155,7 @@ async def test_login(session: AsyncSession):
 
     # When
     async with AsyncClient(app=app, base_url="http://test") as client:
-        response = await client.post("/api/v1/user/login", headers=HEADERS, json=body)
+        response = await client.post("/users/login", headers=HEADERS, json=body)
 
     # Then
     sut = response.json()

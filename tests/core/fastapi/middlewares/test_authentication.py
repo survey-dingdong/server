@@ -47,7 +47,7 @@ async def test_auth_backend_invalid_header(jwt_mock):
 async def test_auth_backend_not_startswith_bearer(jwt_mock):
     # Given
     conn_mock = Mock(spec=HTTPConnection)
-    conn_mock.headers = {"Authorization": "hide 1234"}
+    conn_mock.headers = {"Authorization": "survey-dingdong 1234"}
     jwt_mock.decode.return_value = {"user_id": 1}
 
     # When

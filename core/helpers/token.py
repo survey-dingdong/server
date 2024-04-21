@@ -23,6 +23,7 @@ class TokenHelper:
     def encode(payload: dict, expire_period: int = 3600) -> str:
         token = jwt.encode(
             payload={
+                "iss": "survey-dingdong",
                 **payload,
                 "exp": datetime.now() + timedelta(seconds=expire_period),
             },
@@ -51,7 +52,9 @@ class TokenHelper:
                 token,
                 config.JWT_SECRET_KEY,
                 config.JWT_ALGORITHM,
-                options={"verify_exp": False},
+                options={
+                    "verify_exp": False,
+                },
             )
         except jwt.exceptions.DecodeError:
             raise DecodeTokenException

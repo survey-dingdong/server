@@ -1,6 +1,8 @@
 import binascii
 import hashlib
 import os
+import secrets
+import string
 
 _PBKDF2_HASH_NAME = "SHA256"
 _PBKDF2_ITERATIONS = 100_000
@@ -32,3 +34,10 @@ def validate_hashed_password(password: str, hashed_password: str) -> bool:
     )
 
     return pw_challenge == binascii.unhexlify(pw_hash_hex)
+
+
+def make_random_string(
+    length: int,
+    letters: str = string.ascii_letters + string.digits,
+) -> str:
+    return "".join((secrets.choice(letters) for _ in range(length)))

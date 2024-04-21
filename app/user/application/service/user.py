@@ -8,9 +8,17 @@ from app.user.application.exception import (
 from app.user.domain.command import CreateUserCommand
 from app.user.domain.entity.user import User, UserRead
 from app.user.domain.usecase.user import UserUseCase
+from core.config import config
 from core.db import Transactional
-from core.helpers.auth import generate_hashed_password, validate_hashed_password
+from core.helpers.auth import (
+    generate_hashed_password,
+    make_random_string,
+    validate_hashed_password,
+)
+from core.helpers.cache import RedisBackend
 from core.helpers.token import TokenHelper
+
+redis_backend = RedisBackend()
 
 
 class UserService(UserUseCase):
@@ -61,8 +69,18 @@ class UserService(UserUseCase):
         ):
             raise PasswordDoesNotMatchException
 
+        refresh_token_sub_value = make_random_string(16)
+        await redis_backend.delete(key=f"{config.REDIS_KEY_PREFIX}::{user.id}")
         response = LoginResponseDTO(
             token=TokenHelper.encode(payload={"user_id": user.id}),
-            refresh_token=TokenHelper.encode(payload={"sub": "refresh"}),
+            refresh_token=TokenHelper.encode(
+                payload={"sub": refresh_token_sub_value},
+                expire_period=config.REFRESH_TOKEN_TTL,
+            ),
+        )
+        await redis_backend.set(
+            response=refresh_token_sub_value,
+            key=f"{config.REDIS_KEY_PREFIX}::{user.id}",
+            ttl=config.REFRESH_TOKEN_TTL,
         )
         return response
