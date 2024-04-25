@@ -28,6 +28,13 @@ class UserService(UserUseCase):
     async def get_user_list(self, page: int, size: int) -> list[UserRead]:
         return await self.repository.get_users(page=page, size=size)
 
+    async def get_user_by_id(self, user_id: int) -> User:
+        user = await self.repository.get_user_by_id(user_id=user_id)
+        if user is None:
+            raise UserNotFoundException
+
+        return user
+
     @Transactional()
     async def create_user(self, command: CreateUserCommand) -> None:
         if command.password1.get_secret_value() != command.password2.get_secret_value():
@@ -51,7 +58,8 @@ class UserService(UserUseCase):
 
     async def is_admin(self, user_id: int) -> bool:
         user = await self.repository.get_user_by_id(user_id=user_id)
-        if not user:
+        print(user, user_id)
+        if user is None:
             return False
 
         if user.is_admin is False:
@@ -61,7 +69,7 @@ class UserService(UserUseCase):
 
     async def login(self, email: str, password: str) -> LoginResponseDTO:
         user = await self.repository.get_user_by_email(email=email)
-        if not user:
+        if user is None:
             raise UserNotFoundException
 
         if not validate_hashed_password(

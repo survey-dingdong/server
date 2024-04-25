@@ -5,9 +5,7 @@ from app.workspace.domain.entity.workspace import Workspace
 
 class WorkspaceRepo(ABC):
     @abstractmethod
-    async def get_workspaces(
-        self, user_id: int, page: int, size: int
-    ) -> list[Workspace]:
+    async def get_workspaces(self, user_id: int) -> list[Workspace]:
         """Get workspace list"""
 
     @abstractmethod
@@ -15,7 +13,7 @@ class WorkspaceRepo(ABC):
         """Get workspace by id"""
 
     @abstractmethod
-    async def reorder_workspace(self, order: int) -> None:
+    async def reorder_workspace(self, user_id: int, order_no: int) -> None:
         """Reorder workspace"""
 
     @abstractmethod

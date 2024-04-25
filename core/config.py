@@ -23,7 +23,11 @@ class Config(BaseSettings):
 
 
 class TestConfig(Config):
-    DB_URL: str = "mysql+aiomysql://admin:devpassword@127.0.0.1:3306/survey_dingdong"
+    DB_URL: (
+        str
+    ) = "mysql+aiomysql://admin:devpassword@127.0.0.1:3306/survey_dingdong_test"
+
+    model_config = SettingsConfigDict(env_file=".env.test", env_prefix="app_")
 
 
 class LocalConfig(Config):

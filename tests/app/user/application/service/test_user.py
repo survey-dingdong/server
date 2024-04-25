@@ -27,7 +27,7 @@ async def test_get_user_list():
     # Given
     page = 1
     size = 10
-    user = UserRead(id=1, email="h@id.e", nickname="survey-dingdong")
+    user = UserRead(id=1, email="survey@ding.dong", nickname="survey-dingdong")
     repository_mock.get_users.return_value = [user]
     user_service.repository = repository_mock
 
@@ -44,10 +44,36 @@ async def test_get_user_list():
 
 
 @pytest.mark.asyncio
+async def test_get_user_me_not_exist():
+    # Given
+    repository_mock.get_user_by_id.return_value = None
+    user_service.repository = repository_mock
+
+    # When, Then
+    with pytest.raises(UserNotFoundException):
+        await user_service.get_user_by_id(user_id=1)
+
+
+@pytest.mark.asyncio
+async def test_get_user_me():
+    # Given
+    user = UserRead(id=1, email="survey@ding.dong", nickname="survey-dingdong")
+    repository_mock.get_user_by_id.return_value = user
+    user_service.repository = repository_mock
+
+    # When
+    sut = await user_service.get_user_by_id(user_id=user.id)
+
+    # Then
+    assert sut.email == user.email
+    assert sut.nickname == user.nickname
+
+
+@pytest.mark.asyncio
 async def test_create_user_password_does_not_match():
     # Given
     command = CreateUserCommand(
-        email="h@id.e",
+        email="survey@ding.dong",
         password1="a",
         password2="b",
         nickname="survey-dingdong",
@@ -62,14 +88,14 @@ async def test_create_user_password_does_not_match():
 async def test_create_user_duplicated():
     # Given
     command = CreateUserCommand(
-        email="h@id.e",
+        email="survey@ding.dong",
         password1="a",
         password2="a",
         nickname="survey-dingdong",
     )
     user = make_user(
         password="password",
-        email="h@id.e",
+        email="survey@ding.dong",
         nickname="survey-dingdong",
         is_admin=False,
     )
@@ -85,7 +111,7 @@ async def test_create_user_duplicated():
 async def test_create_user():
     # Given
     command = CreateUserCommand(
-        email="h@id.e",
+        email="survey@ding.dong",
         password1="a",
         password2="a",
         nickname="survey-dingdong",
@@ -118,7 +144,7 @@ async def test_is_admin_user_is_not_admin():
     # Given
     user = make_user(
         password="password",
-        email="h@id.e",
+        email="survey@ding.dong",
         nickname="survey-dingdong",
         is_admin=False,
     )
@@ -137,7 +163,7 @@ async def test_is_admin():
     # Given
     user = make_user(
         password="password",
-        email="h@id.e",
+        email="survey@ding.dong",
         nickname="survey-dingdong",
         is_admin=True,
     )
@@ -168,7 +194,7 @@ async def test_login():
     user = make_user(
         id=1,
         password=generate_hashed_password(password="password"),
-        email="h@id.e",
+        email="survey@ding.dong",
         nickname="survey-dingdong",
         is_admin=False,
     )

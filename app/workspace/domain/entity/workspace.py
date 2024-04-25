@@ -22,7 +22,7 @@ class Workspace(Base, TimestampMixin):
         index=True,
     )
     title: Mapped[str] = mapped_column(String(20), nullable=False)
-    order: Mapped[int] = mapped_column(Integer, autoincrement=True)
+    order_no: Mapped[int] = mapped_column(Integer, nullable=False)
     is_deleted: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
 
     experiment_projects: Mapped[list["ExperimentProject"]] = relationship(
@@ -33,14 +33,14 @@ class Workspace(Base, TimestampMixin):
     )
 
     @classmethod
-    def create(cls, user_id: int, title: str) -> "Workspace":
-        return cls(user_id=user_id, title=title)
+    def create(cls, user_id: int, title: str, order_no: int) -> "Workspace":
+        return cls(user_id=user_id, title=title, order_no=order_no)
 
     def change_title(self, title: str) -> None:
         self.title = title
 
-    def change_order(self, order: int) -> None:
-        self.order = order
+    def change_order(self, order_no: int) -> None:
+        self.order_no = order_no
 
 
 class WorkspaceRead(BaseModel):
@@ -48,4 +48,4 @@ class WorkspaceRead(BaseModel):
 
     id: int = Field(..., description="ID")
     title: str = Field(..., description="Title")
-    order: int = Field(..., description="Order")
+    order_no: int = Field(..., description="Order")

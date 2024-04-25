@@ -7,4 +7,4 @@ class CreateWorkspaceRequest(BaseModel):
 
 class UpdateWorkspaceRequest(BaseModel):
     title: str | None = Field(None, description="Title")
-    new_order: int | None = Field(None, description="New order no")
+    order_no: int | None = Field(None, description="New order no")

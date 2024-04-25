@@ -1,14 +1,12 @@
 from app.workspace.adapter.output.persistence.repository_adapter import (
     WorkspaceRepositoryAdapter,
 )
-from app.workspace.application.dto import (
-    CreateWorkspaceResponseDTO,
-    GetWorkspaceRepsonseDTO,
-)
+from app.workspace.application.dto import CreateWorkspaceResponseDTO
 from app.workspace.application.exception import (
     TooManyWorkspacesException,
     WorkspaceAccessDeniedException,
     WorkspaceNotFoundeException,
+    WrongOrderNoWorkspacesException,
 )
 from app.workspace.domain.command import CreateWorkspaceCommand
 from app.workspace.domain.entity.workspace import Workspace, WorkspaceRead
@@ -30,12 +28,13 @@ class WorkspaceService(WorkspaceUseCase):
 
         return workspace
 
-    async def get_workspace_list(
-        self, user_id: int, page: int, size: int
-    ) -> list[WorkspaceRead]:
-        return await self.repository.get_workspaces(
-            user_id=user_id, page=page, size=size
-        )
+    async def get_workspace_list(self, user_id: int) -> list[WorkspaceRead]:
+        workspaces = await self.repository.get_workspaces(user_id=user_id)
+
+        for idx, workspace in enumerate(workspaces):
+            workspace.order_no = idx + 1
+
+        return [WorkspaceRead.model_validate(workspace) for workspace in workspaces]
 
     @Transactional()
     async def create_workspace(
@@ -48,6 +47,7 @@ class WorkspaceService(WorkspaceUseCase):
         workspace = Workspace.create(
             user_id=command.user_id,
             title=command.title,
+            order_no=workspace_count + 1,
         )
         workspace = await self.repository.save(
             workspace=workspace,
@@ -58,8 +58,12 @@ class WorkspaceService(WorkspaceUseCase):
 
     @Transactional()
     async def update_workspace(
-        self, user_id: int, workspace_id: int, title: str | None, new_order: int | None
-    ) -> GetWorkspaceRepsonseDTO:
+        self,
+        user_id: int,
+        workspace_id: int,
+        title: str | None,
+        order_no: int | None,
+    ) -> None:
         workspace = await self.repository.get_workspace_by_id(workspace_id=workspace_id)
         if workspace is None:
             raise WorkspaceNotFoundeException
@@ -67,16 +71,24 @@ class WorkspaceService(WorkspaceUseCase):
         if workspace.user_id != user_id:
             raise WorkspaceAccessDeniedException
 
-        if title:
+        if title is not None:
             workspace.change_title(title=title)
 
-        if new_order:
-            workspace.change_order(order=new_order)
-            await self.repository.reorder_workspace(order=new_order)
+        if order_no is not None:
+            total_workspace_count = await self.repository.count(user_id=user_id)
+            if order_no < 1 or order_no > total_workspace_count:
+                raise WrongOrderNoWorkspacesException
 
-        return GetWorkspaceRepsonseDTO(
-            id=workspace.id, title=workspace.title, order=workspace.order
-        )
+            workspaces = await self.repository.get_workspaces(user_id=user_id)
+            new_order_no = workspaces[order_no - 1].order_no
+
+            if workspace.order_no < new_order_no:
+                new_order_no += 1
+
+            await self.repository.reorder_workspace(
+                user_id=user_id, order_no=new_order_no
+            )
+            workspace.change_order(order_no=new_order_no)
 
     @Transactional()
     async def delete_workspace(self, user_id: int, workspace_id: int) -> None:

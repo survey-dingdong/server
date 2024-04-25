@@ -5,6 +5,6 @@ from app.auth.application.service.jwt import JwtService
 
 
 class Container(DeclarativeContainer):
-    wiring_config = WiringConfiguration(packages=["app"])
+    wiring_config = WiringConfiguration(packages=["app.auth.adapter.input.api.v1.auth"])
 
     jwt_service = Factory(JwtService)

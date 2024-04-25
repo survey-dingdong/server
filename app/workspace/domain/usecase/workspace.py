@@ -14,9 +14,7 @@ class WorkspaceUseCase(ABC):
         """Check workspace owner"""
 
     @abstractmethod
-    async def get_workspace_list(
-        self, user_id: int, page: int, size: int
-    ) -> list[Workspace]:
+    async def get_workspace_list(self, user_id: int) -> list[Workspace]:
         """Get workspace list"""
 
     @abstractmethod
@@ -27,7 +25,11 @@ class WorkspaceUseCase(ABC):
 
     @abstractmethod
     async def update_workspace(
-        self, user_id: int, workspace_id: int, title: str | None, new_order: int | None
+        self,
+        user_id: int,
+        workspace_id: int,
+        title: str | None,
+        order_no: int | None,
     ) -> GetWorkspaceRepsonseDTO:
         """Update workspace"""
 

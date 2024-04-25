@@ -11,6 +11,10 @@ class UserUseCase(ABC):
         """Get user list"""
 
     @abstractmethod
+    async def get_user_by_id(self, user_id: int) -> User:
+        """Get user list"""
+
+    @abstractmethod
     async def create_user(self, command: CreateUserCommand) -> None:
         """Create User"""
 

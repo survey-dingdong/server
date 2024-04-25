@@ -22,12 +22,12 @@ workspace_service = WorkspaceService(repository=repository_mock)
 @pytest.mark.asyncio
 async def test_get_workspace_list():
     # Given
-    workspace = WorkspaceRead(id=1, title="workspace", order=1)
+    workspace = WorkspaceRead(id=1, title="workspace", order_no=1)
     repository_mock.get_workspaces.return_value = [workspace]
     workspace_service.repository = repository_mock
 
     # When
-    sut = await workspace_service.get_workspace_list(user_id=1, page=1, size=12)
+    sut = await workspace_service.get_workspace_list(user_id=1)
 
     # Then
     assert len(sut) == 1
@@ -73,7 +73,7 @@ async def test_update_workspace_not_exist():
     # When, Then
     with pytest.raises(WorkspaceNotFoundeException):
         await workspace_service.update_workspace(
-            user_id=1, workspace_id=2, title="title", new_order=1
+            user_id=1, workspace_id=2, title="title", order_no=1
         )
 
 
@@ -87,7 +87,7 @@ async def test_update_workspace_access_denied():
     # When, Then
     with pytest.raises(WorkspaceAccessDeniedException):
         await workspace_service.update_workspace(
-            user_id=2, workspace_id=1, title="title", new_order=None
+            user_id=2, workspace_id=1, title="title", order_no=None
         )
 
 
@@ -103,34 +103,35 @@ async def test_update_workspace_title():
         user_id=1,
         workspace_id=workspace.id,
         title=workspace.title,
-        new_order=workspace.order,
+        order_no=None,
     )
 
     # Then
-    assert sut.id == 1
-    assert sut.title == "workspace2"
-    assert sut.order == 1
+    assert sut is None
 
 
 @pytest.mark.asyncio
 async def test_update_workspace_order():
     # Given
-    workspace = make_workspace(id=1, order=2)
-    repository_mock.get_workspace_by_id.return_value = workspace
+    workspace1 = make_workspace(id=1, order_no=1)
+    workspace2 = make_workspace(id=2, order_no=2)
+    repository_mock.get_workspace_by_id.return_value = workspace2
     workspace_service.repository = repository_mock
+
+    repository_mock.count.return_value = 2
+
+    repository_mock.get_workspaces.return_value = [workspace1, workspace2]
 
     # When
     sut = await workspace_service.update_workspace(
         user_id=1,
-        workspace_id=workspace.id,
-        title=workspace.title,
-        new_order=workspace.order,
+        workspace_id=workspace2.id,
+        title=workspace2.title,
+        order_no=workspace1.order_no,
     )
 
     # Then
-    assert sut.id == 1
-    assert sut.title == "workspace"
-    assert sut.order == 2
+    assert sut is None
 
 
 @pytest.mark.asyncio

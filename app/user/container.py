@@ -7,7 +7,7 @@ from app.user.application.service.user import UserService
 
 
 class UserContainer(DeclarativeContainer):
-    wiring_config = WiringConfiguration(packages=["app"])
+    wiring_config = WiringConfiguration(packages=[".adapter.input.api.v1.user"])
 
     user_sqlalchemy_repo = Singleton(UserSQLAlchemyRepo)
     user_repository_adapter = Factory(

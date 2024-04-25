@@ -9,8 +9,8 @@ from app.project.domain.vo.type import ProjectTypeEnum
 
 
 class ProjectRepositoryAdapter:
-    def __init__(self, project_repo: ProjectRepo) -> None:
-        self.project_repo = project_repo
+    def __init__(self, repository: ProjectRepo) -> None:
+        self.repository = repository
 
     async def get_projects(
         self,
@@ -19,7 +19,7 @@ class ProjectRepositoryAdapter:
         page: int,
         size: int,
     ) -> list[ProjectRead]:
-        projects: list[ExperimentProject] = await self.project_repo.get_projects(
+        projects: list[ExperimentProject] = await self.repository.get_projects(
             workspace_id=workspace_id,
             project_type=project_type,
             page=page,
@@ -32,7 +32,7 @@ class ProjectRepositoryAdapter:
         project_id: int,
         project_type: ProjectTypeEnum,
     ) -> ExperimentProject | None:
-        return await self.project_repo.get_project_by_id(
+        return await self.repository.get_project_by_id(
             project_id=project_id,
             project_type=project_type,
         )
@@ -46,7 +46,7 @@ class ProjectRepositoryAdapter:
     ) -> list[ExperimentParticipantTimeSlotRead]:
         project_participants: list[
             ExperimentParticipantTimeSlot
-        ] = await self.project_repo.get_project_participants(
+        ] = await self.repository.get_project_participants(
             project_id=project_id,
             project_type=project_type,
             page=page,
@@ -70,7 +70,7 @@ class ProjectRepositoryAdapter:
         participant_id: int,
         project_type: ProjectTypeEnum,
     ) -> ExperimentParticipantTimeSlot | None:
-        return await self.project_repo.get_project_participant_by_id(
+        return await self.repository.get_project_participant_by_id(
             project_id=project_id,
             participant_id=participant_id,
             project_type=project_type,
@@ -81,7 +81,7 @@ class ProjectRepositoryAdapter:
         project: ExperimentProject,
         auto_flush: bool,
     ) -> ExperimentProject:
-        return await self.project_repo.save(
+        return await self.repository.save(
             project=project,
             auto_flush=auto_flush,
         )

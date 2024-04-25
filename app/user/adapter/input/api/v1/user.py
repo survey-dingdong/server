@@ -1,5 +1,5 @@
 from dependency_injector.wiring import Provide, inject
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, Request
 
 from app.user.adapter.input.api.v1.request import CreateUserRequest, LoginRequest
 from app.user.adapter.input.api.v1.response import (
@@ -10,7 +10,7 @@ from app.user.adapter.input.api.v1.response import (
 from app.user.container import UserContainer
 from app.user.domain.command import CreateUserCommand
 from app.user.domain.usecase.user import UserUseCase
-from core.fastapi.dependencies import IsAdmin, PermissionDependency
+from core.fastapi.dependencies import IsAdmin, IsAuthenticated, PermissionDependency
 
 user_router = APIRouter()
 
@@ -27,6 +27,19 @@ async def get_user_list(
     usecase: UserUseCase = Depends(Provide[UserContainer.user_service]),
 ):
     return await usecase.get_user_list(page=page, size=size)
+
+
+@user_router.get(
+    "/me",
+    response_model=GetUserListResponse,
+    dependencies=[Depends(PermissionDependency([IsAuthenticated]))],
+)
+@inject
+async def get_user_me(
+    auth_info: Request,
+    usecase: UserUseCase = Depends(Provide[UserContainer.user_service]),
+):
+    return await usecase.get_user_by_id(user_id=auth_info.user.id)
 
 
 @user_router.post(

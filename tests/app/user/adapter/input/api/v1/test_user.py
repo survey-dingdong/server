@@ -43,7 +43,7 @@ async def test_get_users(session: AsyncSession):
 async def test_create_user_password_does_not_match(session: AsyncSession):
     # Given
     body = {
-        "email": "h@id.e",
+        "email": "survey@ding.dong",
         "password1": "a",
         "password2": "b",
         "nickname": "survey-dingdong",
@@ -95,7 +95,7 @@ async def test_create_user_duplicated_user(session: AsyncSession):
 @pytest.mark.asyncio
 async def test_create_user(session: AsyncSession):
     # Given
-    email = "h@id.e"
+    email = "survey@ding.dong"
     nickname = "survey-dingdong"
     body = {
         "email": email,
@@ -121,7 +121,7 @@ async def test_create_user(session: AsyncSession):
 @pytest.mark.asyncio
 async def test_login_user_not_found(session: AsyncSession):
     # Given
-    email = "h@id.e"
+    email = "survey@ding.dong"
     password = "password"
     body = {"email": email, "password": password}
     exc = UserNotFoundException
@@ -140,7 +140,7 @@ async def test_login_user_not_found(session: AsyncSession):
 @pytest.mark.asyncio
 async def test_login(session: AsyncSession):
     # Given
-    email = "h@id.e"
+    email = "survey@ding.dong"
     password = "password"
     user = make_user(
         password=generate_hashed_password(password=password),

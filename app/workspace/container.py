@@ -11,7 +11,12 @@ from app.workspace.application.service.workspace import WorkspaceService
 
 
 class WorkspaceContainer(DeclarativeContainer):
-    wiring_config = WiringConfiguration(modules=["app"])
+    wiring_config = WiringConfiguration(
+        modules=[
+            ".adapter.input.api.v1.workspace",
+            "app.project.adapter.input.api.v1.project",
+        ]
+    )
 
     workspace_sqlalchemy_repo = Singleton(WorkspaceSQLAlchemyRepo)
     workspace_repository_adapter = Factory(

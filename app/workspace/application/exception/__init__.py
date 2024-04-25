@@ -7,6 +7,12 @@ class TooManyWorkspacesException(CustomException):
     message = "too many workspaces"
 
 
+class WrongOrderNoWorkspacesException(CustomException):
+    code = 400
+    error_code = "WORKSPACE__WRONG_ORDER_NO"
+    message = "invalid scope of workspace order_no"
+
+
 class WorkspaceNotFoundeException(CustomException):
     code = 404
     error_code = "WORKSPACE__NOT_FOUND"

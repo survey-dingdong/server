@@ -11,7 +11,7 @@ from app.project.application.service.project import ProjectService
 
 
 class ProjectContainer(DeclarativeContainer):
-    wiring_config = WiringConfiguration(modules=["app"])
+    wiring_config = WiringConfiguration(modules=[".adapter.input.api.v1.project"])
 
     project_sqlalchemy_repo = Singleton(ProjectSQLAlchemyRepo)
     project_repository_adapter = Factory(

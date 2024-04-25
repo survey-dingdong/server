@@ -6,9 +6,7 @@ from core.db.session import session
 
 
 class WorkspaceSQLAlchemyRepo(WorkspaceRepo):
-    async def get_workspaces(
-        self, user_id: int, page: int, size: int
-    ) -> list[Workspace]:
+    async def get_workspaces(self, user_id: int) -> list[Workspace]:
         query = (
             select(Workspace)
             .where(
@@ -17,10 +15,9 @@ class WorkspaceSQLAlchemyRepo(WorkspaceRepo):
                     Workspace.is_deleted == False,  # noqa: E712
                 )
             )
-            .order_by(Workspace.order)
+            .order_by(Workspace.order_no)
         )
 
-        query = query.offset((page - 1) * size).limit(size)
         result = await session.execute(query)
         return result.scalars().all()
 
@@ -34,11 +31,16 @@ class WorkspaceSQLAlchemyRepo(WorkspaceRepo):
         result = await session.execute(query)
         return result.scalars().first()
 
-    async def reorder_workspace(self, order: int) -> None:
+    async def reorder_workspace(self, user_id: int, order_no: int) -> None:
         query = (
             update(Workspace)
-            .where(Workspace.order >= order)
-            .values(order=Workspace.order + 1)
+            .where(
+                and_(
+                    Workspace.user_id == user_id,
+                    Workspace.order_no >= order_no,
+                )
+            )
+            .values(order_no=Workspace.order_no + 1)
         )
         await session.execute(query)
 

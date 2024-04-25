@@ -1,5 +1,5 @@
 from dependency_injector.wiring import Provide, inject
-from fastapi import APIRouter, Depends, Query, Request
+from fastapi import APIRouter, Depends, Request
 
 from app.workspace.adapter.input.api.v1.request import (
     CreateWorkspaceRequest,
@@ -8,7 +8,6 @@ from app.workspace.adapter.input.api.v1.request import (
 from app.workspace.adapter.input.api.v1.response import (
     CreateWorkspaceResponse,
     GetWorkspaceListResponse,
-    UpdateWorkspaceRepsonse,
 )
 from app.workspace.container import WorkspaceContainer
 from app.workspace.domain.command import CreateWorkspaceCommand
@@ -26,13 +25,9 @@ workspace_router = APIRouter()
 @inject
 async def get_workspace_list(
     auth_info: Request,
-    page: int = Query(default=1),
-    size: int = Query(default=10),
     usecase: WorkspaceUseCase = Depends(Provide[WorkspaceContainer.workspace_service]),
 ):
-    return await usecase.get_workspace_list(
-        user_id=auth_info.user.id, page=page, size=size
-    )
+    return await usecase.get_workspace_list(user_id=auth_info.user.id)
 
 
 @workspace_router.post(
@@ -52,7 +47,6 @@ async def create_workspace(
 
 @workspace_router.patch(
     "/{workspace_id}",
-    response_model=UpdateWorkspaceRepsonse,
     dependencies=[Depends(PermissionDependency([IsAuthenticated]))],
 )
 @inject
@@ -66,7 +60,7 @@ async def update_workspace(
         user_id=auth_info.user.id,
         workspace_id=workspace_id,
         title=request.title,
-        new_order=request.new_order,
+        order_no=request.order_no,
     )
 
 
