@@ -40,6 +40,27 @@ async def test_get_users(session: AsyncSession):
 
 
 @pytest.mark.asyncio
+async def test_get_user_me(session: AsyncSession):
+    # Given
+    user = make_user(
+        password="password",
+        email="a@b.c",
+        nickname="survey-dingdong",
+        is_admin=True,
+    )
+    session.add(user)
+    await session.commit()
+
+    # When
+    async with AsyncClient(app=app, base_url="http://test") as client:
+        response = await client.get("/users/me", headers=HEADERS)
+
+    # Then
+    sut = response.json()
+    assert sut == {"id": 1, "email": "a@b.c", "nickname": "survey-dingdong"}
+
+
+@pytest.mark.asyncio
 async def test_create_user_password_does_not_match(session: AsyncSession):
     # Given
     body = {

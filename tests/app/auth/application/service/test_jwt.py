@@ -9,13 +9,6 @@ redis_backend = RedisBackend()
 
 
 @pytest.mark.asyncio
-async def test_verify_token():
-    # Given, When, Then
-    with pytest.raises(DecodeTokenException):
-        await jwt_service.verify_token(token="abc")
-
-
-@pytest.mark.asyncio
 async def test_create_refresh_token_invalid_refresh_token():
     # Given
     token = INVALID_REFRESH_TOKEN

@@ -3,20 +3,12 @@ from app.auth.application.exception import DecodeTokenException
 from app.auth.domain.usecase.jwt import JwtUseCase
 from core.config import config
 from core.helpers.cache import RedisBackend
-from core.helpers.token import DecodeTokenException as JwtDecodeTokenException
-from core.helpers.token import ExpiredTokenException as JwtExpiredTokenException
 from core.helpers.token import TokenHelper
 
 redis_backend = RedisBackend()
 
 
 class JwtService(JwtUseCase):
-    async def verify_token(self, token: str) -> None:
-        try:
-            TokenHelper.decode(token=token)
-        except (JwtDecodeTokenException, JwtExpiredTokenException):
-            raise DecodeTokenException
-
     async def create_refresh_token(
         self,
         token: str,
