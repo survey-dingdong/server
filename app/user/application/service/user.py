@@ -58,7 +58,6 @@ class UserService(UserUseCase):
 
     async def is_admin(self, user_id: int) -> bool:
         user = await self.repository.get_user_by_id(user_id=user_id)
-        print(user, user_id)
         if user is None:
             return False
 

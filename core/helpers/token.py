@@ -48,7 +48,6 @@ class TokenHelper:
     @staticmethod
     def decode_expired_token(token: str) -> dict:
         try:
-            print(config.JWT_SECRET_KEY)
             return jwt.decode(
                 token,
                 config.JWT_SECRET_KEY,

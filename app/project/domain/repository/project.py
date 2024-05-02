@@ -21,6 +21,7 @@ class ProjectRepo(ABC):
     @abstractmethod
     async def get_project_by_id(
         self,
+        workspace_id: int,
         project_id: int,
         project_type: ProjectTypeEnum,
     ) -> ExperimentProject | None:

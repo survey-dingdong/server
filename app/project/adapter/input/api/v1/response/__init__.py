@@ -1,6 +1,6 @@
 from datetime import date, datetime
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from app.project.domain.entity.experiment import ExperimentTimeSlotRead
 from app.project.domain.vo.type import ExperimentAttendanceStatus, ExperimentTypeEnum
@@ -11,6 +11,8 @@ class CreateProjectResponse(BaseModel):
 
 
 class GetProjectListResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int = Field(..., description="ID")
     workspace_id: int = Field(..., description="Workspace ID")
     title: str = Field(..., description="Title")

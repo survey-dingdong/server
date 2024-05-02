@@ -35,7 +35,6 @@ class ProjectSQLAlchemyRepo(ProjectRepo):
             .where(
                 and_(
                     ExperimentProject.workspace_id == workspace_id,
-                    ExperimentProject.workspace.is_deleted == False,  # noqa: E712
                     ExperimentProject.is_deleted == False,  # noqa: E712
                 )
             )
@@ -47,7 +46,7 @@ class ProjectSQLAlchemyRepo(ProjectRepo):
         return result.scalars().all()
 
     async def get_project_by_id(
-        self, project_id: int, project_type: ProjectTypeEnum
+        self, workspace_id: int, project_id: int, project_type: ProjectTypeEnum
     ) -> ExperimentProject | None:
         project: ExperimentProject = ProjectSQLAlchemyRepo._get_entity_by_project_type(
             project_type
@@ -55,15 +54,12 @@ class ProjectSQLAlchemyRepo(ProjectRepo):
         if project is None:
             return None
 
-        query = (
-            select(project)
-            .where(
-                and_(
-                    ExperimentProject.id == project_id,
-                    ExperimentProject.is_deleted == False,  # noqa: E712
-                ),
-            )
-            .order_by(ExperimentProject.created_at.desc())
+        query = select(project).where(
+            and_(
+                ExperimentProject.workspace_id == workspace_id,
+                ExperimentProject.id == project_id,
+                ExperimentProject.is_deleted == False,  # noqa: E712
+            ),
         )
 
         result = await session.execute(query)

@@ -27,7 +27,7 @@ class TestConfig(Config):
         str
     ) = "mysql+aiomysql://admin:devpassword@127.0.0.1:3306/survey_dingdong_test"
 
-    model_config = SettingsConfigDict(env_file=".env.test", env_prefix="app_")
+    model_config = SettingsConfigDict(env_file=".env.test", env_prefix="test_")
 
 
 class LocalConfig(Config):

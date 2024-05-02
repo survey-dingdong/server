@@ -1,7 +1,10 @@
 from dependency_injector.wiring import Provide, inject
 from fastapi import APIRouter, Depends, Query, Request
 
-from app.project.adapter.input.api.v1.request import PatchProjectRequest
+from app.project.adapter.input.api.v1.request import (
+    CreateProjectRequest,
+    PatchProjectRequest,
+)
 from app.project.adapter.input.api.v1.response import (
     CreateProjectResponse,
     GetExperimentParticipantResponse,
@@ -82,6 +85,7 @@ async def create_project(
     auth_info: Request,
     workspace_id: int,
     project_type: ProjectTypeEnum,
+    request: CreateProjectRequest,
     workspace_usecase: WorkspaceUseCase = Depends(
         Provide[WorkspaceContainer.workspace_service]
     ),
@@ -92,7 +96,9 @@ async def create_project(
     workspace = await workspace_usecase.get_workspace_by_id(
         user_id=auth_info.user.id, workspace_id=workspace_id
     )
-    command = CreateProjectCommand(workspace_id=workspace.id, project_type=project_type)
+    command = CreateProjectCommand(
+        workspace_id=workspace.id, title=request.title, project_type=project_type
+    )
     return await project_usecase.create_project(command=command)
 
 

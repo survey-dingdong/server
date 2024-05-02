@@ -13,17 +13,19 @@ def make_experiment_project(
     id: int,
     workspace_id: int = 1,
     title: str = "project",
-    description: str | None = None,
-    is_public: bool | None = False,
-    max_participants: int | None = 0,
-    start_date: date | None = datetime.now().date(),
-    end_date: date | None = datetime.now().date(),
-    excluded_dates: list[str] | None = [],
-    experiment_type: ExperimentTypeEnum | None = ExperimentTypeEnum.OFFLINE,
-    participant_code: str | None = generate_random_uppercase_letters(),
-    location: str | None = "location",
-    created_at: datetime | None = datetime.now(),
-    updated_at: datetime | None = datetime.now(),
+    description: str = "",
+    is_public: bool = False,
+    is_deleted: bool = False,
+    joined_participants: int = 0,
+    max_participants: int = 0,
+    start_date: str = datetime.now().date().strftime("%Y-%m-%d"),
+    end_date: str = datetime.now().date().strftime("%Y-%m-%d"),
+    excluded_dates: list[str] = [],
+    experiment_type: ExperimentTypeEnum = ExperimentTypeEnum.OFFLINE,
+    participant_code: str = generate_random_uppercase_letters(),
+    location: str = "location",
+    created_at: str = datetime.now().strftime("%Y-%m-%dT%H:%M:%S"),
+    updated_at: str = datetime.now().strftime("%Y-%m-%dT%H:%M:%S"),
 ):
     return ExperimentProject(
         id=id,
@@ -31,6 +33,8 @@ def make_experiment_project(
         title=title,
         description=description,
         is_public=is_public,
+        is_deleted=is_deleted,
+        joined_participants=joined_participants,
         max_participants=max_participants,
         start_date=start_date,
         end_date=end_date,
@@ -45,13 +49,11 @@ def make_experiment_project(
 
 def make_experiment_project_participant(
     id: int,
-    user_id: int | None = 1,
-    project_id: int | None = 1,
-    experiment_time_slot_id: int | None = 1,
-    experiment_date: date | None = datetime.now().date(),
-    attendance_status: (
-        ExperimentAttendanceStatus | None
-    ) = ExperimentAttendanceStatus.ATTENDED,
+    user_id: int = 1,
+    project_id: int = 1,
+    experiment_time_slot_id: int = 1,
+    experiment_date: date = datetime.now().date(),
+    attendance_status: ExperimentAttendanceStatus = ExperimentAttendanceStatus.ATTENDED,
 ):
     return ExperimentParticipantTimeSlot(
         id=id,

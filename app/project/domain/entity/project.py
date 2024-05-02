@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy import Boolean, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -23,6 +23,8 @@ class Project(TimestampMixin):
 
 
 class ProjectRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int = Field(..., description="ID")
     workspace_id: int = Field(..., description="Workspace ID")
     title: str = Field(..., description="Title")

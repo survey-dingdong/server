@@ -74,6 +74,6 @@ async def delete_workspace(
     workspace_id: int,
     usecase: WorkspaceUseCase = Depends(Provide[WorkspaceContainer.workspace_service]),
 ):
-    return usecase.delete_workspace(
+    return await usecase.delete_workspace(
         user_id=auth_info.user.id, workspace_id=workspace_id
     )

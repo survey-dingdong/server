@@ -5,7 +5,6 @@ from app.project.application.dto import CreateProjectResponseDTO, PatchProjectRe
 from app.project.application.exception import (
     ParticipantAccessDeniedException,
     ParticipantNotFoundException,
-    ProjectAccessDeniedException,
     ProjectNotFoundException,
 )
 from app.project.domain.command import CreateProjectCommand
@@ -35,12 +34,14 @@ class ProjectService(ProjectUseCsae):
         page: int,
         size: int,
     ) -> list[ProjectRead]:
-        return await self.repository.get_projects(
+        projects = await self.repository.get_projects(
             workspace_id=workspace_id,
             project_type=project_type,
             page=page,
             size=size,
         )
+
+        return [ProjectRead.model_validate(project) for project in projects]
 
     async def get_project(
         self,
@@ -49,14 +50,12 @@ class ProjectService(ProjectUseCsae):
         project_type: ProjectTypeEnum,
     ) -> ExperimentProjectRead:
         project = await self.repository.get_project_by_id(
+            workspace_id=workspace_id,
             project_id=project_id,
             project_type=project_type,
         )
         if project is None:
             raise ProjectNotFoundException
-
-        if project.workspace_id != workspace_id:
-            raise ProjectAccessDeniedException
 
         time_slots = [
             ExperimentTimeSlotRead(
@@ -104,14 +103,12 @@ class ProjectService(ProjectUseCsae):
         project_dto: PatchProjectRequestDTO,
     ) -> None:
         project = await self.repository.get_project_by_id(
+            workspace_id=workspace_id,
             project_id=project_id,
             project_type=project_type,
         )
         if project is None:
             raise ProjectNotFoundException
-
-        if project.workspace_id != workspace_id:
-            raise ProjectAccessDeniedException
 
         for column, value in project_dto.model_dump(exclude_unset=True).items():
             setattr(project, column, value)
@@ -124,15 +121,13 @@ class ProjectService(ProjectUseCsae):
         project_type: ProjectTypeEnum,
     ) -> None:
         project = await self.repository.get_project_by_id(
+            workspace_id=workspace_id,
             project_type=project_type,
             project_id=project_id,
         )
 
         if project is None:
             raise ProjectNotFoundException
-
-        if project.workspace_id != workspace_id:
-            raise ProjectAccessDeniedException
 
         project.is_deleted = True
 
@@ -145,15 +140,13 @@ class ProjectService(ProjectUseCsae):
         size: int,
     ) -> list[ExperimentParticipantTimeSlotRead]:
         project = await self.repository.get_project_by_id(
+            workspace_id=workspace_id,
             project_type=project_type,
             project_id=project_id,
         )
 
         if project is None:
             raise ProjectNotFoundException
-
-        if project.workspace_id != workspace_id:
-            raise ProjectAccessDeniedException
 
         return await self.repository.get_project_participants(
             project_id=project.id,
@@ -171,15 +164,13 @@ class ProjectService(ProjectUseCsae):
         project_type: ProjectTypeEnum,
     ) -> None:
         project = await self.repository.get_project_by_id(
+            workspace_id=workspace_id,
             project_type=project_type,
             project_id=project_id,
         )
 
         if project is None:
             raise ProjectNotFoundException
-
-        if project.workspace_id != workspace_id:
-            raise ProjectAccessDeniedException
 
         project_participant = await self.repository.get_project_participant_by_id(
             project_id=project.id,

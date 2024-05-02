@@ -20,13 +20,15 @@ if TYPE_CHECKING:
 class ExperimentProject(Base, Project):
     __tablename__ = "experiment_project"
 
-    start_date: Mapped[date] = mapped_column(DATE, nullable=False, index=True)
-    end_date: Mapped[date] = mapped_column(DATE, nullable=False, index=True)
-    excluded_dates: Mapped[list[str]] = mapped_column(JSON, nullable=False, default=[])
+    start_date: Mapped[date] = mapped_column(DATE, nullable=True, index=True)
+    end_date: Mapped[date] = mapped_column(DATE, nullable=True, index=True)
+    excluded_dates: Mapped[list[str]] = mapped_column(JSON, nullable=True, default=[])
     experiment_type: Mapped[ExperimentTypeEnum] = mapped_column(
-        Enum(ExperimentTypeEnum), nullable=False
+        Enum(ExperimentTypeEnum),
+        nullable=False,
+        default=ExperimentTypeEnum.OFFLINE.value,
     )
-    location: Mapped[str] = mapped_column(String(255), nullable=False)
+    location: Mapped[str] = mapped_column(String(255), nullable=True)
     participant_code: Mapped[str] = mapped_column(
         String(4), nullable=False, default=generate_random_uppercase_letters
     )

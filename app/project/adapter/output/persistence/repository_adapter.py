@@ -3,7 +3,6 @@ from app.project.domain.entity.experiment import (
     ExperimentParticipantTimeSlotRead,
     ExperimentProject,
 )
-from app.project.domain.entity.project import ProjectRead
 from app.project.domain.repository.project import ProjectRepo
 from app.project.domain.vo.type import ProjectTypeEnum
 
@@ -18,21 +17,22 @@ class ProjectRepositoryAdapter:
         project_type: ProjectTypeEnum,
         page: int,
         size: int,
-    ) -> list[ProjectRead]:
-        projects: list[ExperimentProject] = await self.repository.get_projects(
+    ) -> list[ExperimentProject]:
+        return await self.repository.get_projects(
             workspace_id=workspace_id,
             project_type=project_type,
             page=page,
             size=size,
         )
-        return [ProjectRead.model_validate(project) for project in projects]
 
     async def get_project_by_id(
         self,
+        workspace_id: int,
         project_id: int,
         project_type: ProjectTypeEnum,
     ) -> ExperimentProject | None:
         return await self.repository.get_project_by_id(
+            workspace_id=workspace_id,
             project_id=project_id,
             project_type=project_type,
         )
