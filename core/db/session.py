@@ -31,6 +31,7 @@ engine = create_async_engine(config.DB_URL, pool_recycle=3600)
 async_session_factory = async_sessionmaker(
     bind=engine,
     class_=AsyncSession,
+    autoflush=False,
     expire_on_commit=False,
 )
 session = async_scoped_session(

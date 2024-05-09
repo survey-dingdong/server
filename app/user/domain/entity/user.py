@@ -8,7 +8,7 @@ from core.db import Base
 from core.db.mixins import TimestampMixin
 
 if TYPE_CHECKING:
-    from app.project.domain.entity.experiment import ExperimentParticipantTimeSlot
+    from app.project.domain.entity.experiment import ExperimentParticipantTimeslot
 
 
 class User(Base, TimestampMixin):
@@ -20,10 +20,10 @@ class User(Base, TimestampMixin):
     nickname: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
     is_admin: Mapped[bool] = mapped_column(default=False)
 
-    experiment_participant_time_slots: Mapped[
-        "ExperimentParticipantTimeSlot"
+    experiment_participant_timeslots: Mapped[
+        "ExperimentParticipantTimeslot"
     ] = relationship(
-        "ExperimentParticipantTimeSlot", back_populates="user", lazy="selectin"
+        "ExperimentParticipantTimeslot", back_populates="user", lazy="selectin"
     )
 
     @classmethod

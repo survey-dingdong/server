@@ -2,7 +2,17 @@ from datetime import date, datetime, time
 from typing import TYPE_CHECKING
 
 from pydantic import BaseModel, Field
-from sqlalchemy import DATE, JSON, Boolean, Enum, ForeignKey, Integer, String, Time
+from sqlalchemy import (
+    DATE,
+    JSON,
+    Boolean,
+    Enum,
+    ForeignKey,
+    Integer,
+    String,
+    Time,
+    UniqueConstraint,
+)
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.project.domain.vo.type import ExperimentAttendanceStatus, ExperimentTypeEnum
@@ -37,8 +47,8 @@ class ExperimentProject(Base, Project):
     workspace: Mapped["Workspace"] = relationship(
         "Workspace", back_populates="experiment_projects"
     )
-    experiment_time_slots: Mapped[list["ExperimentTimeSlot"]] = relationship(
-        "ExperimentTimeSlot",
+    experiment_timeslots: Mapped[list["ExperimentTimeslot"]] = relationship(
+        "ExperimentTimeslot",
         back_populates="experiment_project",
         lazy="selectin",
     )
@@ -51,48 +61,61 @@ class ExperimentProject(Base, Project):
         )
 
 
-class ExperimentTimeSlot(Base, TimestampMixin):
-    __tablename__ = "experiment_time_slot"
+class ExperimentTimeslot(Base, TimestampMixin):
+    __tablename__ = "experiment_timeslot"
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     experiment_project_id: Mapped[int] = mapped_column(
         Integer,
         ForeignKey("experiment_project.id"),
-        nullable=False,
-        index=True,
     )
     start_time: Mapped[time] = mapped_column(Time, nullable=False, index=True)
     end_time: Mapped[time] = mapped_column(Time, nullable=False, index=True)
     max_participants: Mapped[int] = mapped_column(Integer, nullable=False)
 
     experiment_project: Mapped["ExperimentProject"] = relationship(
-        "ExperimentProject", back_populates="experiment_time_slots"
+        "ExperimentProject", back_populates="experiment_timeslots"
     )
 
-    experiment_participant_time_slots: Mapped[
-        list["ExperimentParticipantTimeSlot"]
+    experiment_participant_timeslots: Mapped[
+        list["ExperimentParticipantTimeslot"]
     ] = relationship(
-        "ExperimentParticipantTimeSlot",
-        back_populates="experiment_time_slot",
+        "ExperimentParticipantTimeslot",
+        back_populates="experiment_timeslot",
         lazy="selectin",
     )
 
+    __table_args__ = (
+        UniqueConstraint("experiment_project_id", "start_time", "end_time"),
+    )
 
-class ExperimentParticipantTimeSlot(Base, TimestampMixin):
-    __tablename__ = "experiment_participant_time_slot"
+    @classmethod
+    def create(
+        cls,
+        experiment_project_id: int,
+        start_time: time,
+        end_time: time,
+        max_participants: int,
+    ) -> "ExperimentTimeslot":
+        return cls(
+            experiment_project_id=experiment_project_id,
+            start_time=start_time,
+            end_time=end_time,
+            max_participants=max_participants,
+        )
+
+
+class ExperimentParticipantTimeslot(Base, TimestampMixin):
+    __tablename__ = "experiment_participant_timeslot"
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     user_id: Mapped[int] = mapped_column(
         Integer,
         ForeignKey("user.id"),
-        nullable=False,
-        index=True,
     )
-    experiment_time_slot_id: Mapped[int] = mapped_column(
+    experiment_timeslot_id: Mapped[int] = mapped_column(
         Integer,
-        ForeignKey("experiment_time_slot.id"),
-        nullable=False,
-        index=True,
+        ForeignKey("experiment_timeslot.id"),
     )
     experiment_date: Mapped[date] = mapped_column(DATE, nullable=False, index=True)
     attendance_status: Mapped[ExperimentAttendanceStatus] = mapped_column(
@@ -103,21 +126,23 @@ class ExperimentParticipantTimeSlot(Base, TimestampMixin):
     is_deleted: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
 
     user: Mapped["User"] = relationship(
-        "User", back_populates="experiment_participant_time_slots"
+        "User", back_populates="experiment_participant_timeslots"
     )
-    experiment_time_slot: Mapped["ExperimentTimeSlot"] = relationship(
-        "ExperimentTimeSlot", back_populates="experiment_participant_time_slots"
+    experiment_timeslot: Mapped["ExperimentTimeslot"] = relationship(
+        "ExperimentTimeslot", back_populates="experiment_participant_timeslots"
     )
 
     @property
     def reserved_date(self) -> str:
-        return f"{self.experiment_date} {add_am_pm_indicator(self.experiment_time_slot.start_time)} ~ {add_am_pm_indicator(self.experiment_time_slot.end_time)}"
+        start_time = add_am_pm_indicator(self.experiment_timeslot.start_time)
+        endtime_time = add_am_pm_indicator(self.experiment_timeslot.start_time)
+        return f"{self.experiment_date} {start_time} ~ {endtime_time}"
 
 
-class ExperimentTimeSlotRead(BaseModel):
+class ExperimentTimeslotRead(BaseModel):
     id: int = Field(..., description="ID")
-    start_time: str = Field(..., description="Experiment start time")
-    end_time: str = Field(..., description="Experiment end time")
+    start_time: time = Field(..., description="Experiment start time")
+    end_time: time = Field(..., description="Experiment end time")
     max_participants: int = Field(
         ..., description="Maximum number of experiment participants"
     )
@@ -131,7 +156,7 @@ class ExperimentProjectRead(BaseModel):
     start_date: date = Field(..., description="Experiment start date")
     end_date: date = Field(..., description="Experiment end date")
     excluded_dates: list[str] = Field(..., description="Experimental exclusion days")
-    time_slots: list[ExperimentTimeSlotRead] = Field(
+    experiment_timeslots: list[ExperimentTimeslotRead] = Field(
         ..., description="Time information of experiment"
     )
     experiment_type: ExperimentTypeEnum = Field(...)
@@ -141,7 +166,7 @@ class ExperimentProjectRead(BaseModel):
     updated_at: datetime = Field(..., description="Updated datetime")
 
 
-class ExperimentParticipantTimeSlotRead(BaseModel):
+class ExperimentParticipantTimeslotRead(BaseModel):
     id: int = Field(..., description="Participant ID")
     username: str = Field(..., description="Username")
     reserved_date: str = Field(..., description="Reserved Date")

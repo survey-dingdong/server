@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, Query, Request
 
 from app.project.adapter.input.api.v1.request import (
     CreateProjectRequest,
-    PatchProjectRequest,
+    PutProjectRequest,
 )
 from app.project.adapter.input.api.v1.response import (
     CreateProjectResponse,
@@ -102,17 +102,17 @@ async def create_project(
     return await project_usecase.create_project(command=command)
 
 
-@project_router.patch(
+@project_router.put(
     "/{workspace_id}/projects/{project_id}",
     dependencies=[Depends(PermissionDependency([IsAuthenticated]))],
 )
 @inject
-async def patch_project(
+async def update_project(
     auth_info: Request,
     workspace_id: int,
     project_id: int,
     project_type: ProjectTypeEnum,
-    request: PatchProjectRequest,
+    request: PutProjectRequest,
     workspace_usecase: WorkspaceUseCase = Depends(
         Provide[WorkspaceContainer.workspace_service]
     ),
@@ -123,6 +123,7 @@ async def patch_project(
     workspace = await workspace_usecase.get_workspace_by_id(
         user_id=auth_info.user.id, workspace_id=workspace_id
     )
+
     return await project_usecase.update_project(
         workspace_id=workspace.id,
         project_id=project_id,

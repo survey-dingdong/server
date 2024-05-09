@@ -25,9 +25,9 @@ fileConfig(config.config_file_name)
 # target_metadata = mymodel.Base.metadata
 
 from app.project.domain.entity.experiment import (
-    ExperimentParticipantTimeSlot,
+    ExperimentParticipantTimeslot,
     ExperimentProject,
-    ExperimentTimeSlot,
+    ExperimentTimeslot,
 )
 from app.project.domain.entity.project import Project
 from app.user.domain.entity.user import User

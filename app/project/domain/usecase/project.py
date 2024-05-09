@@ -1,9 +1,9 @@
 from abc import ABC, abstractmethod
 
-from app.project.application.dto import CreateProjectResponseDTO, PatchProjectRequestDTO
+from app.project.application.dto import CreateProjectResponseDTO, PutProjectRequestDTO
 from app.project.domain.command import CreateProjectCommand
 from app.project.domain.entity.experiment import (
-    ExperimentParticipantTimeSlotRead,
+    ExperimentParticipantTimeslotRead,
     ExperimentProjectRead,
 )
 from app.project.domain.entity.project import ProjectRead
@@ -42,7 +42,7 @@ class ProjectUseCsae(ABC):
         workspace_id: int,
         project_id: int,
         project_type: ProjectTypeEnum,
-        project_dto: PatchProjectRequestDTO,
+        project_dto: PutProjectRequestDTO,
     ) -> None:
         """Update project"""
 
@@ -63,7 +63,7 @@ class ProjectUseCsae(ABC):
         project_type: ProjectTypeEnum,
         page: int,
         size: int,
-    ) -> list[ExperimentParticipantTimeSlotRead]:
+    ) -> list[ExperimentParticipantTimeslotRead]:
         """Get project participant list"""
 
     @abstractmethod

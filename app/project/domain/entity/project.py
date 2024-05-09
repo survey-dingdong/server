@@ -12,8 +12,6 @@ class Project(TimestampMixin):
     workspace_id: Mapped[int] = mapped_column(
         Integer,
         ForeignKey("workspace.id"),
-        nullable=False,
-        index=True,
     )
     title: Mapped[str] = mapped_column(String(20), nullable=False)
     description: Mapped[str] = mapped_column(String(512), nullable=True)

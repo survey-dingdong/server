@@ -1,18 +1,20 @@
 from app.project.adapter.output.persistence.repository_adapter import (
     ProjectRepositoryAdapter,
 )
-from app.project.application.dto import CreateProjectResponseDTO, PatchProjectRequestDTO
+from app.project.application.dto import CreateProjectResponseDTO, PutProjectRequestDTO
 from app.project.application.exception import (
     ParticipantAccessDeniedException,
     ParticipantNotFoundException,
     ProjectNotFoundException,
+    ProjectTimeslotNotFoundException,
 )
 from app.project.domain.command import CreateProjectCommand
 from app.project.domain.entity.experiment import (
-    ExperimentParticipantTimeSlotRead,
+    ExperimentParticipantTimeslotRead,
     ExperimentProject,
     ExperimentProjectRead,
-    ExperimentTimeSlotRead,
+    ExperimentTimeslot,
+    ExperimentTimeslotRead,
 )
 from app.project.domain.entity.project import ProjectRead
 from app.project.domain.usecase.project import ProjectUseCsae
@@ -57,14 +59,14 @@ class ProjectService(ProjectUseCsae):
         if project is None:
             raise ProjectNotFoundException
 
-        time_slots = [
-            ExperimentTimeSlotRead(
+        experiment_timeslots = [
+            ExperimentTimeslotRead(
                 id=time_slot.id,
                 start_time=time_slot.start_time,
                 end_time=time_slot.end_time,
                 max_participants=time_slot.max_participants,
             )
-            for time_slot in project.experiment_time_slots
+            for time_slot in project.experiment_timeslots
         ]
 
         return ExperimentProjectRead(
@@ -75,7 +77,7 @@ class ProjectService(ProjectUseCsae):
             start_date=project.start_date,
             end_date=project.end_date,
             excluded_dates=project.excluded_dates,
-            time_slots=time_slots,
+            experiment_timeslots=experiment_timeslots,
             experiment_type=project.experiment_type,
             location=project.location,
             participant_code=project.participant_code,
@@ -100,7 +102,7 @@ class ProjectService(ProjectUseCsae):
         workspace_id: int,
         project_id: int,
         project_type: ProjectTypeEnum,
-        project_dto: PatchProjectRequestDTO,
+        project_dto: PutProjectRequestDTO,
     ) -> None:
         project = await self.repository.get_project_by_id(
             workspace_id=workspace_id,
@@ -110,8 +112,30 @@ class ProjectService(ProjectUseCsae):
         if project is None:
             raise ProjectNotFoundException
 
-        for column, value in project_dto.model_dump(exclude_unset=True).items():
+        for column, value in project_dto.model_dump(
+            mode="json", exclude="experiment_timeslots"
+        ).items():
             setattr(project, column, value)
+
+        for timeslot_data in project_dto.experiment_timeslots:
+            if timeslot_data.id is None:
+                new_project_timeslot = ExperimentTimeslot.create(
+                    experiment_project_id=project.id,
+                    start_time=timeslot_data.start_time,
+                    end_time=timeslot_data.end_time,
+                    max_participants=timeslot_data.max_participants,
+                )
+                await self.repository.save(project=new_project_timeslot)
+            else:
+                project_timeslot = await self.repository.get_project_timeslot(
+                    project_id=project.id, timeslot_id=timeslot_data.id
+                )
+                if project_timeslot is None:
+                    raise ProjectTimeslotNotFoundException
+
+                project_timeslot.start_time = timeslot_data.start_time
+                project_timeslot.end_time = timeslot_data.end_time
+                project_timeslot.max_participants = timeslot_data.max_participants
 
     @Transactional()
     async def delete_project(
@@ -138,7 +162,7 @@ class ProjectService(ProjectUseCsae):
         project_type: ProjectTypeEnum,
         page: int,
         size: int,
-    ) -> list[ExperimentParticipantTimeSlotRead]:
+    ) -> list[ExperimentParticipantTimeslotRead]:
         project = await self.repository.get_project_by_id(
             workspace_id=workspace_id,
             project_type=project_type,
@@ -181,7 +205,7 @@ class ProjectService(ProjectUseCsae):
         if project_participant is None:
             raise ParticipantNotFoundException
 
-        if project_participant.experiment_time_slot.experiment_project_id != project_id:
+        if project_participant.experiment_timeslot.experiment_project_id != project_id:
             raise ParticipantAccessDeniedException
 
         project_participant.is_deleted = True

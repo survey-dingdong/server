@@ -6,11 +6,11 @@ import pytest
 from app.project.adapter.output.persistence.repository_adapter import (
     ProjectRepositoryAdapter,
 )
-from app.project.application.dto import PatchProjectRequestDTO
+from app.project.application.dto import PutProjectRequestDTO
 from app.project.application.exception import ProjectNotFoundException
 from app.project.application.service.project import ProjectService
 from app.project.domain.command import CreateProjectCommand
-from app.project.domain.entity.experiment import ExperimentParticipantTimeSlotRead
+from app.project.domain.entity.experiment import ExperimentParticipantTimeslotRead
 from app.project.domain.entity.project import ProjectRead
 from app.project.domain.vo.type import (
     ExperimentAttendanceStatus,
@@ -111,7 +111,17 @@ async def test_update_project_not_exist():
     repository_mock.get_project_by_id.return_value = None
     project_service.repository = repository_mock
 
-    project_dto = PatchProjectRequestDTO(title="Chnage title")
+    project_dto = PutProjectRequestDTO(
+        title="Change title",
+        description="",
+        is_public=False,
+        start_date=datetime.now().date().strftime("%Y-%m-%d"),
+        end_date=datetime.now().date().strftime("%Y-%m-%d"),
+        excluded_dates=[],
+        experiment_timeslots=[],
+        experiment_type=ExperimentTypeEnum.OFFLINE,
+        location="Change location",
+    )
 
     # When, Then
     with pytest.raises(ProjectNotFoundException):
@@ -130,8 +140,15 @@ async def test_updated_project():
     repository_mock.get_project_by_id.return_value = project
     project_service.repository = repository_mock
 
-    project_dto = PatchProjectRequestDTO(
-        experiment_type=ExperimentTypeEnum.OFFLINE,
+    project_dto = PutProjectRequestDTO(
+        title="change title",
+        description=project.description,
+        is_public=project.is_public,
+        start_date=project.start_date,
+        end_date=project.end_date,
+        excluded_dates=project.excluded_dates,
+        experiment_timeslots=project.experiment_timeslots,
+        experiment_type=project.experiment_type,
         location="Change location",
     )
     # When
@@ -176,7 +193,7 @@ async def test_delete_project():
 @pytest.mark.asyncio
 async def test_get_project_participant_list():
     # Given
-    experiment_participant_time_slot = ExperimentParticipantTimeSlotRead(
+    experiment_participant_timeslot = ExperimentParticipantTimeslotRead(
         id=1,
         username="username",
         reserved_date="2024-04-09 10:00AM ~ 11:00AM",
@@ -185,7 +202,7 @@ async def test_get_project_participant_list():
         updated_at=datetime.now(),
     )
     repository_mock.get_project_participants.return_value = [
-        experiment_participant_time_slot
+        experiment_participant_timeslot
     ]
     project_service.repository = repository_mock
 
@@ -200,10 +217,8 @@ async def test_get_project_participant_list():
     # Then
     assert len(sut) == 1
     result = sut[0]
-    assert result.id == experiment_participant_time_slot.id
-    assert (
-        result.attendance_status == experiment_participant_time_slot.attendance_status
-    )
+    assert result.id == experiment_participant_timeslot.id
+    assert result.attendance_status == experiment_participant_timeslot.attendance_status
 
 
 @pytest.mark.asyncio

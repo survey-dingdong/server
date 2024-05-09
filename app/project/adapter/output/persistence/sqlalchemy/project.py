@@ -3,9 +3,9 @@ from typing import Any
 from sqlalchemy import and_, select
 
 from app.project.domain.entity.experiment import (
-    ExperimentParticipantTimeSlot,
+    ExperimentParticipantTimeslot,
     ExperimentProject,
-    ExperimentTimeSlot,
+    ExperimentTimeslot,
 )
 from app.project.domain.repository.project import ProjectRepo
 from app.project.domain.vo.type import ProjectTypeEnum
@@ -65,31 +65,46 @@ class ProjectSQLAlchemyRepo(ProjectRepo):
         result = await session.execute(query)
         return result.scalars().first()
 
+    async def get_project_timeslot(
+        self,
+        project_id: int,
+        timeslot_id: int,
+    ) -> ExperimentTimeslot | None:
+        query = select(ExperimentTimeslot).where(
+            and_(
+                ExperimentTimeslot.id == timeslot_id,
+                ExperimentTimeslot.experiment_project_id == project_id,
+            )
+        )
+
+        result = await session.execute(query)
+        return result.scalars().first()
+
     async def get_project_participants(
         self,
         project_id: int,
         project_type: ProjectTypeEnum,
         page: int,
         size: int,
-    ) -> list[ExperimentParticipantTimeSlot]:
+    ) -> list[ExperimentParticipantTimeslot]:
         if project_type == ProjectTypeEnum.EXPERIMENT:
-            participant_time_slot = ExperimentParticipantTimeSlot
+            participant_timeslot = ExperimentParticipantTimeslot
         else:
             return []
 
         query = (
-            select(participant_time_slot, ExperimentTimeSlot)
-            .join(ExperimentParticipantTimeSlot.experiment_time_slot)
-            .join(ExperimentTimeSlot.experiment_project)
+            select(participant_timeslot, ExperimentTimeslot)
+            .join(ExperimentParticipantTimeslot.experiment_timeslot)
+            .join(ExperimentTimeslot.experiment_project)
             .where(
                 and_(
-                    ExperimentTimeSlot.experiment_project_id == project_id,
-                    participant_time_slot.is_deleted == False,  # noqa: E712
+                    ExperimentTimeslot.experiment_project_id == project_id,
+                    participant_timeslot.is_deleted == False,  # noqa: E712
                 ),
             )
             .order_by(
-                ExperimentParticipantTimeSlot.experiment_date,
-                ExperimentTimeSlot.start_time,
+                ExperimentParticipantTimeslot.experiment_date,
+                ExperimentTimeslot.start_time,
             )
         )
         query = query.offset((page - 1) * size).limit(size)
@@ -98,26 +113,26 @@ class ProjectSQLAlchemyRepo(ProjectRepo):
 
     async def get_project_participant_by_id(
         self, project_id: int, participant_id: int, project_type: ProjectTypeEnum
-    ) -> ExperimentParticipantTimeSlot | None:
+    ) -> ExperimentParticipantTimeslot | None:
         if project_type == ProjectTypeEnum.EXPERIMENT:
-            participant_time_slot = ExperimentParticipantTimeSlot
+            participant_timeslot = ExperimentParticipantTimeslot
         else:
             return None
 
-        query = select(participant_time_slot).where(
+        query = select(participant_timeslot).where(
             and_(
-                ExperimentParticipantTimeSlot.experiment_time_slot.experiment_project_id
+                ExperimentParticipantTimeslot.experiment_timeslot.experiment_project_id
                 == project_id,
-                ExperimentParticipantTimeSlot.id == participant_id,
-                ExperimentParticipantTimeSlot.is_deleted == False,  # noqa: E712
+                ExperimentParticipantTimeslot.id == participant_id,
+                ExperimentParticipantTimeslot.is_deleted == False,  # noqa: E712
             ),
         )
         result = await session.execute(query)
         return result.scalars().first()
 
     async def save(
-        self, project: ExperimentProject, auto_flush: bool = False
-    ) -> ExperimentProject:
+        self, project: ExperimentProject | ExperimentTimeslot, auto_flush: bool
+    ) -> ExperimentProject | ExperimentTimeslot:
         session.add(project)
         if auto_flush:
             await session.flush()

@@ -2,7 +2,7 @@ from datetime import date, datetime
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from app.project.domain.entity.experiment import ExperimentTimeSlotRead
+from app.project.domain.entity.experiment import ExperimentTimeslotRead
 from app.project.domain.vo.type import ExperimentAttendanceStatus, ExperimentTypeEnum
 
 
@@ -36,7 +36,7 @@ class GetExperimentProjectResponse(BaseModel):
     start_date: date = Field(..., description="Experiment start date")
     end_date: date = Field(..., description="Experiment end date")
     excluded_dates: list[str] = Field(..., description="Experimental exclusion days")
-    time_slots: list[ExperimentTimeSlotRead] = Field(
+    experiment_timeslots: list[ExperimentTimeslotRead] = Field(
         ..., description="Time information of experiment"
     )
     experiment_type: ExperimentTypeEnum = Field(...)

@@ -1,9 +1,9 @@
 from datetime import date, datetime
 
 from app.project.domain.entity.experiment import (
-    ExperimentParticipantTimeSlot,
+    ExperimentParticipantTimeslot,
     ExperimentProject,
-    ExperimentTimeSlot,
+    ExperimentTimeslot,
 )
 from app.project.domain.vo.type import ExperimentAttendanceStatus, ExperimentTypeEnum
 from core.helpers.utils import generate_random_uppercase_letters
@@ -21,6 +21,7 @@ def make_experiment_project(
     start_date: str = datetime.now().date().strftime("%Y-%m-%d"),
     end_date: str = datetime.now().date().strftime("%Y-%m-%d"),
     excluded_dates: list[str] = [],
+    experiment_timeslots: list[ExperimentTimeslot] = [],
     experiment_type: ExperimentTypeEnum = ExperimentTypeEnum.OFFLINE,
     participant_code: str = generate_random_uppercase_letters(),
     location: str = "location",
@@ -39,6 +40,7 @@ def make_experiment_project(
         start_date=start_date,
         end_date=end_date,
         excluded_dates=excluded_dates,
+        experiment_timeslots=experiment_timeslots,
         experiment_type=experiment_type,
         location=location,
         participant_code=participant_code,
@@ -51,15 +53,15 @@ def make_experiment_project_participant(
     id: int,
     user_id: int = 1,
     project_id: int = 1,
-    experiment_time_slot_id: int = 1,
+    experiment_timeslot_id: int = 1,
     experiment_date: date = datetime.now().date(),
     attendance_status: ExperimentAttendanceStatus = ExperimentAttendanceStatus.ATTENDED,
 ):
-    return ExperimentParticipantTimeSlot(
+    return ExperimentParticipantTimeslot(
         id=id,
         user_id=user_id,
-        experiment_time_slot_id=experiment_time_slot_id,
+        experiment_timeslot_id=experiment_timeslot_id,
         experiment_date=experiment_date,
         attendance_status=attendance_status,
-        experiment_time_slot=ExperimentTimeSlot(experiment_project_id=project_id),
+        experiment_timeslot=ExperimentTimeslot(experiment_project_id=project_id),
     )

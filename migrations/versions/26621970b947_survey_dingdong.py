@@ -1,15 +1,15 @@
-"""Initialize survey-dindong
+"""survey-dingdong
 
-Revision ID: 640c73fa2c12
+Revision ID: 26621970b947
 Revises:
-Create Date: 2024-04-16 01:11:59.890517
+Create Date: 2024-05-10 00:00:00.535980
 
 """
 import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "640c73fa2c12"
+revision = "26621970b947"
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -24,8 +24,6 @@ def upgrade():
         sa.Column("email", sa.String(length=255), nullable=False),
         sa.Column("nickname", sa.String(length=255), nullable=False),
         sa.Column("is_admin", sa.Boolean(), nullable=False),
-        sa.Column("lat", sa.Float(), nullable=False),
-        sa.Column("lng", sa.Float(), nullable=False),
         sa.Column("created_at", sa.DateTime(), nullable=False),
         sa.Column("updated_at", sa.DateTime(), nullable=False),
         sa.PrimaryKeyConstraint("id"),
@@ -38,7 +36,7 @@ def upgrade():
         sa.Column("id", sa.Integer(), autoincrement=True, nullable=False),
         sa.Column("user_id", sa.Integer(), nullable=False),
         sa.Column("title", sa.String(length=20), nullable=False),
-        sa.Column("order", sa.Integer(), autoincrement=True, nullable=False),
+        sa.Column("order_no", sa.Integer(), nullable=False),
         sa.Column("is_deleted", sa.Boolean(), nullable=False),
         sa.Column("created_at", sa.DateTime(), nullable=False),
         sa.Column("updated_at", sa.DateTime(), nullable=False),
@@ -56,21 +54,21 @@ def upgrade():
     )
     op.create_table(
         "experiment_project",
-        sa.Column("start_date", sa.DATE(), nullable=False),
-        sa.Column("end_date", sa.DATE(), nullable=False),
-        sa.Column("excluded_dates", sa.JSON(), nullable=False),
+        sa.Column("start_date", sa.DATE(), nullable=True),
+        sa.Column("end_date", sa.DATE(), nullable=True),
+        sa.Column("excluded_dates", sa.JSON(), nullable=True),
         sa.Column(
             "experiment_type",
             sa.Enum("ONLINE", "OFFLINE", name="experimenttypeenum"),
             nullable=False,
         ),
-        sa.Column("location", sa.String(length=255), nullable=False),
+        sa.Column("location", sa.String(length=255), nullable=True),
         sa.Column("participant_code", sa.String(length=4), nullable=False),
         sa.Column("is_deleted", sa.Boolean(), nullable=False),
         sa.Column("id", sa.Integer(), autoincrement=True, nullable=False),
         sa.Column("workspace_id", sa.Integer(), nullable=False),
         sa.Column("title", sa.String(length=20), nullable=False),
-        sa.Column("description", sa.String(length=512), nullable=False),
+        sa.Column("description", sa.String(length=512), nullable=True),
         sa.Column("is_public", sa.Boolean(), nullable=False),
         sa.Column("joined_participants", sa.Integer(), nullable=False),
         sa.Column("max_participants", sa.Integer(), nullable=False),
@@ -100,14 +98,8 @@ def upgrade():
         ["start_date"],
         unique=False,
     )
-    op.create_index(
-        op.f("ix_experiment_project_workspace_id"),
-        "experiment_project",
-        ["workspace_id"],
-        unique=False,
-    )
     op.create_table(
-        "experiment_time_slot",
+        "experiment_timeslot",
         sa.Column("id", sa.Integer(), autoincrement=True, nullable=False),
         sa.Column("experiment_project_id", sa.Integer(), nullable=False),
         sa.Column("start_time", sa.Time(), nullable=False),
@@ -120,36 +112,31 @@ def upgrade():
             ["experiment_project.id"],
         ),
         sa.PrimaryKeyConstraint("id"),
+        sa.UniqueConstraint("experiment_project_id", "start_time", "end_time"),
     )
     op.create_index(
-        op.f("ix_experiment_time_slot_created_at"),
-        "experiment_time_slot",
+        op.f("ix_experiment_timeslot_created_at"),
+        "experiment_timeslot",
         ["created_at"],
         unique=False,
     )
     op.create_index(
-        op.f("ix_experiment_time_slot_end_time"),
-        "experiment_time_slot",
+        op.f("ix_experiment_timeslot_end_time"),
+        "experiment_timeslot",
         ["end_time"],
         unique=False,
     )
     op.create_index(
-        op.f("ix_experiment_time_slot_experiment_project_id"),
-        "experiment_time_slot",
-        ["experiment_project_id"],
-        unique=False,
-    )
-    op.create_index(
-        op.f("ix_experiment_time_slot_start_time"),
-        "experiment_time_slot",
+        op.f("ix_experiment_timeslot_start_time"),
+        "experiment_timeslot",
         ["start_time"],
         unique=False,
     )
     op.create_table(
-        "experiment_participant_time_slot",
+        "experiment_participant_timeslot",
         sa.Column("id", sa.Integer(), autoincrement=True, nullable=False),
         sa.Column("user_id", sa.Integer(), nullable=False),
-        sa.Column("experiment_time_slot_id", sa.Integer(), nullable=False),
+        sa.Column("experiment_timeslot_id", sa.Integer(), nullable=False),
         sa.Column("experiment_date", sa.DATE(), nullable=False),
         sa.Column(
             "attendance_status",
@@ -165,8 +152,8 @@ def upgrade():
         sa.Column("created_at", sa.DateTime(), nullable=False),
         sa.Column("updated_at", sa.DateTime(), nullable=False),
         sa.ForeignKeyConstraint(
-            ["experiment_time_slot_id"],
-            ["experiment_time_slot.id"],
+            ["experiment_timeslot_id"],
+            ["experiment_timeslot.id"],
         ),
         sa.ForeignKeyConstraint(
             ["user_id"],
@@ -175,27 +162,15 @@ def upgrade():
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_index(
-        op.f("ix_experiment_participant_time_slot_created_at"),
-        "experiment_participant_time_slot",
+        op.f("ix_experiment_participant_timeslot_created_at"),
+        "experiment_participant_timeslot",
         ["created_at"],
         unique=False,
     )
     op.create_index(
-        op.f("ix_experiment_participant_time_slot_experiment_date"),
-        "experiment_participant_time_slot",
+        op.f("ix_experiment_participant_timeslot_experiment_date"),
+        "experiment_participant_timeslot",
         ["experiment_date"],
-        unique=False,
-    )
-    op.create_index(
-        op.f("ix_experiment_participant_time_slot_experiment_time_slot_id"),
-        "experiment_participant_time_slot",
-        ["experiment_time_slot_id"],
-        unique=False,
-    )
-    op.create_index(
-        op.f("ix_experiment_participant_time_slot_user_id"),
-        "experiment_participant_time_slot",
-        ["user_id"],
         unique=False,
     )
     # ### end Alembic commands ###
@@ -204,39 +179,24 @@ def upgrade():
 def downgrade():
     # ### commands auto generated by Alembic - please adjust! ###
     op.drop_index(
-        op.f("ix_experiment_participant_time_slot_user_id"),
-        table_name="experiment_participant_time_slot",
+        op.f("ix_experiment_participant_timeslot_experiment_date"),
+        table_name="experiment_participant_timeslot",
     )
     op.drop_index(
-        op.f("ix_experiment_participant_time_slot_experiment_time_slot_id"),
-        table_name="experiment_participant_time_slot",
+        op.f("ix_experiment_participant_timeslot_created_at"),
+        table_name="experiment_participant_timeslot",
+    )
+    op.drop_table("experiment_participant_timeslot")
+    op.drop_index(
+        op.f("ix_experiment_timeslot_start_time"), table_name="experiment_timeslot"
     )
     op.drop_index(
-        op.f("ix_experiment_participant_time_slot_experiment_date"),
-        table_name="experiment_participant_time_slot",
+        op.f("ix_experiment_timeslot_end_time"), table_name="experiment_timeslot"
     )
     op.drop_index(
-        op.f("ix_experiment_participant_time_slot_created_at"),
-        table_name="experiment_participant_time_slot",
+        op.f("ix_experiment_timeslot_created_at"), table_name="experiment_timeslot"
     )
-    op.drop_table("experiment_participant_time_slot")
-    op.drop_index(
-        op.f("ix_experiment_time_slot_start_time"), table_name="experiment_time_slot"
-    )
-    op.drop_index(
-        op.f("ix_experiment_time_slot_experiment_project_id"),
-        table_name="experiment_time_slot",
-    )
-    op.drop_index(
-        op.f("ix_experiment_time_slot_end_time"), table_name="experiment_time_slot"
-    )
-    op.drop_index(
-        op.f("ix_experiment_time_slot_created_at"), table_name="experiment_time_slot"
-    )
-    op.drop_table("experiment_time_slot")
-    op.drop_index(
-        op.f("ix_experiment_project_workspace_id"), table_name="experiment_project"
-    )
+    op.drop_table("experiment_timeslot")
     op.drop_index(
         op.f("ix_experiment_project_start_date"), table_name="experiment_project"
     )

@@ -13,6 +13,12 @@ class ProjectAccessDeniedException(CustomException):
     message = "project does not belong to the workspace"
 
 
+class ProjectTimeslotNotFoundException(CustomException):
+    code = 404
+    error_code = "PROJECT_TIMESLOT__NOT_FOUND"
+    message = "project timeslot not found"
+
+
 class ParticipantNotFoundException(CustomException):
     code = 404
     error_code = "PARTICIPANT__NOT_FOUND"
