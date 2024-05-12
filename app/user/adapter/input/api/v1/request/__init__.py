@@ -10,4 +10,4 @@ class CreateUserRequest(BaseModel):
     email: EmailStr = Field(..., description="Email")
     password1: SecretStr = Field(..., description="Password1")
     password2: SecretStr = Field(..., description="Password2")
-    nickname: str = Field(..., description="Nickname")
+    username: str = Field(..., description="username")

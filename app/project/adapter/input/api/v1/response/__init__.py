@@ -35,7 +35,7 @@ class GetExperimentProjectResponse(BaseModel):
     is_public: bool = Field(..., description="Whether the project is public")
     start_date: date = Field(..., description="Experiment start date")
     end_date: date = Field(..., description="Experiment end date")
-    excluded_dates: list[str] = Field(..., description="Experimental exclusion days")
+    excluded_dates: list[date] = Field(..., description="Experimental exclusion days")
     experiment_timeslots: list[ExperimentTimeslotRead] = Field(
         ..., description="Time information of experiment"
     )

@@ -4,7 +4,7 @@ import pytest
 
 from app.user.adapter.output.persistence.repository_adapter import UserRepositoryAdapter
 from app.user.application.exception import (
-    DuplicateEmailOrNicknameException,
+    DuplicateEmailOrusernameException,
     PasswordDoesNotMatchException,
     UserNotFoundException,
 )
@@ -27,7 +27,7 @@ async def test_get_user_list():
     # Given
     page = 1
     size = 10
-    user = UserRead(id=1, email="survey@ding.dong", nickname="survey-dingdong")
+    user = UserRead(id=1, email="survey@ding.dong", username="survey-dingdong")
     repository_mock.get_users.return_value = [user]
     user_service.repository = repository_mock
 
@@ -39,7 +39,7 @@ async def test_get_user_list():
     result = sut[0]
 
     assert result.email == user.email
-    assert result.nickname == user.nickname
+    assert result.username == user.username
     user_service.repository.get_users.assert_awaited_once_with(page=page, size=size)
 
 
@@ -57,7 +57,7 @@ async def test_get_user_me_not_exist():
 @pytest.mark.asyncio
 async def test_get_user_me():
     # Given
-    user = UserRead(id=1, email="survey@ding.dong", nickname="survey-dingdong")
+    user = UserRead(id=1, email="survey@ding.dong", username="survey-dingdong")
     repository_mock.get_user_by_id.return_value = user
     user_service.repository = repository_mock
 
@@ -66,7 +66,7 @@ async def test_get_user_me():
 
     # Then
     assert sut.email == user.email
-    assert sut.nickname == user.nickname
+    assert sut.username == user.username
 
 
 @pytest.mark.asyncio
@@ -76,7 +76,7 @@ async def test_create_user_password_does_not_match():
         email="survey@ding.dong",
         password1="a",
         password2="b",
-        nickname="survey-dingdong",
+        username="survey-dingdong",
     )
 
     # When, Then
@@ -91,19 +91,19 @@ async def test_create_user_duplicated():
         email="survey@ding.dong",
         password1="a",
         password2="a",
-        nickname="survey-dingdong",
+        username="survey-dingdong",
     )
     user = make_user(
         password="password",
         email="survey@ding.dong",
-        nickname="survey-dingdong",
+        username="survey-dingdong",
         is_admin=False,
     )
-    repository_mock.get_user_by_email_or_nickname.return_value = user
+    repository_mock.get_user_by_email_or_username.return_value = user
     user_service.repository = repository_mock
 
     # When, Then
-    with pytest.raises(DuplicateEmailOrNicknameException):
+    with pytest.raises(DuplicateEmailOrusernameException):
         await user_service.create_user(command=command)
 
 
@@ -114,9 +114,9 @@ async def test_create_user():
         email="survey@ding.dong",
         password1="a",
         password2="a",
-        nickname="survey-dingdong",
+        username="survey-dingdong",
     )
-    repository_mock.get_user_by_email_or_nickname.return_value = None
+    repository_mock.get_user_by_email_or_username.return_value = None
     user_service.repository = repository_mock
 
     # When
@@ -145,7 +145,7 @@ async def test_is_admin_user_is_not_admin():
     user = make_user(
         password="password",
         email="survey@ding.dong",
-        nickname="survey-dingdong",
+        username="survey-dingdong",
         is_admin=False,
     )
     repository_mock.get_user_by_id.return_value = user
@@ -164,7 +164,7 @@ async def test_is_admin():
     user = make_user(
         password="password",
         email="survey@ding.dong",
-        nickname="survey-dingdong",
+        username="survey-dingdong",
         is_admin=True,
     )
     repository_mock.get_user_by_id.return_value = user
@@ -195,7 +195,7 @@ async def test_login():
         id=1,
         password=generate_hashed_password(password="password"),
         email="survey@ding.dong",
-        nickname="survey-dingdong",
+        username="survey-dingdong",
         is_admin=False,
     )
     repository_mock.get_user_by_email.return_value = user

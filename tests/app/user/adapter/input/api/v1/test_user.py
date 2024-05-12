@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.server import app
 from app.user.adapter.output.persistence.sqlalchemy.user import UserSQLAlchemyRepo
 from app.user.application.exception import (
-    DuplicateEmailOrNicknameException,
+    DuplicateEmailOrusernameException,
     PasswordDoesNotMatchException,
     UserNotFoundException,
 )
@@ -23,7 +23,7 @@ async def test_get_users(session: AsyncSession):
     user = make_user(
         password="password",
         email="a@b.c",
-        nickname="survey-dingdong",
+        username="survey-dingdong",
         is_admin=True,
     )
     session.add(user)
@@ -36,7 +36,7 @@ async def test_get_users(session: AsyncSession):
     # Then
     sut = response.json()
     assert len(sut) == 1
-    assert sut[0] == {"id": 1, "email": "a@b.c", "nickname": "survey-dingdong"}
+    assert sut[0] == {"id": 1, "email": "a@b.c", "username": "survey-dingdong"}
 
 
 @pytest.mark.asyncio
@@ -45,7 +45,7 @@ async def test_get_user_me(session: AsyncSession):
     user = make_user(
         password="password",
         email="a@b.c",
-        nickname="survey-dingdong",
+        username="survey-dingdong",
         is_admin=True,
     )
     session.add(user)
@@ -57,7 +57,7 @@ async def test_get_user_me(session: AsyncSession):
 
     # Then
     sut = response.json()
-    assert sut == {"id": 1, "email": "a@b.c", "nickname": "survey-dingdong"}
+    assert sut == {"id": 1, "email": "a@b.c", "username": "survey-dingdong"}
 
 
 @pytest.mark.asyncio
@@ -67,7 +67,7 @@ async def test_create_user_password_does_not_match(session: AsyncSession):
         "email": "survey@ding.dong",
         "password1": "a",
         "password2": "b",
-        "nickname": "survey-dingdong",
+        "username": "survey-dingdong",
     }
     exc = PasswordDoesNotMatchException
 
@@ -88,7 +88,7 @@ async def test_create_user_duplicated_user(session: AsyncSession):
     user = make_user(
         password="password",
         email="a@b.c",
-        nickname="survey-dingdong",
+        username="survey-dingdong",
         is_admin=True,
     )
     session.add(user)
@@ -98,9 +98,9 @@ async def test_create_user_duplicated_user(session: AsyncSession):
         "email": "a@b.c",
         "password1": "a",
         "password2": "a",
-        "nickname": "survey-dingdong",
+        "username": "survey-dingdong",
     }
-    exc = DuplicateEmailOrNicknameException
+    exc = DuplicateEmailOrusernameException
 
     # When
     async with AsyncClient(app=app, base_url="http://test") as client:
@@ -117,12 +117,12 @@ async def test_create_user_duplicated_user(session: AsyncSession):
 async def test_create_user(session: AsyncSession):
     # Given
     email = "survey@ding.dong"
-    nickname = "survey-dingdong"
+    username = "survey-dingdong"
     body = {
         "email": email,
         "password1": "a",
         "password2": "a",
-        "nickname": nickname,
+        "username": username,
     }
 
     # When
@@ -130,13 +130,13 @@ async def test_create_user(session: AsyncSession):
         response = await client.post("/users", headers=HEADERS, json=body)
 
     # Then
-    assert response.json() == {"email": email, "nickname": nickname}
+    assert response.json() == {"email": email, "username": username}
 
     user_repo = UserSQLAlchemyRepo()
-    sut = await user_repo.get_user_by_email_or_nickname(nickname=nickname, email=email)
+    sut = await user_repo.get_user_by_email_or_username(username=username, email=email)
     assert sut is not None
     assert sut.email == email
-    assert sut.nickname == nickname
+    assert sut.username == username
 
 
 @pytest.mark.asyncio
@@ -166,7 +166,7 @@ async def test_login(session: AsyncSession):
     user = make_user(
         password=generate_hashed_password(password=password),
         email=email,
-        nickname="survey-dingdong",
+        username="survey-dingdong",
         is_admin=True,
     )
     session.add(user)

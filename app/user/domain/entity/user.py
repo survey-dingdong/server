@@ -17,7 +17,7 @@ class User(Base, TimestampMixin):
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     password: Mapped[str] = mapped_column(String(255), nullable=False)
     email: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
-    nickname: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
+    username: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
     is_admin: Mapped[bool] = mapped_column(default=False)
 
     experiment_participant_timeslots: Mapped[
@@ -27,11 +27,11 @@ class User(Base, TimestampMixin):
     )
 
     @classmethod
-    def create(cls, *, email: str, password: str, nickname: str) -> "User":
+    def create(cls, *, email: str, password: str, username: str) -> "User":
         return cls(
             email=email,
             password=password,
-            nickname=nickname,
+            username=username,
             is_admin=False,
         )
 
@@ -41,4 +41,4 @@ class UserRead(BaseModel):
 
     id: int = Field(..., title="USER ID")
     email: str = Field(..., title="Email")
-    nickname: str = Field(..., title="Nickname")
+    username: str = Field(..., title="username")

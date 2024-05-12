@@ -5,6 +5,7 @@ Revises:
 Create Date: 2024-05-10 00:00:00.535980
 
 """
+
 import sqlalchemy as sa
 from alembic import op
 
@@ -22,13 +23,13 @@ def upgrade():
         sa.Column("id", sa.Integer(), autoincrement=True, nullable=False),
         sa.Column("password", sa.String(length=255), nullable=False),
         sa.Column("email", sa.String(length=255), nullable=False),
-        sa.Column("nickname", sa.String(length=255), nullable=False),
+        sa.Column("username", sa.String(length=255), nullable=False),
         sa.Column("is_admin", sa.Boolean(), nullable=False),
         sa.Column("created_at", sa.DateTime(), nullable=False),
         sa.Column("updated_at", sa.DateTime(), nullable=False),
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint("email"),
-        sa.UniqueConstraint("nickname"),
+        sa.UniqueConstraint("username"),
     )
     op.create_index(op.f("ix_user_created_at"), "user", ["created_at"], unique=False)
     op.create_table(

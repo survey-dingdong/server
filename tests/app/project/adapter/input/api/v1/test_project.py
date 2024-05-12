@@ -19,7 +19,7 @@ async def test_get_project_list(session: AsyncSession):
     user = make_user(
         password="password",
         email="a@b.c",
-        nickname="survey-dingdong",
+        username="survey-dingdong",
         is_admin=True,
     )
 
@@ -59,7 +59,7 @@ async def test_get_project_not_exist(session: AsyncSession):
     user = make_user(
         password="password",
         email="a@b.c",
-        nickname="survey-dingdong",
+        username="survey-dingdong",
         is_admin=True,
     )
 
@@ -95,7 +95,7 @@ async def test_get_project_by_id(session: AsyncSession):
     user = make_user(
         password="password",
         email="a@b.c",
-        nickname="survey-dingdong",
+        username="survey-dingdong",
         is_admin=True,
     )
 
@@ -141,7 +141,7 @@ async def test_create_project(session: AsyncSession):
     user = make_user(
         password="password",
         email="a@b.c",
-        nickname="survey-dingdong",
+        username="survey-dingdong",
         is_admin=True,
     )
 
@@ -174,7 +174,7 @@ async def test_update_project_not_exist(session: AsyncSession):
     user = make_user(
         password="password",
         email="a@b.c",
-        nickname="survey-dingdong",
+        username="survey-dingdong",
         is_admin=True,
     )
 
@@ -230,7 +230,7 @@ async def test_update_project(session: AsyncSession):
     user = make_user(
         password="password",
         email="a@b.c",
-        nickname="survey-dingdong",
+        username="survey-dingdong",
         is_admin=True,
     )
 
@@ -286,7 +286,7 @@ async def test_delete_project_not_exist(session: AsyncSession):
     user = make_user(
         password="password",
         email="a@b.c",
-        nickname="survey-dingdong",
+        username="survey-dingdong",
         is_admin=True,
     )
 
@@ -320,7 +320,7 @@ async def test_delete_project(session: AsyncSession):
     user = make_user(
         password="password",
         email="a@b.c",
-        nickname="survey-dingdong",
+        username="survey-dingdong",
         is_admin=True,
     )
 

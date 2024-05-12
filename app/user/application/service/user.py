@@ -1,7 +1,7 @@
 from app.user.adapter.output.persistence.repository_adapter import UserRepositoryAdapter
 from app.user.application.dto import LoginResponseDTO
 from app.user.application.exception import (
-    DuplicateEmailOrNicknameException,
+    DuplicateEmailOrusernameException,
     PasswordDoesNotMatchException,
     UserNotFoundException,
 )
@@ -40,19 +40,19 @@ class UserService(UserUseCase):
         if command.password1.get_secret_value() != command.password2.get_secret_value():
             raise PasswordDoesNotMatchException
 
-        is_exist = await self.repository.get_user_by_email_or_nickname(
+        is_exist = await self.repository.get_user_by_email_or_username(
             email=command.email,
-            nickname=command.nickname,
+            username=command.username,
         )
         if is_exist:
-            raise DuplicateEmailOrNicknameException
+            raise DuplicateEmailOrusernameException
 
         user = User.create(
             email=command.email,
             password=generate_hashed_password(
                 password=command.password1.get_secret_value()
             ),
-            nickname=command.nickname,
+            username=command.username,
         )
         await self.repository.save(user=user)
 

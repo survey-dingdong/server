@@ -11,11 +11,11 @@ class UserSQLAlchemyRepo(UserRepo):
         result = await session.execute(query)
         return result.scalars().all()
 
-    async def get_user_by_email_or_nickname(
-        self, email: str, nickname: str
+    async def get_user_by_email_or_username(
+        self, email: str, username: str
     ) -> User | None:
         result = await session.execute(
-            select(User).where(or_(User.email == email, User.nickname == nickname)),
+            select(User).where(or_(User.email == email, User.username == username)),
         )
         return result.scalars().first()
 

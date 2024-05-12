@@ -14,13 +14,13 @@ async def test_get_users(session: AsyncSession):
     user_1 = make_user(
         password="password",
         email="a@b.c",
-        nickname="survey-dingdong",
+        username="survey-dingdong",
         is_admin=True,
     )
     user_2 = make_user(
         password="password2",
         email="b@b.c",
-        nickname="test",
+        username="test",
         is_admin=False,
     )
     session.add_all([user_1, user_2])
@@ -34,38 +34,38 @@ async def test_get_users(session: AsyncSession):
     saved_user_1 = sut[0]
     assert saved_user_1.password == user_1.password
     assert saved_user_1.email == user_1.email
-    assert saved_user_1.nickname == user_1.nickname
+    assert saved_user_1.username == user_1.username
     assert saved_user_1.is_admin == user_1.is_admin
 
     saved_user_2 = sut[1]
     assert saved_user_2.password == user_2.password
     assert saved_user_2.email == user_2.email
-    assert saved_user_2.nickname == user_2.nickname
+    assert saved_user_2.username == user_2.username
     assert saved_user_2.is_admin == user_2.is_admin
 
 
 @pytest.mark.asyncio
-async def test_get_user_by_email_or_nickname(session: AsyncSession):
+async def test_get_user_by_email_or_username(session: AsyncSession):
     # Given
     email = "a@b.c"
-    nickname = "survey-dingdong"
+    username = "survey-dingdong"
     user = make_user(
         password="password2",
         email=email,
-        nickname=nickname,
+        username=username,
         is_admin=False,
     )
     session.add(user)
     await session.commit()
 
     # When
-    sut = await user_repo.get_user_by_email_or_nickname(email=email, nickname=nickname)
+    sut = await user_repo.get_user_by_email_or_username(email=email, username=username)
 
     # Then
     assert isinstance(sut, User)
     assert sut.id == user.id
     assert sut.email == email
-    assert sut.nickname == nickname
+    assert sut.username == username
 
 
 @pytest.mark.asyncio
@@ -88,7 +88,7 @@ async def test_get_user_by_email(session: AsyncSession):
     user = make_user(
         password=password,
         email=email,
-        nickname="survey-dingdong",
+        username="survey-dingdong",
         is_admin=False,
     )
     session.add(user)
@@ -112,7 +112,7 @@ async def test_save(session: AsyncSession):
     user = make_user(
         password=password,
         email=email,
-        nickname="survey-dingdong",
+        username="survey-dingdong",
         is_admin=False,
     )
 

@@ -4,12 +4,12 @@ from pydantic import BaseModel, Field
 class GetUserListResponse(BaseModel):
     id: int = Field(..., description="ID")
     email: str = Field(..., description="Email")
-    nickname: str = Field(..., description="Nickname")
+    username: str = Field(..., description="username")
 
 
 class CreateUserResponse(BaseModel):
     email: str = Field(..., description="Email")
-    nickname: str = Field(..., description="Nickname")
+    username: str = Field(..., description="username")
 
 
 class LoginResponse(BaseModel):

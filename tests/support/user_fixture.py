@@ -5,13 +5,13 @@ def make_user(
     id: int | None = None,
     password: str = "password",
     email: str = "survey@ding.dong",
-    nickname: str = "survey-dingdong",
+    username: str = "survey-dingdong",
     is_admin: bool = False,
 ):
     return User(
         id=id,
         password=password,
         email=email,
-        nickname=nickname,
+        username=username,
         is_admin=is_admin,
     )

@@ -10,12 +10,12 @@ class UserRepositoryAdapter:
         users = await self.repository.get_users(page=page, size=size)
         return [UserRead.model_validate(user) for user in users]
 
-    async def get_user_by_email_or_nickname(
-        self, email: str, nickname: str
+    async def get_user_by_email_or_username(
+        self, email: str, username: str
     ) -> User | None:
-        return await self.repository.get_user_by_email_or_nickname(
+        return await self.repository.get_user_by_email_or_username(
             email=email,
-            nickname=nickname,
+            username=username,
         )
 
     async def get_user_by_id(self, user_id: int) -> User | None:

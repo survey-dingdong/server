@@ -20,7 +20,7 @@ async def test_get_users(session: AsyncSession):
         id=1,
         password="password",
         email="a@b.c",
-        nickname="survey-dingdong",
+        username="survey-dingdong",
         is_admin=True,
     )
     user_repo_mock.get_users.return_value = [user]
@@ -33,28 +33,28 @@ async def test_get_users(session: AsyncSession):
     assert len(sut) == 1
     result = sut[0]
     assert result.email == user.email
-    assert result.nickname == user.nickname
+    assert result.username == user.username
     repository_adapter.repository.get_users.assert_awaited_once_with(
         page=page, size=size
     )
 
 
 @pytest.mark.asyncio
-async def test_get_user_by_email_or_nickname(session: AsyncSession):
+async def test_get_user_by_email_or_username(session: AsyncSession):
     # Given
     user = make_user(
         password="password",
         email="a@b.c",
-        nickname="survey-dingdong",
+        username="survey-dingdong",
         is_admin=True,
     )
-    user_repo_mock.get_user_by_email_or_nickname.return_value = user
+    user_repo_mock.get_user_by_email_or_username.return_value = user
     repository_adapter.repository = user_repo_mock
 
     # When
-    sut = await repository_adapter.get_user_by_email_or_nickname(
+    sut = await repository_adapter.get_user_by_email_or_username(
         email=user.email,
-        nickname=user.nickname,
+        username=user.username,
     )
 
     # Then
@@ -62,11 +62,11 @@ async def test_get_user_by_email_or_nickname(session: AsyncSession):
     assert sut.id == user.id
     assert sut.password == user.password
     assert sut.email == user.email
-    assert sut.nickname == user.nickname
+    assert sut.username == user.username
     assert sut.is_admin == user.is_admin
-    repository_adapter.repository.get_user_by_email_or_nickname.assert_awaited_once_with(
+    repository_adapter.repository.get_user_by_email_or_username.assert_awaited_once_with(
         email=user.email,
-        nickname=user.nickname,
+        username=user.username,
     )
 
 
@@ -76,7 +76,7 @@ async def test_get_user_by_id(session: AsyncSession):
     user = make_user(
         password="password",
         email="a@b.c",
-        nickname="survey-dingdong",
+        username="survey-dingdong",
         is_admin=True,
     )
     user_repo_mock.get_user_by_id.return_value = user
@@ -90,7 +90,7 @@ async def test_get_user_by_id(session: AsyncSession):
     assert sut.id == user.id
     assert sut.password == user.password
     assert sut.email == user.email
-    assert sut.nickname == user.nickname
+    assert sut.username == user.username
     assert sut.is_admin == user.is_admin
     repository_adapter.repository.get_user_by_id.assert_awaited_once_with(
         user_id=user.id
@@ -103,7 +103,7 @@ async def test_get_user_by_email(session: AsyncSession):
     user = make_user(
         password="password",
         email="a@b.c",
-        nickname="survey-dingdong",
+        username="survey-dingdong",
         is_admin=True,
     )
     user_repo_mock.get_user_by_email.return_value = user
@@ -117,7 +117,7 @@ async def test_get_user_by_email(session: AsyncSession):
     assert sut.id == user.id
     assert sut.password == user.password
     assert sut.email == user.email
-    assert sut.nickname == user.nickname
+    assert sut.username == user.username
     assert sut.is_admin == user.is_admin
     repository_adapter.repository.get_user_by_email.assert_awaited_once_with(
         email=user.email
@@ -130,7 +130,7 @@ async def test_save(session: AsyncSession):
     user = make_user(
         password="password",
         email="a@b.c",
-        nickname="survey-dingdong",
+        username="survey-dingdong",
         is_admin=True,
     )
     user_repo_mock.save.return_value = None
