@@ -1,0 +1,13 @@
+FROM mysql:8.0.33
+
+MAINTAINER Survey-DingDong <whdvlf94@gmail.com>
+
+ENV MYSQL_USER=admin
+ENV MYSQL_PASSWORD=devpassword
+ENV MYSQL_DATABASE=survey_dingdong
+ENV MYSQL_ROOT_PASSWORD=admin
+ENV TZ=Asia/Seoul
+
+EXPOSE 3306
+
+CMD ["mysqld", "--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci"]

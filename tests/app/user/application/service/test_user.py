@@ -74,8 +74,8 @@ async def test_create_user_password_does_not_match():
     # Given
     command = CreateUserCommand(
         email="survey@ding.dong",
-        password1="a",
-        password2="b",
+        password1="Qwer1234!",
+        password2="Qwer1234@",
         username="survey-dingdong",
     )
 
@@ -89,8 +89,8 @@ async def test_create_user_duplicated():
     # Given
     command = CreateUserCommand(
         email="survey@ding.dong",
-        password1="a",
-        password2="a",
+        password1="Qwer1234!",
+        password2="Qwer1234!",
         username="survey-dingdong",
     )
     user = make_user(
@@ -112,8 +112,8 @@ async def test_create_user():
     # Given
     command = CreateUserCommand(
         email="survey@ding.dong",
-        password1="a",
-        password2="a",
+        password1="Qwer1234!",
+        password2="Qwer1234!",
         username="survey-dingdong",
     )
     repository_mock.get_user_by_email_or_username.return_value = None
