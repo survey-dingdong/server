@@ -26,7 +26,8 @@ class UserService(UserUseCase):
         self.repository = repository
 
     async def get_user_list(self, page: int, size: int) -> list[UserRead]:
-        return await self.repository.get_users(page=page, size=size)
+        users = await self.repository.get_users(page=page, size=size)
+        return [UserRead.model_validate(user) for user in users]
 
     async def get_user_by_id(self, user_id: int) -> User:
         user = await self.repository.get_user_by_id(user_id=user_id)
@@ -37,9 +38,6 @@ class UserService(UserUseCase):
 
     @Transactional()
     async def create_user(self, command: CreateUserCommand) -> None:
-        if command.password1.get_secret_value() != command.password2.get_secret_value():
-            raise PasswordDoesNotMatchException
-
         is_exist = await self.repository.get_user_by_email_or_username(
             email=command.email,
             username=command.username,
@@ -50,7 +48,7 @@ class UserService(UserUseCase):
         user = User.create(
             email=command.email,
             password=generate_hashed_password(
-                password=command.password1.get_secret_value()
+                password=command.password.get_secret_value()
             ),
             username=command.username,
         )

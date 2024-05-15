@@ -6,7 +6,6 @@ from app.server import app
 from app.user.adapter.output.persistence.sqlalchemy.user import UserSQLAlchemyRepo
 from app.user.application.exception import (
     DuplicateEmailOrusernameException,
-    PasswordDoesNotMatchException,
     UserNotFoundException,
 )
 from core.helpers.auth import generate_hashed_password
@@ -61,28 +60,6 @@ async def test_get_user_me(session: AsyncSession):
 
 
 @pytest.mark.asyncio
-async def test_create_user_password_does_not_match(session: AsyncSession):
-    # Given
-    body = {
-        "email": "survey@ding.dong",
-        "password1": "Qwer1234!",
-        "password2": "Qwer1234@",
-        "username": "survey-dingdong",
-    }
-    exc = PasswordDoesNotMatchException
-
-    # When
-    async with AsyncClient(app=app, base_url="http://test") as client:
-        response = await client.post("/users", headers=HEADERS, json=body)
-
-    # Then
-    assert response.json() == {
-        "error_code": exc.error_code,
-        "message": exc.message,
-    }
-
-
-@pytest.mark.asyncio
 async def test_create_user_duplicated_user(session: AsyncSession):
     # Given
     user = make_user(
@@ -96,8 +73,7 @@ async def test_create_user_duplicated_user(session: AsyncSession):
 
     body = {
         "email": "a@b.c",
-        "password1": "Qwer1234!",
-        "password2": "Qwer1234!",
+        "password": "Qwer1234!",
         "username": "survey-dingdong",
     }
     exc = DuplicateEmailOrusernameException
@@ -120,8 +96,7 @@ async def test_create_user(session: AsyncSession):
     username = "survey-dingdong"
     body = {
         "email": email,
-        "password1": "Qwer1234!",
-        "password2": "Qwer1234!",
+        "password": "Qwer1234!",
         "username": username,
     }
 

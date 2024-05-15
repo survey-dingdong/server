@@ -10,11 +10,10 @@ class LoginRequest(BaseModel):
 
 class CreateUserRequest(BaseModel):
     email: EmailStr = Field(..., description="Email")
-    password1: SecretStr = Field(..., description="Password1")
-    password2: SecretStr = Field(..., description="Password2")
+    password: SecretStr = Field(..., description="Password")
     username: str = Field(..., description="username")
 
-    @field_validator("password1", "password2")
+    @field_validator("password")
     @classmethod
     def check_password(cls, v: SecretStr) -> SecretStr:
         password_pattern = (

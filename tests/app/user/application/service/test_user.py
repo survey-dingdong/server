@@ -5,7 +5,6 @@ import pytest
 from app.user.adapter.output.persistence.repository_adapter import UserRepositoryAdapter
 from app.user.application.exception import (
     DuplicateEmailOrusernameException,
-    PasswordDoesNotMatchException,
     UserNotFoundException,
 )
 from app.user.application.service.user import UserService
@@ -70,27 +69,11 @@ async def test_get_user_me():
 
 
 @pytest.mark.asyncio
-async def test_create_user_password_does_not_match():
-    # Given
-    command = CreateUserCommand(
-        email="survey@ding.dong",
-        password1="Qwer1234!",
-        password2="Qwer1234@",
-        username="survey-dingdong",
-    )
-
-    # When, Then
-    with pytest.raises(PasswordDoesNotMatchException):
-        await user_service.create_user(command=command)
-
-
-@pytest.mark.asyncio
 async def test_create_user_duplicated():
     # Given
     command = CreateUserCommand(
         email="survey@ding.dong",
-        password1="Qwer1234!",
-        password2="Qwer1234!",
+        password="Qwer1234!",
         username="survey-dingdong",
     )
     user = make_user(
@@ -112,8 +95,7 @@ async def test_create_user():
     # Given
     command = CreateUserCommand(
         email="survey@ding.dong",
-        password1="Qwer1234!",
-        password2="Qwer1234!",
+        password="Qwer1234!",
         username="survey-dingdong",
     )
     repository_mock.get_user_by_email_or_username.return_value = None

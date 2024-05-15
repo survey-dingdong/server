@@ -9,7 +9,7 @@ class PasswordDoesNotMatchException(CustomException):
 
 class DuplicateEmailOrusernameException(CustomException):
     code = 400
-    error_code = "USER__DUPLICATE_EMAIL_OR_username"
+    error_code = "USER__DUPLICATE_EMAIL_OR_USERNAME"
     message = "duplicate email or username"
 
 
