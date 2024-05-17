@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
 
+from pydantic import SecretStr
+
 from app.user.application.dto import CreateUserResponseDTO, LoginResponseDTO
 from app.user.domain.command import CreateUserCommand
 from app.user.domain.entity.user import User
@@ -23,5 +25,11 @@ class UserUseCase(ABC):
         """Is admin"""
 
     @abstractmethod
-    async def login(self, email: str, password: str) -> LoginResponseDTO:
+    async def login(self, email: str, password: SecretStr) -> LoginResponseDTO:
         """Login"""
+
+    @abstractmethod
+    async def change_password(
+        self, user_id: int, old_password: SecretStr, new_password: SecretStr
+    ) -> None:
+        """Change password"""

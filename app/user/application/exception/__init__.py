@@ -7,6 +7,12 @@ class PasswordDoesNotMatchException(CustomException):
     message = "password does not match"
 
 
+class PasswordNotChangedException(CustomException):
+    code = 400
+    error_code = "USER__PASSWORD_NOT_CHANGED"
+    message = "password not changed"
+
+
 class DuplicateEmailOrusernameException(CustomException):
     code = 400
     error_code = "USER__DUPLICATE_EMAIL_OR_USERNAME"

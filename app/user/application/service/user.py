@@ -1,8 +1,11 @@
+from pydantic import SecretStr
+
 from app.user.adapter.output.persistence.repository_adapter import UserRepositoryAdapter
 from app.user.application.dto import CreateUserResponseDTO, LoginResponseDTO
 from app.user.application.exception import (
     DuplicateEmailOrusernameException,
     PasswordDoesNotMatchException,
+    PasswordNotChangedException,
     UserNotFoundException,
 )
 from app.user.domain.command import CreateUserCommand
@@ -68,13 +71,13 @@ class UserService(UserUseCase):
 
         return True
 
-    async def login(self, email: str, password: str) -> LoginResponseDTO:
+    async def login(self, email: str, password: SecretStr) -> LoginResponseDTO:
         user = await self.repository.get_user_by_email(email=email)
         if user is None:
             raise UserNotFoundException
 
         if not validate_hashed_password(
-            password=password, hashed_password=user.password
+            password=password.get_secret_value(), hashed_password=user.password
         ):
             raise PasswordDoesNotMatchException
 
@@ -93,3 +96,23 @@ class UserService(UserUseCase):
             ttl=config.REFRESH_TOKEN_TTL,
         )
         return response
+
+    @Transactional()
+    async def change_password(
+        self, user_id: int, old_password: SecretStr, new_password: SecretStr
+    ) -> None:
+        user = await self.repository.get_user_by_id(user_id=user_id)
+        if user is None:
+            raise UserNotFoundException
+
+        if not validate_hashed_password(
+            password=old_password.get_secret_value(), hashed_password=user.password
+        ):
+            raise PasswordDoesNotMatchException
+
+        if old_password.get_secret_value() == new_password.get_secret_value():
+            raise PasswordNotChangedException
+
+        user.password = generate_hashed_password(
+            password=new_password.get_secret_value()
+        )

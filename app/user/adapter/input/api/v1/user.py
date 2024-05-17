@@ -1,7 +1,11 @@
 from dependency_injector.wiring import Provide, inject
 from fastapi import APIRouter, Depends, Query, Request
 
-from app.user.adapter.input.api.v1.request import CreateUserRequest, LoginRequest
+from app.user.adapter.input.api.v1.request import (
+    ChangePasswordRequest,
+    CreateUserRequest,
+    LoginRequest,
+)
 from app.user.adapter.input.api.v1.response import (
     CreateUserResponse,
     GetUserListResponse,
@@ -66,3 +70,20 @@ async def login(
 ):
     token = await usecase.login(email=request.email, password=request.password)
     return {"token": token.token, "refresh_token": token.refresh_token}
+
+
+@user_router.patch(
+    "/password",
+    dependencies=[Depends(PermissionDependency([IsAuthenticated]))],
+)
+@inject
+async def change_password(
+    auth_info: Request,
+    request: ChangePasswordRequest,
+    usecase: UserUseCase = Depends(Provide[UserContainer.user_service]),
+):
+    await usecase.change_password(
+        user_id=auth_info.user.id,
+        old_password=request.old_password,
+        new_password=request.new_password,
+    )
