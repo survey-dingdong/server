@@ -6,7 +6,7 @@ from app.project.domain.vo.type import ExperimentTypeEnum
 
 
 class CreateProjectRequest(BaseModel):
-    title: str = Field(..., description="Title")
+    title: str = Field(..., min_length=1, max_length=20, description="Title")
 
 
 class ExperimentTimeslotRequest(BaseModel):
@@ -19,7 +19,7 @@ class ExperimentTimeslotRequest(BaseModel):
 
 
 class PutProjectRequest(BaseModel):
-    title: str = Field(..., description="Title")
+    title: str = Field(..., min_length=1, max_length=20, description="Title")
     description: str = Field(..., description="Description")
     is_public: bool = Field(..., description="Whether the project is public")
     start_date: date = Field(..., ddescription="Experiment start date")
