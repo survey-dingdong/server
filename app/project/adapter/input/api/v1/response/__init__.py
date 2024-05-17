@@ -33,14 +33,14 @@ class GetExperimentProjectResponse(BaseModel):
     title: str = Field(..., description="Title")
     description: str | None = Field(None, description="Description")
     is_public: bool = Field(..., description="Whether the project is public")
-    start_date: date = Field(..., description="Experiment start date")
-    end_date: date = Field(..., description="Experiment end date")
+    start_date: date | None = Field(..., description="Experiment start date")
+    end_date: date | None = Field(..., description="Experiment end date")
     excluded_dates: list[date] = Field(..., description="Experimental exclusion days")
     experiment_timeslots: list[ExperimentTimeslotRead] = Field(
         ..., description="Time information of experiment"
     )
     experiment_type: ExperimentTypeEnum = Field(...)
-    location: str = Field(..., description="Experiment location")
+    location: str | None = Field(..., description="Experiment location")
     participant_code: str = Field(..., description="Experiment participant code")
     created_at: datetime = Field(..., description="Created datetime")
     updated_at: datetime = Field(..., description="Updated datetime")
