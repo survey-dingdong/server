@@ -1,7 +1,8 @@
-from fastapi import Depends, FastAPI, Request
+from fastapi import Depends, FastAPI, Request, status
 from fastapi.middleware import Middleware
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from sqlalchemy.exc import DataError, IntegrityError
 
 from app.auth.adapter.input.api import router as auth_router
 from app.container import Container
@@ -49,6 +50,20 @@ def init_listeners(app_: FastAPI) -> None:
         return JSONResponse(
             status_code=exc.code,
             content={"error_code": exc.error_code, "message": exc.message},
+        )
+
+    @app_.exception_handler(IntegrityError)
+    async def sql_integrity_exception_handler(request: Request, exc: IntegrityError):
+        return JSONResponse(
+            status_code=status.HTTP_409_CONFLICT,
+            content={"error_code": "INTEGIRTY_ERROR", "message": exc.args},
+        )
+
+    @app_.exception_handler(DataError)
+    async def sql_data_exception_handler(request: Request, exc: DataError):
+        return JSONResponse(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            content={"error_code": "DATA_ERROR", "message": str(exc.orig)},
         )
 
 
