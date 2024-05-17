@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from app.user.application.dto import LoginResponseDTO
+from app.user.application.dto import CreateUserResponseDTO, LoginResponseDTO
 from app.user.domain.command import CreateUserCommand
 from app.user.domain.entity.user import User
 
@@ -15,7 +15,7 @@ class UserUseCase(ABC):
         """Get user list"""
 
     @abstractmethod
-    async def create_user(self, command: CreateUserCommand) -> None:
+    async def create_user(self, command: CreateUserCommand) -> CreateUserResponseDTO:
         """Create User"""
 
     @abstractmethod

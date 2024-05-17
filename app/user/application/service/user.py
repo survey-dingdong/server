@@ -1,5 +1,5 @@
 from app.user.adapter.output.persistence.repository_adapter import UserRepositoryAdapter
-from app.user.application.dto import LoginResponseDTO
+from app.user.application.dto import CreateUserResponseDTO, LoginResponseDTO
 from app.user.application.exception import (
     DuplicateEmailOrusernameException,
     PasswordDoesNotMatchException,
@@ -37,7 +37,7 @@ class UserService(UserUseCase):
         return user
 
     @Transactional()
-    async def create_user(self, command: CreateUserCommand) -> None:
+    async def create_user(self, command: CreateUserCommand) -> CreateUserResponseDTO:
         is_exist = await self.repository.get_user_by_email_or_username(
             email=command.email,
             username=command.username,
@@ -52,7 +52,11 @@ class UserService(UserUseCase):
             ),
             username=command.username,
         )
-        await self.repository.save(user=user)
+        user = await self.repository.save(user=user, auto_flush=True)
+
+        return CreateUserResponseDTO(
+            token=TokenHelper.encode(payload={"user_id:": user.id}),
+        )
 
     async def is_admin(self, user_id: int) -> bool:
         user = await self.repository.get_user_by_id(user_id=user_id)

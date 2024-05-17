@@ -23,5 +23,5 @@ class UserRepo(ABC):
         """Get user by email"""
 
     @abstractmethod
-    async def save(self, user: User) -> None:
+    async def save(self, user: User, auto_flush: bool) -> User:
         """Save user"""

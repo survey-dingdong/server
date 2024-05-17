@@ -52,8 +52,7 @@ async def create_user(
     usecase: UserUseCase = Depends(Provide[UserContainer.user_service]),
 ):
     command = CreateUserCommand(**request.model_dump())
-    await usecase.create_user(command=command)
-    return {"email": request.email, "username": request.username}
+    return await usecase.create_user(command=command)
 
 
 @user_router.post(

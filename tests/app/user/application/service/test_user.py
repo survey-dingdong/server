@@ -101,11 +101,19 @@ async def test_create_user():
     repository_mock.get_user_by_email_or_username.return_value = None
     user_service.repository = repository_mock
 
+    user = make_user(
+        id=1,
+        password="Qwer1234!",
+        email="survey@ding.dong",
+        username="survey-dingdong",
+        is_admin=False,
+    )
+    repository_mock.save.return_value = user
     # When
-    await user_service.create_user(command=command)
+    sut = await user_service.create_user(command=command)
 
     # Then
-    repository_mock.save.assert_awaited_once()
+    assert "token" in sut.json()
 
 
 @pytest.mark.asyncio

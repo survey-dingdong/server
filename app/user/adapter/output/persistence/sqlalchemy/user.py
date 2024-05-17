@@ -27,5 +27,8 @@ class UserSQLAlchemyRepo(UserRepo):
         result = await session.execute(select(User).where(User.email == email))
         return result.scalars().first()
 
-    async def save(self, user: User) -> None:
+    async def save(self, user: User, auto_flush: bool = False) -> User:
         session.add(user)
+        if auto_flush:
+            await session.flush()
+        return user

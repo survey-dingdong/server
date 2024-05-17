@@ -102,11 +102,9 @@ async def test_create_user(session: AsyncSession):
 
     # When
     async with AsyncClient(app=app, base_url="http://test") as client:
-        response = await client.post("/users", headers=HEADERS, json=body)
+        await client.post("/users", headers=HEADERS, json=body)
 
     # Then
-    assert response.json() == {"email": email, "username": username}
-
     user_repo = UserSQLAlchemyRepo()
     sut = await user_repo.get_user_by_email_or_username(username=username, email=email)
     assert sut is not None

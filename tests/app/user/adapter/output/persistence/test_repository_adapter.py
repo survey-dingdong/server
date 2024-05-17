@@ -128,16 +128,19 @@ async def test_get_user_by_email(session: AsyncSession):
 async def test_save(session: AsyncSession):
     # Given
     user = make_user(
+        id=1,
         password="password",
         email="a@b.c",
         username="survey-dingdong",
         is_admin=True,
     )
-    user_repo_mock.save.return_value = None
+    user_repo_mock.save.return_value = user
     repository_adapter.repository = user_repo_mock
 
     # When
-    await repository_adapter.save(user=user)
+    sut = await repository_adapter.save(user=user, auto_flush=True)
 
     # Then
-    repository_adapter.repository.save.assert_awaited_once_with(user=user)
+    assert sut.id == user.id
+    assert sut.email == user.email
+    assert sut.username == user.username

@@ -8,8 +8,7 @@ class GetUserListResponse(BaseModel):
 
 
 class CreateUserResponse(BaseModel):
-    email: str = Field(..., description="Email")
-    username: str = Field(..., description="username")
+    token: str = Field(..., description="Token")
 
 
 class LoginResponse(BaseModel):

@@ -23,5 +23,5 @@ class UserRepositoryAdapter:
     async def get_user_by_email(self, email: str) -> User | None:
         return await self.repository.get_user_by_email(email=email)
 
-    async def save(self, user: User) -> None:
-        await self.repository.save(user=user)
+    async def save(self, user: User, auto_flush: bool = False) -> User:
+        return await self.repository.save(user=user, auto_flush=auto_flush)
