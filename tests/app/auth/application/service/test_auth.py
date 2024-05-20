@@ -1,10 +1,16 @@
+from unittest.mock import AsyncMock
+
 import pytest
 
-from app.auth.application.service.jwt import DecodeTokenException, JwtService
+from app.auth.adapter.output.external_system.external_system_adapter import (
+    ExternalSystemAdapter,
+)
+from app.auth.application.service.auth import AuthService, DecodeTokenException
 from core.helpers.cache import RedisBackend
 from tests.support.constants import INVALID_REFRESH_TOKEN, USER_ID_1_TOKEN
 
-jwt_service = JwtService()
+port_mock = AsyncMock(spec=ExternalSystemAdapter)
+auth_service = AuthService(port=port_mock)
 redis_backend = RedisBackend()
 
 
@@ -15,7 +21,7 @@ async def test_create_refresh_token_invalid_refresh_token():
 
     # When, Then
     with pytest.raises(DecodeTokenException):
-        await jwt_service.create_refresh_token(token=token, refresh_token=token)
+        await auth_service.create_refresh_token(token=token, refresh_token=token)
 
 
 @pytest.mark.asyncio
@@ -25,7 +31,7 @@ async def test_create_refresh_token():
     await redis_backend.set(response="refresh", key="survey-dingdong::1")
 
     # When
-    sut = await jwt_service.create_refresh_token(token=token, refresh_token=token)
+    sut = await auth_service.create_refresh_token(token=token, refresh_token=token)
 
     # Then
     assert sut.token

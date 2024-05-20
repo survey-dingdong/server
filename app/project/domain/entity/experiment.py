@@ -144,7 +144,7 @@ class ExperimentTimeslotRead(BaseModel):
     start_time: time = Field(..., description="Experiment start time")
     end_time: time = Field(..., description="Experiment end time")
     max_participants: int = Field(
-        ..., description="Maximum number of experiment participants"
+        ..., description="Maximum number of exparticipants per session"
     )
 
 
@@ -158,6 +158,9 @@ class ExperimentProjectRead(BaseModel):
     excluded_dates: list[str] = Field(..., description="Experimental exclusion days")
     experiment_timeslots: list[ExperimentTimeslotRead] = Field(
         ..., description="Time information of experiment"
+    )
+    max_participants: int = Field(
+        ..., description="Maximum number of experiment participants"
     )
     experiment_type: ExperimentTypeEnum = Field(...)
     location: str | None = Field(..., description="Experiment location")

@@ -8,6 +8,7 @@ services:
     container_name: server
     hostname: server
     command: /survey-dingdong/docker/api/startup.sh
+    restart: always
     ports:
       - "8000:8000"
     tty: true
@@ -21,6 +22,7 @@ services:
       dockerfile: docker/db/Dockerfile.mysql
     container_name: mysql
     hostname: mysql
+    restart: always
     ports:
       - "3306:3306"
     volumes:

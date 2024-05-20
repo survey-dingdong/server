@@ -5,7 +5,7 @@ from fastapi.responses import JSONResponse
 from sqlalchemy.exc import DataError, IntegrityError
 
 from app.auth.adapter.input.api import router as auth_router
-from app.container import Container
+from app.auth.container import Container
 from app.project.adapter.input.api import router as project_router
 from app.project.container import ProjectContainer
 from app.user.adapter.input.api import router as user_router

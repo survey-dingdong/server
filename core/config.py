@@ -1,5 +1,6 @@
 import os
 
+from pydantic import EmailStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -15,6 +16,8 @@ class Config(BaseSettings):
     REDIS_HOST: str = "localhost"
     REDIS_PORT: int = 6379
     REDIS_KEY_PREFIX: str = "survey-dingdong"
+    MAIL_USERNANE: EmailStr = "survey-dingdong@gmail.com"
+    MAIL_PASSWORD: str = "?"
 
     model_config = SettingsConfigDict(env_file=".env", env_prefix="app_")
 

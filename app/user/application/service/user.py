@@ -1,7 +1,11 @@
 from pydantic import SecretStr
 
 from app.user.adapter.output.persistence.repository_adapter import UserRepositoryAdapter
-from app.user.application.dto import CreateUserResponseDTO, LoginResponseDTO
+from app.user.application.dto import (
+    CreateUserResponseDTO,
+    LoginResponseDTO,
+    UpdateUserRequestDTO,
+)
 from app.user.application.exception import (
     DuplicateEmailOrusernameException,
     PasswordDoesNotMatchException,
@@ -27,6 +31,13 @@ redis_backend = RedisBackend()
 class UserService(UserUseCase):
     def __init__(self, repository: UserRepositoryAdapter):
         self.repository = repository
+
+    async def validate_email(self, email: str) -> bool:
+        user = await self.repository.get_user_by_email(email=email)
+        if user is None:
+            return True
+
+        return False
 
     async def get_user_list(self, page: int, size: int) -> list[UserRead]:
         users = await self.repository.get_users(page=page, size=size)
@@ -60,6 +71,15 @@ class UserService(UserUseCase):
         return CreateUserResponseDTO(
             token=TokenHelper.encode(payload={"user_id:": user.id}),
         )
+
+    @Transactional()
+    async def update_user(self, user_id: int, user_dto: UpdateUserRequestDTO) -> None:
+        user = await self.repository.get_user_by_id(user_id=user_id)
+        if user is None:
+            raise UserNotFoundException
+
+        for column, value in user_dto.model_dump(exclude_unset=True).items():
+            setattr(user, column, value)
 
     async def is_admin(self, user_id: int) -> bool:
         user = await self.repository.get_user_by_id(user_id=user_id)

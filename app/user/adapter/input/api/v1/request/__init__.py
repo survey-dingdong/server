@@ -6,7 +6,7 @@ from pydantic import BaseModel, EmailStr, Field, SecretStr, field_validator
 class CreateUserRequest(BaseModel):
     email: EmailStr = Field(..., description="Email")
     password: SecretStr = Field(..., description="Password")
-    username: str = Field(..., description="username")
+    username: str = Field(..., description="Username")
 
     @field_validator("password")
     @classmethod
@@ -20,6 +20,15 @@ class CreateUserRequest(BaseModel):
                 "Please write a minimum of 8 characters and a maximum of 20 characters using a combination of uppercase and lowercase special characters."
             )
         return v
+
+
+class UpdateUserRequest(BaseModel):
+    fullname: str | None = Field(None, description="User fullname")
+    phone_num: str | None = Field(None, description="Phone Number")
+
+
+class ValidateEmailRequest(BaseModel):
+    email: EmailStr = Field(..., description="Email")
 
 
 class LoginRequest(BaseModel):

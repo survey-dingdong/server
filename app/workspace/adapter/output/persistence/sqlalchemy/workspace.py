@@ -12,7 +12,7 @@ class WorkspaceSQLAlchemyRepo(WorkspaceRepo):
             .where(
                 and_(
                     Workspace.user_id == user_id,
-                    Workspace.is_deleted == False,  # noqa: E712
+                    ~Workspace.is_deleted,
                 )
             )
             .order_by(Workspace.order_no)
@@ -25,7 +25,7 @@ class WorkspaceSQLAlchemyRepo(WorkspaceRepo):
         query = select(Workspace).where(
             and_(
                 Workspace.id == workspace_id,
-                Workspace.is_deleted == False,  # noqa: E712
+                ~Workspace.is_deleted,
             )
         )
         result = await session.execute(query)
@@ -48,7 +48,12 @@ class WorkspaceSQLAlchemyRepo(WorkspaceRepo):
         query = (
             select(func.count())
             .select_from(Workspace)
-            .where(Workspace.user_id == user_id)
+            .where(
+                and_(
+                    Workspace.user_id == user_id,
+                    ~Workspace.is_deleted,
+                )
+            )
         )
         obj_count: int = await session.scalar(query)
         return obj_count

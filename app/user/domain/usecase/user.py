@@ -2,12 +2,20 @@ from abc import ABC, abstractmethod
 
 from pydantic import SecretStr
 
-from app.user.application.dto import CreateUserResponseDTO, LoginResponseDTO
+from app.user.application.dto import (
+    CreateUserResponseDTO,
+    LoginResponseDTO,
+    UpdateUserRequestDTO,
+)
 from app.user.domain.command import CreateUserCommand
 from app.user.domain.entity.user import User
 
 
 class UserUseCase(ABC):
+    @abstractmethod
+    async def validate_email(self, email: str) -> bool:
+        """Validate user email"""
+
     @abstractmethod
     async def get_user_list(self, page: int, size: int) -> list[User]:
         """Get user list"""
@@ -19,6 +27,10 @@ class UserUseCase(ABC):
     @abstractmethod
     async def create_user(self, command: CreateUserCommand) -> CreateUserResponseDTO:
         """Create User"""
+
+    @abstractmethod
+    async def update_user(self, user_id: int, user_dto: UpdateUserRequestDTO) -> None:
+        """Update User"""
 
     @abstractmethod
     async def is_admin(self, user_id: int) -> bool:

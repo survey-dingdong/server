@@ -6,7 +6,7 @@ import pytest
 from app.project.adapter.output.persistence.repository_adapter import (
     ProjectRepositoryAdapter,
 )
-from app.project.application.dto import PutProjectRequestDTO
+from app.project.application.dto import UpdateProjectRequestDTO
 from app.project.application.exception import ProjectNotFoundException
 from app.project.application.service.project import ProjectService
 from app.project.domain.command import CreateProjectCommand
@@ -111,7 +111,7 @@ async def test_update_project_not_exist():
     repository_mock.get_project_by_id.return_value = None
     project_service.repository = repository_mock
 
-    project_dto = PutProjectRequestDTO(
+    project_dto = UpdateProjectRequestDTO(
         title="Change title",
         description="",
         is_public=False,
@@ -140,7 +140,7 @@ async def test_updated_project():
     repository_mock.get_project_by_id.return_value = project
     project_service.repository = repository_mock
 
-    project_dto = PutProjectRequestDTO(
+    project_dto = UpdateProjectRequestDTO(
         title="change title",
         description=project.description,
         is_public=project.is_public,

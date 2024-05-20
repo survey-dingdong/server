@@ -5,18 +5,40 @@ from app.user.adapter.input.api.v1.request import (
     ChangePasswordRequest,
     CreateUserRequest,
     LoginRequest,
+    UpdateUserRequest,
+    ValidateEmailRequest,
 )
 from app.user.adapter.input.api.v1.response import (
     CreateUserResponse,
     GetUserListResponse,
     LoginResponse,
+    ValidateEmailResponse,
 )
 from app.user.container import UserContainer
 from app.user.domain.command import CreateUserCommand
 from app.user.domain.usecase.user import UserUseCase
-from core.fastapi.dependencies import IsAdmin, IsAuthenticated, PermissionDependency
+from core.fastapi.dependencies import (
+    AllowAll,
+    IsAdmin,
+    IsAuthenticated,
+    PermissionDependency,
+)
 
 user_router = APIRouter()
+
+
+@user_router.get(
+    "/validation",
+    response_model=ValidateEmailResponse,
+    dependencies=[Depends(PermissionDependency([AllowAll]))],
+)
+@inject
+async def validate_email(
+    request: ValidateEmailRequest,
+    usecase: UserUseCase = Depends(Provide[UserContainer.user_service]),
+):
+    availability = await usecase.validate_email(email=request.email)
+    return ValidateEmailResponse(availability=availability)
 
 
 @user_router.get(
@@ -59,6 +81,19 @@ async def create_user(
     return await usecase.create_user(command=command)
 
 
+@user_router.patch(
+    "",
+    dependencies=[Depends(PermissionDependency([IsAuthenticated]))],
+)
+@inject
+async def update_user(
+    auth_info: Request,
+    request: UpdateUserRequest,
+    usecase: UserUseCase = Depends(Provide[UserContainer.user_service]),
+):
+    await usecase.update_user(user_id=auth_info.user.id, user_dto=request)
+
+
 @user_router.post(
     "/login",
     response_model=LoginResponse,
@@ -69,7 +104,7 @@ async def login(
     usecase: UserUseCase = Depends(Provide[UserContainer.user_service]),
 ):
     token = await usecase.login(email=request.email, password=request.password)
-    return {"token": token.token, "refresh_token": token.refresh_token}
+    return LoginResponse(token=token.token, refresh_token=token.refresh_token)
 
 
 @user_router.patch(

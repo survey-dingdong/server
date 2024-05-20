@@ -14,11 +14,11 @@ class ExperimentTimeslotDTO(BaseModel):
     start_time: time = Field(..., description="Experiment start time")
     end_time: time = Field(..., description="Experiment end time")
     max_participants: int = Field(
-        ..., description="Maximum number of experiment participants"
+        ..., description="Maximum number of exparticipants per session"
     )
 
 
-class PutProjectRequestDTO(BaseModel):
+class UpdateProjectRequestDTO(BaseModel):
     title: str = Field(..., description="Title")
     description: str = Field(..., description="Description")
     is_public: bool = Field(..., description="Whether the project is public")
@@ -27,6 +27,9 @@ class PutProjectRequestDTO(BaseModel):
     excluded_dates: list[date] = Field(..., description="Experimental exclusion days")
     experiment_timeslots: list[ExperimentTimeslotDTO] = Field(
         ..., description="Time information of experiment"
+    )
+    max_participants: int = Field(
+        ..., description="Maximum number of experiment participants"
     )
     experiment_type: ExperimentTypeEnum = Field(...)
     location: str = Field(..., description="Experiment location")

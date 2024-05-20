@@ -1,6 +1,11 @@
+import asyncio
+
+from app.auth.adapter.output.external_system.external_system_adapter import (
+    ExternalSystemAdapter,
+)
 from app.auth.application.dto import RefreshTokenResponseDTO
 from app.auth.application.exception import DecodeTokenException
-from app.auth.domain.usecase.jwt import JwtUseCase
+from app.auth.domain.usecase.auth import AuthUseCase
 from core.config import config
 from core.helpers.cache import RedisBackend
 from core.helpers.token import TokenHelper
@@ -8,7 +13,10 @@ from core.helpers.token import TokenHelper
 redis_backend = RedisBackend()
 
 
-class JwtService(JwtUseCase):
+class AuthService(AuthUseCase):
+    def __init__(self, port: ExternalSystemAdapter) -> None:
+        self.port = port
+
     async def create_refresh_token(
         self,
         token: str,
@@ -28,3 +36,7 @@ class JwtService(JwtUseCase):
             token=TokenHelper.encode(payload={"user_id": user_id}),
             refresh_token=TokenHelper.encode(payload={"sub": refresh_token_sub_value}),
         )
+
+    async def send_email(self, email: str) -> None:
+        url = "https://www.naver.com"
+        asyncio.create_task(self.port.send_email(email=email, url=url))

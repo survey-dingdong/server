@@ -35,7 +35,7 @@ class ProjectSQLAlchemyRepo(ProjectRepo):
             .where(
                 and_(
                     ExperimentProject.workspace_id == workspace_id,
-                    ExperimentProject.is_deleted == False,  # noqa: E712
+                    ~ExperimentProject.is_deleted,
                 )
             )
             .order_by(ExperimentProject.created_at.desc())
@@ -58,7 +58,7 @@ class ProjectSQLAlchemyRepo(ProjectRepo):
             and_(
                 ExperimentProject.workspace_id == workspace_id,
                 ExperimentProject.id == project_id,
-                ExperimentProject.is_deleted == False,  # noqa: E712
+                ~ExperimentProject.is_deleted,
             ),
         )
 
@@ -99,7 +99,7 @@ class ProjectSQLAlchemyRepo(ProjectRepo):
             .where(
                 and_(
                     ExperimentTimeslot.experiment_project_id == project_id,
-                    participant_timeslot.is_deleted == False,  # noqa: E712
+                    ~participant_timeslot.is_deleted,
                 ),
             )
             .order_by(
@@ -124,7 +124,7 @@ class ProjectSQLAlchemyRepo(ProjectRepo):
                 ExperimentParticipantTimeslot.experiment_timeslot.experiment_project_id
                 == project_id,
                 ExperimentParticipantTimeslot.id == participant_id,
-                ExperimentParticipantTimeslot.is_deleted == False,  # noqa: E712
+                ~ExperimentParticipantTimeslot.is_deleted,
             ),
         )
         result = await session.execute(query)

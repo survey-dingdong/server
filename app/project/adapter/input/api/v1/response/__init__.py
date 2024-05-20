@@ -39,6 +39,9 @@ class GetExperimentProjectResponse(BaseModel):
     experiment_timeslots: list[ExperimentTimeslotRead] = Field(
         ..., description="Time information of experiment"
     )
+    max_participants: int = Field(
+        ..., description="Maximum number of experiment participants"
+    )
     experiment_type: ExperimentTypeEnum = Field(...)
     location: str | None = Field(..., description="Experiment location")
     participant_code: str = Field(..., description="Experiment participant code")

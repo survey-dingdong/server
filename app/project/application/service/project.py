@@ -1,7 +1,10 @@
 from app.project.adapter.output.persistence.repository_adapter import (
     ProjectRepositoryAdapter,
 )
-from app.project.application.dto import CreateProjectResponseDTO, PutProjectRequestDTO
+from app.project.application.dto import (
+    CreateProjectResponseDTO,
+    UpdateProjectRequestDTO,
+)
 from app.project.application.exception import (
     ParticipantAccessDeniedException,
     ParticipantNotFoundException,
@@ -102,7 +105,7 @@ class ProjectService(ProjectUseCsae):
         workspace_id: int,
         project_id: int,
         project_type: ProjectTypeEnum,
-        project_dto: PutProjectRequestDTO,
+        project_dto: UpdateProjectRequestDTO,
     ) -> None:
         project = await self.repository.get_project_by_id(
             workspace_id=workspace_id,
