@@ -4,18 +4,18 @@ from app.auth.adapter.output.external_system.external_system_adapter import (
     ExternalSystemAdapter,
 )
 from app.auth.application.dto import RefreshTokenResponseDTO
-from app.auth.application.exception import DecodeTokenException
+from app.auth.application.exception import DecodeTokenException, InvalidTokenException
 from app.auth.domain.usecase.auth import AuthUseCase
 from core.config import config
-from core.helpers.cache import RedisBackend
+from core.helpers.cache.base import BaseBackend
 from core.helpers.token import TokenHelper
-
-redis_backend = RedisBackend()
+from core.helpers.utils import generate_random_digit_string
 
 
 class AuthService(AuthUseCase):
-    def __init__(self, port: ExternalSystemAdapter) -> None:
+    def __init__(self, port: ExternalSystemAdapter, cache: BaseBackend) -> None:
         self.port = port
+        self.cache = cache
 
     async def create_refresh_token(
         self,
@@ -26,7 +26,7 @@ class AuthService(AuthUseCase):
         decoded_refresh_token = TokenHelper.decode(token=refresh_token)
 
         user_id = decoede_created_token.get("user_id")
-        refresh_token_sub_value = await redis_backend.get(
+        refresh_token_sub_value = await self.cache.get(
             key=f"{config.REDIS_KEY_PREFIX}::{user_id}"
         )
         if decoded_refresh_token.get("sub") != refresh_token_sub_value:
@@ -38,5 +38,21 @@ class AuthService(AuthUseCase):
         )
 
     async def send_email(self, email: str) -> None:
-        url = "https://www.naver.com"
-        asyncio.create_task(self.port.send_email(email=email, url=url))
+        code = generate_random_digit_string()
+        await self.cache.set(
+            response=code,
+            key=f"{config.REDIS_KEY_PREFIX}::email-verifications::{email}",
+            ttl=300,
+        )
+        asyncio.create_task(self.port.send_email(email=email, code=code))
+
+    async def verify_email(self, email: str, code: str) -> None:
+        cached_code = await self.cache.get(
+            key=f"{config.REDIS_KEY_PREFIX}::email-verifications::{email}"
+        )
+        if str(cached_code) != code:
+            raise InvalidTokenException
+
+        await self.cache.delete(
+            key=f"{config.REDIS_KEY_PREFIX}::email-verifications::{email}"
+        )

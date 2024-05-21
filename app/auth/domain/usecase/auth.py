@@ -15,3 +15,7 @@ class AuthUseCase(ABC):
     @abstractmethod
     async def send_email(self, email: str) -> None:
         """Send email"""
+
+    @abstractmethod
+    async def verify_email(self, email: str, code: str) -> None:
+        """Verify email"""

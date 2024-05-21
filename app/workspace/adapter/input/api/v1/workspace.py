@@ -1,5 +1,5 @@
 from dependency_injector.wiring import Provide, inject
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, Request, status
 
 from app.workspace.adapter.input.api.v1.request import (
     CreateWorkspaceRequest,
@@ -34,6 +34,7 @@ async def get_workspace_list(
     "",
     response_model=CreateWorkspaceResponse,
     dependencies=[Depends(PermissionDependency([IsAuthenticated]))],
+    status_code=status.HTTP_201_CREATED,
 )
 @inject
 async def create_workspace(

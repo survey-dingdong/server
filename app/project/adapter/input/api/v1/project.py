@@ -1,5 +1,5 @@
 from dependency_injector.wiring import Provide, inject
-from fastapi import APIRouter, Depends, Query, Request
+from fastapi import APIRouter, Depends, Query, Request, status
 
 from app.project.adapter.input.api.v1.request import (
     CreateProjectRequest,
@@ -79,6 +79,7 @@ async def get_project(
     "/{workspace_id}/projects",
     response_model=CreateProjectResponse,
     dependencies=[Depends(PermissionDependency([IsAuthenticated]))],
+    status_code=status.HTTP_201_CREATED,
 )
 @inject
 async def create_project(

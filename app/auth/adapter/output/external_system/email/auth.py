@@ -11,9 +11,9 @@ env = Environment(loader=file_loader)
 
 
 class EmailSender(ExternalSystemPort):
-    async def send_email(self, email: str, url: str) -> None:
+    async def send_email(self, email: str, code: str) -> None:
         template = env.get_template("authentication.html")
-        html = template.render(url=url)
+        html = template.render(code=code)
         message = MessageSchema(
             subject="[survey-dingdong] 이메일 인증",
             recipients=[email],

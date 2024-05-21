@@ -6,6 +6,7 @@ from app.auth.adapter.output.external_system.external_system_adapter import (
     ExternalSystemAdapter,
 )
 from app.auth.application.service.auth import AuthService
+from core.helpers.cache.redis_backend import RedisBackend
 
 
 class Container(DeclarativeContainer):
@@ -16,4 +17,8 @@ class Container(DeclarativeContainer):
         ExternalSystemAdapter,
         port=auth_email_sender,
     )
-    auth_service = Factory(AuthService, port=auth_external_system_adapter)
+
+    redis_backend = Singleton(RedisBackend)
+    auth_service = Factory(
+        AuthService, port=auth_external_system_adapter, cache=redis_backend
+    )

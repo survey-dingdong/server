@@ -22,15 +22,14 @@ from core.helpers.auth import (
     make_random_string,
     validate_hashed_password,
 )
-from core.helpers.cache import RedisBackend
+from core.helpers.cache.base.backend import BaseBackend
 from core.helpers.token import TokenHelper
-
-redis_backend = RedisBackend()
 
 
 class UserService(UserUseCase):
-    def __init__(self, repository: UserRepositoryAdapter):
+    def __init__(self, repository: UserRepositoryAdapter, cache: BaseBackend):
         self.repository = repository
+        self.cache = cache
 
     async def validate_email(self, email: str) -> bool:
         user = await self.repository.get_user_by_email(email=email)
@@ -102,7 +101,7 @@ class UserService(UserUseCase):
             raise PasswordDoesNotMatchException
 
         refresh_token_sub_value = make_random_string(16)
-        await redis_backend.delete(key=f"{config.REDIS_KEY_PREFIX}::{user.id}")
+        await self.cache.delete(key=f"{config.REDIS_KEY_PREFIX}::{user.id}")
         response = LoginResponseDTO(
             token=TokenHelper.encode(payload={"user_id": user.id}),
             refresh_token=TokenHelper.encode(
@@ -110,7 +109,7 @@ class UserService(UserUseCase):
                 expire_period=config.REFRESH_TOKEN_TTL,
             ),
         )
-        await redis_backend.set(
+        await self.cache.set(
             response=refresh_token_sub_value,
             key=f"{config.REDIS_KEY_PREFIX}::{user.id}",
             ttl=config.REFRESH_TOKEN_TTL,

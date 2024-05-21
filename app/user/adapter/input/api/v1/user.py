@@ -1,5 +1,5 @@
 from dependency_injector.wiring import Provide, inject
-from fastapi import APIRouter, Depends, Query, Request
+from fastapi import APIRouter, Depends, Query, Request, status
 
 from app.user.adapter.input.api.v1.request import (
     ChangePasswordRequest,
@@ -71,6 +71,7 @@ async def get_user_me(
 @user_router.post(
     "",
     response_model=CreateUserResponse,
+    status_code=status.HTTP_201_CREATED,
 )
 @inject
 async def create_user(
