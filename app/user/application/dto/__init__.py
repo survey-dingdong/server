@@ -6,7 +6,7 @@ class CreateUserResponseDTO(BaseModel):
 
 
 class UpdateUserRequestDTO(BaseModel):
-    fullname: str | None
+    username: str | None
     phone_num: str | None
 
 

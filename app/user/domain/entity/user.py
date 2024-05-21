@@ -17,7 +17,8 @@ class User(Base, TimestampMixin):
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     password: Mapped[str] = mapped_column(String(255), nullable=False)
     email: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
-    username: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
+    username: Mapped[str] = mapped_column(String(64), nullable=False)
+    phone_num: Mapped[str] = mapped_column(String(20), nullable=False, unique=True)
     is_admin: Mapped[bool] = mapped_column(default=False)
 
     experiment_participant_timeslots: Mapped[

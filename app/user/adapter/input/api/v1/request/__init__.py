@@ -23,7 +23,7 @@ class CreateUserRequest(BaseModel):
 
 
 class UpdateUserRequest(BaseModel):
-    fullname: str | None = Field(None, description="User fullname")
+    username: str | None = Field(None, description="User username")
     phone_num: str | None = Field(None, description="Phone Number")
 
 
