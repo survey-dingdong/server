@@ -81,6 +81,7 @@ class ProjectService(ProjectUseCsae):
             end_date=project.end_date,
             excluded_dates=project.excluded_dates,
             experiment_timeslots=experiment_timeslots,
+            max_participants=project.max_participants,
             experiment_type=project.experiment_type,
             location=project.location,
             participant_code=project.participant_code,

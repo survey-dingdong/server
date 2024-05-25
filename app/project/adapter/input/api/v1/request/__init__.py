@@ -14,7 +14,7 @@ class ExperimentTimeslotRequest(BaseModel):
     start_time: time = Field(..., description="Experiment start time")
     end_time: time = Field(..., description="Experiment end time")
     max_participants: int = Field(
-        ..., description="Maximum number of experiment participants"
+        ..., description="Maximum number of exparticipants per session"
     )
 
 
@@ -29,6 +29,9 @@ class PutProjectRequest(BaseModel):
     excluded_dates: list[date] = Field(..., description="Experimental exclusion days")
     experiment_timeslots: list[ExperimentTimeslotRequest] = Field(
         ..., description="Time information of experiment"
+    )
+    max_participants: int = Field(
+        ..., description="Maximum number of experiment participants"
     )
     experiment_type: ExperimentTypeEnum = Field(...)
     location: str = Field(..., description="Experiment location")

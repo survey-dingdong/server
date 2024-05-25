@@ -22,7 +22,7 @@ class GetProjectListResponse(BaseModel):
         ..., description="Number of experiment participants"
     )
     max_participants: int = Field(
-        ..., description="Maximum number of experiment participants"
+        ..., description="Maximum number of exparticipants per session"
     )
     created_at: datetime = Field(...)
     updated_at: datetime = Field(...)
