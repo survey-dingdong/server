@@ -2,7 +2,7 @@ from datetime import date, time
 
 from pydantic import BaseModel, Field
 
-from app.project.domain.vo.type import ExperimentTypeEnum
+from app.project.domain.vo import ExperimentTypeEnum
 
 
 class CreateProjectResponseDTO(BaseModel):
@@ -10,7 +10,7 @@ class CreateProjectResponseDTO(BaseModel):
 
 
 class ExperimentTimeslotDTO(BaseModel):
-    id: int | None = Field(None, description="ID")
+    id: int | None = Field(None, description="Timeslot ID")
     start_time: time = Field(..., description="Experiment start time")
     end_time: time = Field(..., description="Experiment end time")
     max_participants: int = Field(

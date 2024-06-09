@@ -6,6 +6,7 @@ from app.auth.adapter.output.external_system.external_system_adapter import (
 from app.auth.application.dto import RefreshTokenResponseDTO
 from app.auth.application.exception import DecodeTokenException, InvalidTokenException
 from app.auth.domain.usecase.auth import AuthUseCase
+from app.auth.domain.vo import EmailVerificationType
 from core.config import config
 from core.helpers.cache.base import BaseBackend
 from core.helpers.token import TokenHelper
@@ -37,22 +38,30 @@ class AuthService(AuthUseCase):
             refresh_token=TokenHelper.encode(payload={"sub": refresh_token_sub_value}),
         )
 
-    async def send_email(self, email: str) -> None:
+    async def send_verification_email(
+        self, email: str, verification_type: EmailVerificationType
+    ) -> None:
         code = generate_random_digit_string()
         await self.cache.set(
             response=code,
-            key=f"{config.REDIS_KEY_PREFIX}::email-verifications::{email}",
+            key=f"{config.REDIS_KEY_PREFIX}::{verification_type}::{email}",
             ttl=300,
         )
-        asyncio.create_task(self.port.send_email(email=email, code=code))
+        asyncio.create_task(
+            self.port.send_email(
+                email=email, code=code, verification_type=verification_type
+            )
+        )
 
-    async def verify_email(self, email: str, code: str) -> None:
+    async def validate_verification_email(
+        self, email: str, code: str, verification_type: EmailVerificationType
+    ) -> None:
         cached_code = await self.cache.get(
-            key=f"{config.REDIS_KEY_PREFIX}::email-verifications::{email}"
+            key=f"{config.REDIS_KEY_PREFIX}::{verification_type}::{email}"
         )
         if str(cached_code) != code:
             raise InvalidTokenException
 
         await self.cache.delete(
-            key=f"{config.REDIS_KEY_PREFIX}::email-verifications::{email}"
+            key=f"{config.REDIS_KEY_PREFIX}::{verification_type}::{email}"
         )

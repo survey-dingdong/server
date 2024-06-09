@@ -8,7 +8,12 @@ from core.helpers.cache.redis_backend import RedisBackend
 
 
 class UserContainer(DeclarativeContainer):
-    wiring_config = WiringConfiguration(packages=[".adapter.input.api.v1.user"])
+    wiring_config = WiringConfiguration(
+        packages=[
+            ".adapter.input.api.v1.user",
+            "app.auth.adapter.input.api.v1.auth",
+        ]
+    )
 
     user_sqlalchemy_repo = Singleton(UserSQLAlchemyRepo)
     user_repository_adapter = Factory(

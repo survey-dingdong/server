@@ -11,10 +11,6 @@ class CreateUserResponse(BaseModel):
     token: str = Field(..., description="Token")
 
 
-class ValidateEmailResponse(BaseModel):
-    availability: bool = Field(..., description="Email Availability")
-
-
 class LoginResponse(BaseModel):
     token: str = Field(..., description="Token")
     refresh_token: str = Field(..., description="Refresh token")

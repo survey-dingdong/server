@@ -10,7 +10,7 @@ from app.project.domain.entity.experiment import (
     ExperimentProjectRead,
 )
 from app.project.domain.entity.project import ProjectRead
-from app.project.domain.vo.type import ProjectTypeEnum
+from app.project.domain.vo import ProjectTypeEnum
 
 
 class ProjectUseCsae(ABC):
@@ -27,7 +27,7 @@ class ProjectUseCsae(ABC):
     @abstractmethod
     async def get_project(
         self,
-        workspace_id: int,
+        user_id: int,
         project_id: int,
         project_type: ProjectTypeEnum,
     ) -> ExperimentProjectRead:
@@ -42,7 +42,7 @@ class ProjectUseCsae(ABC):
     @abstractmethod
     async def update_project(
         self,
-        workspace_id: int,
+        user_id: int,
         project_id: int,
         project_type: ProjectTypeEnum,
         project_dto: UpdateProjectRequestDTO,
@@ -52,7 +52,7 @@ class ProjectUseCsae(ABC):
     @abstractmethod
     async def delete_project(
         self,
-        workspace_id: int,
+        user_id: int,
         project_id: int,
         project_type: ProjectTypeEnum,
     ) -> None:
@@ -61,7 +61,7 @@ class ProjectUseCsae(ABC):
     @abstractmethod
     async def get_project_participant_list(
         self,
-        workspace_id: int,
+        user_id: int,
         project_id: int,
         project_type: ProjectTypeEnum,
         page: int,
@@ -72,7 +72,7 @@ class ProjectUseCsae(ABC):
     @abstractmethod
     async def delete_project_participant(
         self,
-        workspace_id: int,
+        user_id: int,
         project_id: int,
         participant_id: int,
         project_type: ProjectTypeEnum,

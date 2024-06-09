@@ -1,6 +1,7 @@
 from unittest.mock import AsyncMock
 
 import pytest
+from pydantic import SecretStr
 
 from app.user.adapter.output.persistence.repository_adapter import UserRepositoryAdapter
 from app.user.application.exception import (
@@ -16,9 +17,8 @@ from core.helpers.token import TokenHelper
 from tests.support.user_fixture import make_user
 
 repository_mock = AsyncMock(spec=UserRepositoryAdapter)
-user_service = UserService(repository=repository_mock)
-
 redis_backend = RedisBackend()
+user_service = UserService(repository=repository_mock, cache=redis_backend)
 
 
 @pytest.mark.asyncio
@@ -193,8 +193,7 @@ async def test_login():
     token = TokenHelper.encode(payload={"user_id": user.id})
 
     # When
-    sut = await user_service.login(email="email", password="password")
-
+    sut = await user_service.login(email="email", password=SecretStr("password"))
     refresh_token_sub_value = await redis_backend.get(key=f"survey-dingdong::{user.id}")
     refresh_token = TokenHelper.encode(
         payload={"sub": refresh_token_sub_value},

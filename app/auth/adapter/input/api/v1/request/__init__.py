@@ -6,7 +6,7 @@ class RefreshTokenRequest(BaseModel):
     refresh_token: str = Field(..., description="Refresh token")
 
 
-class CreateEmailVerificationRequest(BaseModel):
+class EmailVerificationRequest(BaseModel):
     email: EmailStr = Field(..., description="Email")
 
 

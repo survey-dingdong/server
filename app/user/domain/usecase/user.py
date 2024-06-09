@@ -33,6 +33,10 @@ class UserUseCase(ABC):
         """Update User"""
 
     @abstractmethod
+    async def delete_user(self, user_id: int) -> None:
+        """Delete User"""
+
+    @abstractmethod
     async def is_admin(self, user_id: int) -> bool:
         """Is admin"""
 

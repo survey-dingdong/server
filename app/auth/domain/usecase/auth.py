@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 
 from app.auth.application.dto import RefreshTokenResponseDTO
+from app.auth.domain.vo import EmailVerificationType
 
 
 class AuthUseCase(ABC):
@@ -13,9 +14,13 @@ class AuthUseCase(ABC):
         """Create refresh token"""
 
     @abstractmethod
-    async def send_email(self, email: str) -> None:
+    async def send_verification_email(
+        self, email: str, verification_type: EmailVerificationType
+    ) -> None:
         """Send email"""
 
     @abstractmethod
-    async def verify_email(self, email: str, code: str) -> None:
+    async def validate_verification_email(
+        self, email: str, code: str, verification_type: EmailVerificationType
+    ) -> None:
         """Verify email"""

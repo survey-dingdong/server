@@ -12,7 +12,7 @@ from app.project.application.service.project import ProjectService
 from app.project.domain.command import CreateProjectCommand
 from app.project.domain.entity.experiment import ExperimentParticipantTimeslotRead
 from app.project.domain.entity.project import ProjectRead
-from app.project.domain.vo.type import (
+from app.project.domain.vo import (
     ExperimentAttendanceStatus,
     ExperimentTypeEnum,
     ProjectTypeEnum,
@@ -21,6 +21,7 @@ from tests.support.project_fixture import (
     make_experiment_project,
     make_experiment_project_participant,
 )
+from tests.support.workspace_fixture import make_workspace
 
 repository_mock = AsyncMock(spec=ProjectRepositoryAdapter)
 project_service = ProjectService(repository=repository_mock)
@@ -67,7 +68,7 @@ async def test_get_project_not_exist():
     # When, Then
     with pytest.raises(ProjectNotFoundException):
         await project_service.get_project(
-            workspace_id=1,
+            user_id=1,
             project_id=2,
             project_type=ProjectTypeEnum.EXPERIMENT,
         )
@@ -76,13 +77,16 @@ async def test_get_project_not_exist():
 @pytest.mark.asyncio
 async def test_get_project_by_id():
     # Given
+    workspace = make_workspace(id=1)
     project = make_experiment_project(id=1)
+    project.workspace = workspace
+
     repository_mock.get_project_by_id.return_value = project
     project_service.repository = repository_mock
 
     # When
     sut = await project_service.get_project(
-        workspace_id=1,
+        user_id=1,
         project_id=project.id,
         project_type=ProjectTypeEnum.EXPERIMENT,
     )
@@ -119,6 +123,7 @@ async def test_update_project_not_exist():
         end_date=datetime.now().date().strftime("%Y-%m-%d"),
         excluded_dates=[],
         experiment_timeslots=[],
+        max_participants=0,
         experiment_type=ExperimentTypeEnum.OFFLINE,
         location="Change location",
     )
@@ -126,7 +131,7 @@ async def test_update_project_not_exist():
     # When, Then
     with pytest.raises(ProjectNotFoundException):
         await project_service.update_project(
-            workspace_id=1,
+            user_id=1,
             project_id=2,
             project_type=ProjectTypeEnum.EXPERIMENT,
             project_dto=project_dto,
@@ -136,7 +141,10 @@ async def test_update_project_not_exist():
 @pytest.mark.asyncio
 async def test_updated_project():
     # Given
+    workspace = make_workspace(id=1)
     project = make_experiment_project(id=1)
+    project.workspace = workspace
+
     repository_mock.get_project_by_id.return_value = project
     project_service.repository = repository_mock
 
@@ -148,12 +156,13 @@ async def test_updated_project():
         end_date=project.end_date,
         excluded_dates=project.excluded_dates,
         experiment_timeslots=project.experiment_timeslots,
+        max_participants=project.max_participants,
         experiment_type=project.experiment_type,
         location="Change location",
     )
     # When
     await project_service.update_project(
-        workspace_id=1,
+        user_id=1,
         project_id=1,
         project_type=ProjectTypeEnum.EXPERIMENT,
         project_dto=project_dto,
@@ -169,7 +178,7 @@ async def test_delete_project_not_exist():
     # When, Then
     with pytest.raises(ProjectNotFoundException):
         await project_service.delete_project(
-            workspace_id=1,
+            user_id=1,
             project_id=2,
             project_type=ProjectTypeEnum.EXPERIMENT,
         )
@@ -178,13 +187,16 @@ async def test_delete_project_not_exist():
 @pytest.mark.asyncio
 async def test_delete_project():
     # Given
+    workspace = make_workspace(id=1)
     project = make_experiment_project(id=1)
+    project.workspace = workspace
+
     repository_mock.get_project_by_id.return_value = project
     project_service.repository = repository_mock
 
     # When, Then
     await project_service.delete_project(
-        workspace_id=1,
+        user_id=1,
         project_id=project.id,
         project_type=ProjectTypeEnum.EXPERIMENT,
     )
@@ -208,7 +220,7 @@ async def test_get_project_participant_list():
 
     # When
     sut = await project_service.get_project_participant_list(
-        workspace_id=1,
+        user_id=1,
         project_id=1,
         project_type=ProjectTypeEnum.EXPERIMENT,
         page=1,
@@ -230,7 +242,7 @@ async def test_delete_project_participant():
 
     # When, Then
     await project_service.delete_project_participant(
-        workspace_id=1,
+        user_id=1,
         project_id=1,
         participant_id=project_participant.id,
         project_type=ProjectTypeEnum.EXPERIMENT,

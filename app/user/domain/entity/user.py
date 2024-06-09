@@ -16,10 +16,11 @@ class User(Base, TimestampMixin):
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     password: Mapped[str] = mapped_column(String(255), nullable=False)
-    email: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
+    email: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
     username: Mapped[str] = mapped_column(String(64), nullable=False)
-    phone_num: Mapped[str] = mapped_column(String(20), nullable=True, unique=True)
-    is_admin: Mapped[bool] = mapped_column(default=False)
+    phone_num: Mapped[str] = mapped_column(String(20), nullable=True)
+    is_admin: Mapped[bool] = mapped_column(nullable=False, default=False)
+    is_deleted: Mapped[bool] = mapped_column(nullable=False, default=False)
 
     experiment_participant_timeslots: Mapped[
         "ExperimentParticipantTimeslot"
@@ -33,7 +34,6 @@ class User(Base, TimestampMixin):
             email=email,
             password=password,
             username=username,
-            is_admin=False,
         )
 
 

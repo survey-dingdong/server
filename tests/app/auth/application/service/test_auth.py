@@ -10,8 +10,8 @@ from core.helpers.cache import RedisBackend
 from tests.support.constants import INVALID_REFRESH_TOKEN, USER_ID_1_TOKEN
 
 port_mock = AsyncMock(spec=ExternalSystemAdapter)
-auth_service = AuthService(port=port_mock)
 redis_backend = RedisBackend()
+auth_service = AuthService(port=port_mock, cache=redis_backend)
 
 
 @pytest.mark.asyncio

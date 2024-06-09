@@ -2,7 +2,7 @@ from datetime import date, time
 
 from pydantic import BaseModel, Field
 
-from app.project.domain.vo.type import ExperimentTypeEnum
+from app.project.domain.vo import ExperimentTypeEnum
 
 
 class CreateProjectRequest(BaseModel):
@@ -34,4 +34,4 @@ class PutProjectRequest(BaseModel):
         ..., description="Maximum number of experiment participants"
     )
     experiment_type: ExperimentTypeEnum = Field(...)
-    location: str = Field(..., description="Experiment location")
+    location: str | None = Field(None, description="Experiment location")

@@ -49,11 +49,6 @@ class IsAdmin(BasePermission):
         return await usecase.is_admin(user_id=user_id)
 
 
-class AllowAll(BasePermission):
-    async def has_permission(self, request: Request) -> bool:
-        return True
-
-
 class PermissionDependency(SecurityBase):
     def __init__(self, permissions: list[Type[BasePermission]]):
         self.permissions = permissions

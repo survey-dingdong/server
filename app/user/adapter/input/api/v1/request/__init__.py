@@ -27,10 +27,6 @@ class UpdateUserRequest(BaseModel):
     phone_num: str | None = Field(None, description="Phone Number")
 
 
-class ValidateEmailRequest(BaseModel):
-    email: EmailStr = Field(..., description="Email")
-
-
 class LoginRequest(BaseModel):
     email: EmailStr = Field(..., description="Email")
     password: SecretStr = Field(..., description="Password")

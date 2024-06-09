@@ -5,7 +5,7 @@ from app.project.domain.entity.experiment import (
     ExperimentProject,
     ExperimentTimeslot,
 )
-from app.project.domain.vo.type import ExperimentAttendanceStatus, ExperimentTypeEnum
+from app.project.domain.vo import ExperimentAttendanceStatus, ExperimentTypeEnum
 from core.helpers.utils import generate_random_uppercase_letters
 
 

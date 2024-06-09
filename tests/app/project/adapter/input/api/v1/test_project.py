@@ -77,7 +77,7 @@ async def test_get_project_not_exist(session: AsyncSession):
     invalid_experiment_project_id = 2
     async with AsyncClient(app=app, base_url="http://test") as client:
         response = await client.get(
-            f"/workspaces/{workspace.id}/projects/{invalid_experiment_project_id}",
+            f"/projects/{invalid_experiment_project_id}",
             headers=HEADERS,
             params=params,
         )
@@ -111,7 +111,7 @@ async def test_get_project_by_id(session: AsyncSession):
     # When
     async with AsyncClient(app=app, base_url="http://test") as client:
         response = await client.get(
-            f"/workspaces/{workspace.id}/projects/{experiment_project.id}",
+            f"/projects/{experiment_project.id}",
             headers=HEADERS,
             params=params,
         )
@@ -127,6 +127,7 @@ async def test_get_project_by_id(session: AsyncSession):
         "end_date": experiment_project.end_date,
         "excluded_dates": experiment_project.excluded_dates,
         "experiment_timeslots": [],
+        "max_participants": 0,
         "experiment_type": experiment_project.experiment_type.value,
         "participant_code": experiment_project.participant_code,
         "location": experiment_project.location,
@@ -211,7 +212,7 @@ async def test_update_project_not_exist(session: AsyncSession):
     invalid_experiment_project_id = 2
     async with AsyncClient(app=app, base_url="http://test") as client:
         response = await client.put(
-            f"/workspaces/{workspace.id}/projects/{invalid_experiment_project_id}",
+            f"/projects/{invalid_experiment_project_id}",
             headers=HEADERS,
             json=body,
             params=params,
@@ -269,7 +270,7 @@ async def test_update_project(session: AsyncSession):
     # When
     async with AsyncClient(app=app, base_url="http://test") as client:
         response = await client.put(
-            f"/workspaces/{workspace.id}/projects/{experiment_project.id}",
+            f"/projects/{experiment_project.id}",
             headers=HEADERS,
             json=body,
             params=params,
@@ -302,7 +303,7 @@ async def test_delete_project_not_exist(session: AsyncSession):
     invalid_experiment_project_id = 1
     async with AsyncClient(app=app, base_url="http://test") as client:
         response = await client.delete(
-            f"/workspaces/{workspace.id}/projects/{invalid_experiment_project_id}",
+            f"/projects/{invalid_experiment_project_id}",
             headers=HEADERS,
             params=params,
         )
@@ -336,7 +337,7 @@ async def test_delete_project(session: AsyncSession):
     # When
     async with AsyncClient(app=app, base_url="http://test") as client:
         response = await client.delete(
-            f"/workspaces/{workspace.id}/projects/{experiment_project.id}",
+            f"/projects/{experiment_project.id}",
             headers=HEADERS,
             params=params,
         )

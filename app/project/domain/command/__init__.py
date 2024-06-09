@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
-from app.project.domain.vo.type import ProjectTypeEnum
+from app.project.domain.vo import ProjectTypeEnum
 
 
 class CreateProjectCommand(BaseModel):

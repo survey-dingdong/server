@@ -8,7 +8,7 @@ from app.project.domain.entity.experiment import (
     ExperimentTimeslot,
 )
 from app.project.domain.repository.project import ProjectRepo
-from app.project.domain.vo.type import ProjectTypeEnum
+from app.project.domain.vo import ProjectTypeEnum
 from core.db.session import session
 
 
@@ -46,7 +46,7 @@ class ProjectSQLAlchemyRepo(ProjectRepo):
         return result.scalars().all()
 
     async def get_project_by_id(
-        self, workspace_id: int, project_id: int, project_type: ProjectTypeEnum
+        self, project_id: int, project_type: ProjectTypeEnum
     ) -> ExperimentProject | None:
         project: ExperimentProject = ProjectSQLAlchemyRepo._get_entity_by_project_type(
             project_type
@@ -56,7 +56,6 @@ class ProjectSQLAlchemyRepo(ProjectRepo):
 
         query = select(project).where(
             and_(
-                ExperimentProject.workspace_id == workspace_id,
                 ExperimentProject.id == project_id,
                 ~ExperimentProject.is_deleted,
             ),

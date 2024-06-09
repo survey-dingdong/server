@@ -1,5 +1,4 @@
 from datetime import date, datetime, time
-from typing import TYPE_CHECKING
 
 from pydantic import BaseModel, Field
 from sqlalchemy import (
@@ -15,16 +14,14 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.project.domain.vo.type import ExperimentAttendanceStatus, ExperimentTypeEnum
+from app.project.domain.vo import ExperimentAttendanceStatus, ExperimentTypeEnum
+from app.user.domain.entity.user import User
+from app.workspace.domain.entity.workspace import Workspace
 from core.db import Base
 from core.db.mixins import TimestampMixin
 from core.helpers.utils import add_am_pm_indicator, generate_random_uppercase_letters
 
 from .project import Project
-
-if TYPE_CHECKING:
-    from app.user.domain.entity.user import User
-    from app.workspace.domain.entity.workspace import Workspace
 
 
 class ExperimentProject(Base, Project):
@@ -45,7 +42,10 @@ class ExperimentProject(Base, Project):
     is_deleted: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
 
     workspace: Mapped["Workspace"] = relationship(
-        "Workspace", back_populates="experiment_projects"
+        "Workspace",
+        back_populates="experiment_projects",
+        uselist=False,
+        lazy="selectin",
     )
     experiment_timeslots: Mapped[list["ExperimentTimeslot"]] = relationship(
         "ExperimentTimeslot",

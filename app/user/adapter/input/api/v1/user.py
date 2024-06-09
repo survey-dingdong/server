@@ -6,39 +6,18 @@ from app.user.adapter.input.api.v1.request import (
     CreateUserRequest,
     LoginRequest,
     UpdateUserRequest,
-    ValidateEmailRequest,
 )
 from app.user.adapter.input.api.v1.response import (
     CreateUserResponse,
     GetUserListResponse,
     LoginResponse,
-    ValidateEmailResponse,
 )
 from app.user.container import UserContainer
 from app.user.domain.command import CreateUserCommand
 from app.user.domain.usecase.user import UserUseCase
-from core.fastapi.dependencies import (
-    AllowAll,
-    IsAdmin,
-    IsAuthenticated,
-    PermissionDependency,
-)
+from core.fastapi.dependencies import IsAdmin, IsAuthenticated, PermissionDependency
 
 user_router = APIRouter()
-
-
-@user_router.get(
-    "/validation",
-    response_model=ValidateEmailResponse,
-    dependencies=[Depends(PermissionDependency([AllowAll]))],
-)
-@inject
-async def validate_email(
-    request: ValidateEmailRequest,
-    usecase: UserUseCase = Depends(Provide[UserContainer.user_service]),
-):
-    availability = await usecase.validate_email(email=request.email)
-    return ValidateEmailResponse(availability=availability)
 
 
 @user_router.get(
@@ -110,6 +89,7 @@ async def login(
 
 @user_router.patch(
     "/password",
+    status_code=status.HTTP_204_NO_CONTENT,
     dependencies=[Depends(PermissionDependency([IsAuthenticated]))],
 )
 @inject
@@ -123,3 +103,16 @@ async def change_password(
         old_password=request.old_password,
         new_password=request.new_password,
     )
+
+
+@user_router.delete(
+    "/me",
+    status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[Depends(PermissionDependency([IsAuthenticated]))],
+)
+@inject
+async def delete_user(
+    auth_info: Request,
+    usecase: UserUseCase = Depends(Provide[UserContainer.user_service]),
+):
+    await usecase.delete_user(user_id=auth_info.user.id)

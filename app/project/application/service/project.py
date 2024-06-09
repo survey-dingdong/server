@@ -8,6 +8,7 @@ from app.project.application.dto import (
 from app.project.application.exception import (
     ParticipantAccessDeniedException,
     ParticipantNotFoundException,
+    ProjectAccessDeniedException,
     ProjectNotFoundException,
     ProjectTimeslotNotFoundException,
 )
@@ -21,7 +22,7 @@ from app.project.domain.entity.experiment import (
 )
 from app.project.domain.entity.project import ProjectRead
 from app.project.domain.usecase.project import ProjectUseCsae
-from app.project.domain.vo.type import ProjectTypeEnum
+from app.project.domain.vo import ProjectTypeEnum
 from core.db import Transactional
 
 
@@ -48,19 +49,32 @@ class ProjectService(ProjectUseCsae):
 
         return [ProjectRead.model_validate(project) for project in projects]
 
+    @Transactional()
+    async def create_project(
+        self, command: CreateProjectCommand
+    ) -> CreateProjectResponseDTO:
+        if command.project_type == ProjectTypeEnum.EXPERIMENT:
+            project = ExperimentProject.create(
+                workspace_id=command.workspace_id, title=command.title
+            )
+        project = await self.repository.save(project=project, auto_flush=True)
+        return CreateProjectResponseDTO(id=project.id)
+
     async def get_project(
         self,
-        workspace_id: int,
+        user_id: int,
         project_id: int,
         project_type: ProjectTypeEnum,
     ) -> ExperimentProjectRead:
         project = await self.repository.get_project_by_id(
-            workspace_id=workspace_id,
             project_id=project_id,
             project_type=project_type,
         )
         if project is None:
             raise ProjectNotFoundException
+
+        if project.workspace.user_id != user_id:
+            raise ProjectAccessDeniedException
 
         experiment_timeslots = [
             ExperimentTimeslotRead(
@@ -90,31 +104,22 @@ class ProjectService(ProjectUseCsae):
         )
 
     @Transactional()
-    async def create_project(
-        self, command: CreateProjectCommand
-    ) -> CreateProjectResponseDTO:
-        if command.project_type == ProjectTypeEnum.EXPERIMENT:
-            project = ExperimentProject.create(
-                workspace_id=command.workspace_id, title=command.title
-            )
-        project = await self.repository.save(project=project, auto_flush=True)
-        return CreateProjectResponseDTO(id=project.id)
-
-    @Transactional()
     async def update_project(
         self,
-        workspace_id: int,
+        user_id: int,
         project_id: int,
         project_type: ProjectTypeEnum,
         project_dto: UpdateProjectRequestDTO,
     ) -> None:
         project = await self.repository.get_project_by_id(
-            workspace_id=workspace_id,
             project_id=project_id,
             project_type=project_type,
         )
         if project is None:
             raise ProjectNotFoundException
+
+        if project.workspace.user_id != user_id:
+            raise ProjectAccessDeniedException
 
         for column, value in project_dto.model_dump(
             mode="json", exclude="experiment_timeslots"
@@ -144,12 +149,11 @@ class ProjectService(ProjectUseCsae):
     @Transactional()
     async def delete_project(
         self,
-        workspace_id: int,
+        user_id: int,
         project_id: int,
         project_type: ProjectTypeEnum,
     ) -> None:
         project = await self.repository.get_project_by_id(
-            workspace_id=workspace_id,
             project_type=project_type,
             project_id=project_id,
         )
@@ -157,24 +161,29 @@ class ProjectService(ProjectUseCsae):
         if project is None:
             raise ProjectNotFoundException
 
+        if project.workspace.user_id != user_id:
+            raise ProjectAccessDeniedException
+
         project.is_deleted = True
 
     async def get_project_participant_list(
         self,
-        workspace_id: int,
+        user_id: int,
         project_id: int,
         project_type: ProjectTypeEnum,
         page: int,
         size: int,
     ) -> list[ExperimentParticipantTimeslotRead]:
         project = await self.repository.get_project_by_id(
-            workspace_id=workspace_id,
             project_type=project_type,
             project_id=project_id,
         )
 
         if project is None:
             raise ProjectNotFoundException
+
+        if project.workspace.user_id != user_id:
+            raise ProjectAccessDeniedException
 
         return await self.repository.get_project_participants(
             project_id=project.id,
@@ -186,19 +195,21 @@ class ProjectService(ProjectUseCsae):
     @Transactional()
     async def delete_project_participant(
         self,
-        workspace_id: int,
+        user_id: int,
         project_id: int,
         participant_id: int,
         project_type: ProjectTypeEnum,
     ) -> None:
         project = await self.repository.get_project_by_id(
-            workspace_id=workspace_id,
             project_type=project_type,
             project_id=project_id,
         )
 
         if project is None:
             raise ProjectNotFoundException
+
+        if project.workspace.user_id != user_id:
+            raise ProjectAccessDeniedException
 
         project_participant = await self.repository.get_project_participant_by_id(
             project_id=project.id,

@@ -6,7 +6,7 @@ from app.project.domain.entity.experiment import (
     ExperimentTimeslot,
 )
 from app.project.domain.repository.project import ProjectRepo
-from app.project.domain.vo.type import ProjectTypeEnum
+from app.project.domain.vo import ProjectTypeEnum
 
 
 class ProjectRepositoryAdapter:
@@ -29,12 +29,10 @@ class ProjectRepositoryAdapter:
 
     async def get_project_by_id(
         self,
-        workspace_id: int,
         project_id: int,
         project_type: ProjectTypeEnum,
     ) -> ExperimentProject | None:
         return await self.repository.get_project_by_id(
-            workspace_id=workspace_id,
             project_id=project_id,
             project_type=project_type,
         )
