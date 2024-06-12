@@ -19,7 +19,7 @@ from app.user.domain.entity.user import User
 from app.workspace.domain.entity.workspace import Workspace
 from core.db import Base
 from core.db.mixins import TimestampMixin
-from core.helpers.utils import add_am_pm_indicator, generate_random_uppercase_letters
+from core.helpers.utils import add_am_pm_indicator
 
 from .project import Project
 
@@ -36,9 +36,7 @@ class ExperimentProject(Base, Project):
         default=ExperimentTypeEnum.OFFLINE.value,
     )
     location: Mapped[str] = mapped_column(String(255), nullable=True)
-    participant_code: Mapped[str] = mapped_column(
-        String(4), nullable=False, default=generate_random_uppercase_letters
-    )
+
     is_deleted: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
 
     workspace: Mapped["Workspace"] = relationship(

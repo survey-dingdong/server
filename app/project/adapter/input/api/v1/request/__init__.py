@@ -34,4 +34,4 @@ class PutProjectRequest(BaseModel):
         ..., description="Maximum number of experiment participants"
     )
     experiment_type: ExperimentTypeEnum = Field(...)
-    location: str | None = Field(None, description="Experiment location")
+    location: str = Field(..., description="Experiment location")
