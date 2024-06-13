@@ -6,7 +6,6 @@ from app.project.domain.entity.experiment import (
     ExperimentTimeslot,
 )
 from app.project.domain.vo import ExperimentAttendanceStatus, ExperimentTypeEnum
-from core.helpers.utils import generate_random_uppercase_letters
 
 
 def make_experiment_project(
@@ -23,7 +22,6 @@ def make_experiment_project(
     excluded_dates: list[str] = [],
     experiment_timeslots: list[ExperimentTimeslot] = [],
     experiment_type: ExperimentTypeEnum = ExperimentTypeEnum.OFFLINE,
-    participant_code: str = generate_random_uppercase_letters(),
     location: str = "location",
     created_at: str = datetime.now().strftime("%Y-%m-%dT%H:%M:%S"),
     updated_at: str = datetime.now().strftime("%Y-%m-%dT%H:%M:%S"),
@@ -43,7 +41,6 @@ def make_experiment_project(
         experiment_timeslots=experiment_timeslots,
         experiment_type=experiment_type,
         location=location,
-        participant_code=participant_code,
         created_at=created_at,
         updated_at=updated_at,
     )

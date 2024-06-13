@@ -129,7 +129,6 @@ async def test_get_project_by_id(session: AsyncSession):
         "experiment_timeslots": [],
         "max_participants": 0,
         "experiment_type": experiment_project.experiment_type.value,
-        "participant_code": experiment_project.participant_code,
         "location": experiment_project.location,
         "created_at": experiment_project.created_at,
         "updated_at": experiment_project.updated_at,

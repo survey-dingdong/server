@@ -98,7 +98,6 @@ class ProjectService(ProjectUseCsae):
             max_participants=project.max_participants,
             experiment_type=project.experiment_type,
             location=project.location,
-            participant_code=project.participant_code,
             created_at=project.created_at,
             updated_at=project.updated_at,
         )

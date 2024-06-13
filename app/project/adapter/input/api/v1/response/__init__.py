@@ -44,7 +44,6 @@ class GetExperimentProjectResponse(BaseModel):
     )
     experiment_type: ExperimentTypeEnum = Field(...)
     location: str | None = Field(..., description="Experiment location")
-    participant_code: str = Field(..., description="Experiment participant code")
     created_at: datetime = Field(..., description="Created datetime")
     updated_at: datetime = Field(..., description="Updated datetime")
 
