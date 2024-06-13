@@ -37,6 +37,7 @@ async def refresh_token(
 
 @auth_router.post(
     "/email-availability",
+    response_model=ValidateEmailResponse,
 )
 @inject
 async def check_email_availability(
