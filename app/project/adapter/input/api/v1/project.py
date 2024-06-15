@@ -162,7 +162,7 @@ async def get_project_participant_list(
         Provide[ProjectContainer.project_service]
     ),
 ):
-    await project_usecase.get_project_participant_list(
+    return await project_usecase.get_project_participant_list(
         user_id=auth_info.user.id,
         project_id=project_id,
         project_type=project_type,
