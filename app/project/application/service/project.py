@@ -37,12 +37,14 @@ class ProjectService(ProjectUseCsae):
         self,
         workspace_id: int,
         project_type: ProjectTypeEnum,
+        filter_title: str | None,
         page: int,
         size: int,
     ) -> list[ProjectRead]:
         projects = await self.repository.get_projects(
             workspace_id=workspace_id,
             project_type=project_type,
+            filter_title=filter_title,
             page=page,
             size=size,
         )

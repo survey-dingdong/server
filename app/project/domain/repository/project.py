@@ -14,6 +14,7 @@ class ProjectRepo(ABC):
         self,
         workspace_id: int,
         project_type: ProjectTypeEnum,
+        filter_title: str | None,
         page: int,
         size: int,
     ) -> list[ExperimentProject]:

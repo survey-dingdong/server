@@ -9,6 +9,10 @@ class CreateProjectRequest(BaseModel):
     title: str = Field(..., min_length=1, max_length=20, description="Title")
 
 
+class GetProjectListRequest(BaseModel):
+    filter_title: str | None = Field(None, description="Filter by title")
+
+
 class ExperimentTimeslotRequest(BaseModel):
     id: int | None = Field(None, description="ID")
     start_time: time = Field(..., description="Experiment start time")

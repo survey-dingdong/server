@@ -7,6 +7,7 @@ from sqlalchemy import (
     Boolean,
     Enum,
     ForeignKey,
+    Index,
     Integer,
     String,
     Time,
@@ -57,6 +58,8 @@ class ExperimentProject(Base, Project):
             workspace_id=workspace_id,
             title=title,
         )
+
+    __table_args__ = (Index("idx_workspace_id_title", "workspace_id", "title"),)
 
 
 class ExperimentTimeslot(Base, TimestampMixin):

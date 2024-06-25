@@ -3,6 +3,7 @@ from fastapi import APIRouter, Depends, Query, Request, status
 
 from app.project.adapter.input.api.v1.request import (
     CreateProjectRequest,
+    GetProjectListRequest,
     PutProjectRequest,
 )
 from app.project.adapter.input.api.v1.response import (
@@ -33,6 +34,7 @@ async def get_project_list(
     auth_info: Request,
     workspace_id: int,
     project_type: ProjectTypeEnum,
+    request: GetProjectListRequest,
     page: int = Query(default=1),
     size: int = Query(default=10),
     workspace_usecase: WorkspaceUseCase = Depends(
@@ -46,7 +48,11 @@ async def get_project_list(
         user_id=auth_info.user.id, workspace_id=workspace_id
     )
     return await project_usecase.get_project_list(
-        workspace_id=workspace.id, project_type=project_type, page=page, size=size
+        workspace_id=workspace.id,
+        project_type=project_type,
+        filter_title=request.filter_title,
+        page=page,
+        size=size,
     )
 
 

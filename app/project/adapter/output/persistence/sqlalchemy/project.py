@@ -21,6 +21,7 @@ class ProjectSQLAlchemyRepo(ProjectRepo):
         self,
         workspace_id: int,
         project_type: ProjectTypeEnum,
+        filter_title: str | None,
         page: int,
         size: int,
     ) -> list[ExperimentProject]:
@@ -40,6 +41,9 @@ class ProjectSQLAlchemyRepo(ProjectRepo):
             )
             .order_by(ExperimentProject.created_at.desc())
         )
+
+        if filter_title is not None:
+            query = query.where(ExperimentProject.title.ilike(f"%{filter_title}%"))
 
         query = query.offset((page - 1) * size).limit(size)
         result = await session.execute(query)
