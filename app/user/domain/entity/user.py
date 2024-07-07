@@ -21,7 +21,7 @@ class User(Base, TimestampMixin):
     is_admin: Mapped[bool] = mapped_column(nullable=False, default=False)
     is_deleted: Mapped[bool] = mapped_column(nullable=False, default=False)
     oauth_accounts: Mapped["UserOauth"] = relationship(
-        "UserOauth", back_populates="user", lazy="selectin"
+        "UserOauth", back_populates="user"
     )
     experiment_participant_timeslots: Mapped[
         "ExperimentParticipantTimeslot"
