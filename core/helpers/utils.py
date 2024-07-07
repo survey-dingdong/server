@@ -3,8 +3,7 @@ import string
 from datetime import datetime
 
 
-def add_am_pm_indicator(time_str: str) -> str:
-    time_obj = datetime.strptime(time_str, "%H:%M")
+def add_am_pm_indicator(time_obj: datetime) -> str:
     return time_obj.strftime("%I:%M%p")
 
 

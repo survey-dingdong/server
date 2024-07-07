@@ -1,4 +1,4 @@
-from datetime import date, datetime
+from datetime import date, datetime, time
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -51,7 +51,9 @@ class GetExperimentProjectResponse(BaseModel):
 class GetExperimentParticipantResponse(BaseModel):
     id: int = Field(..., description="Participant ID")
     username: str = Field(..., description="Username")
-    reserved_date: str = Field(..., description="Reserved Date")
+    experiment_date: date = Field(..., description="Experiment Date")
+    start_time: time = Field(..., description="Experiment start time")
+    end_time: time = Field(..., description="Experiment end time")
     attendance_status: ExperimentAttendanceStatusTypeEnum = Field(
         ..., description="Attendance Status"
     )

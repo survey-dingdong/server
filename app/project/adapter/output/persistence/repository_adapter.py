@@ -65,14 +65,7 @@ class ProjectRepositoryAdapter:
             size=size,
         )
         return [
-            ExperimentParticipantTimeslotRead.model_validate(
-                id=project_participant.id,
-                username=project_participant.user.username,
-                reserved_date=project_participant.reserved_date,
-                attendance_status=project_participant.attendance_status,
-                created_at=project_participant.created_at,
-                updated_at=project_participant.updated_at,
-            )
+            ExperimentParticipantTimeslotRead(**project_participant)
             for project_participant in project_participants
         ]
 

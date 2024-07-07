@@ -22,7 +22,6 @@ from app.project.domain.vo import ExperimentAttendanceStatusTypeEnum, Experiment
 from app.workspace.domain.entity.workspace import Workspace
 from core.db import Base
 from core.db.mixins import TimestampMixin
-from core.helpers.utils import add_am_pm_indicator
 
 from .project import Project
 
@@ -80,7 +79,7 @@ class ExperimentTimeslot(Base, TimestampMixin):
     max_participants: Mapped[int] = mapped_column(Integer, nullable=False)
 
     experiment_project: Mapped["ExperimentProject"] = relationship(
-        "ExperimentProject", back_populates="experiment_timeslots"
+        "ExperimentProject", back_populates="experiment_timeslots", lazy="selectin"
     )
 
     experiment_participant_timeslots: Mapped[
@@ -132,17 +131,17 @@ class ExperimentParticipantTimeslot(Base, TimestampMixin):
     is_deleted: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
 
     user: Mapped["User"] = relationship(
-        "User", back_populates="experiment_participant_timeslots", uselist=False
+        "User",
+        back_populates="experiment_participant_timeslots",
+        uselist=False,
+        lazy="selectin",
     )
     experiment_timeslot: Mapped["ExperimentTimeslot"] = relationship(
-        "ExperimentTimeslot", back_populates="experiment_participant_timeslots"
+        "ExperimentTimeslot",
+        back_populates="experiment_participant_timeslots",
+        uselist=False,
+        lazy="selectin",
     )
-
-    @property
-    def reserved_date(self) -> str:
-        start_time = add_am_pm_indicator(self.experiment_timeslot.start_time)
-        endtime_time = add_am_pm_indicator(self.experiment_timeslot.start_time)
-        return f"{self.experiment_date} {start_time} ~ {endtime_time}"
 
 
 class ExperimentTimeslotRead(BaseModel):
@@ -177,7 +176,9 @@ class ExperimentProjectRead(BaseModel):
 class ExperimentParticipantTimeslotRead(BaseModel):
     id: int = Field(..., description="Participant ID")
     username: str = Field(..., description="Username")
-    reserved_date: str = Field(..., description="Reserved Date")
+    experiment_date: date = Field(..., description="Experiment Date")
+    start_time: time = Field(..., description="Experiment start time")
+    end_time: time = Field(..., description="Experiment end time")
     attendance_status: ExperimentAttendanceStatusTypeEnum = Field(
         ..., description="Attendance Status"
     )

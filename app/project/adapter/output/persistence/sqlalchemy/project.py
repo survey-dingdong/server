@@ -9,6 +9,7 @@ from app.project.domain.entity.experiment import (
 )
 from app.project.domain.repository.project import ProjectRepo
 from app.project.domain.vo import ProjectTypeEnum
+from app.user.domain.entity.user import User
 from core.db.session import session
 
 
@@ -90,19 +91,27 @@ class ProjectSQLAlchemyRepo(ProjectRepo):
         page: int,
         size: int,
     ) -> list[ExperimentParticipantTimeslot]:
-        if project_type == ProjectTypeEnum.EXPERIMENT:
-            participant_timeslot = ExperimentParticipantTimeslot
-        else:
+        if project_type != ProjectTypeEnum.EXPERIMENT:
             return []
 
         query = (
-            select(participant_timeslot, ExperimentTimeslot)
-            .join(ExperimentParticipantTimeslot.experiment_timeslot)
-            .join(ExperimentTimeslot.experiment_project)
+            select(
+                ExperimentParticipantTimeslot.id,
+                User.username,
+                ExperimentParticipantTimeslot.experiment_date,
+                ExperimentTimeslot.start_time,
+                ExperimentTimeslot.end_time,
+                ExperimentParticipantTimeslot.attendance_status,
+                ExperimentParticipantTimeslot.created_at,
+                ExperimentParticipantTimeslot.updated_at,
+            )
+            .join(User, ExperimentParticipantTimeslot.user)
+            .join(ExperimentTimeslot, ExperimentParticipantTimeslot.experiment_timeslot)
+            .join(ExperimentProject, ExperimentTimeslot.experiment_project)
             .where(
                 and_(
                     ExperimentTimeslot.experiment_project_id == project_id,
-                    ~participant_timeslot.is_deleted,
+                    ~ExperimentParticipantTimeslot.is_deleted,
                 ),
             )
             .order_by(
@@ -112,7 +121,7 @@ class ProjectSQLAlchemyRepo(ProjectRepo):
         )
         query = query.offset((page - 1) * size).limit(size)
         result = await session.execute(query)
-        return result.scalars().all()
+        return result.mappings().all()
 
     async def get_project_participant_by_id(
         self, project_id: int, participant_id: int, project_type: ProjectTypeEnum

@@ -2,6 +2,7 @@ from fastapi import Depends, FastAPI, Request, status
 from fastapi.middleware import Middleware
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from pydantic_core import ValidationError
 from sqlalchemy.exc import DataError, IntegrityError
 
 from app.auth.adapter.input.api import router as auth_router
@@ -52,11 +53,20 @@ def init_listeners(app_: FastAPI) -> None:
             content={"error_code": exc.error_code, "message": exc.message},
         )
 
+    @app_.exception_handler(ValidationError)
+    async def pydantic_validation_exception_handler(
+        request: Request, exc: ValidationError
+    ):
+        return JSONResponse(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            content={"error_code": "VALIDATION_ERROR", "message": str(exc)},
+        )
+
     @app_.exception_handler(IntegrityError)
     async def sql_integrity_exception_handler(request: Request, exc: IntegrityError):
         return JSONResponse(
             status_code=status.HTTP_409_CONFLICT,
-            content={"error_code": "INTEGIRTY_ERROR", "message": exc.args},
+            content={"error_code": "INTEGIRTY_ERROR", "message": exc.er},
         )
 
     @app_.exception_handler(DataError)
