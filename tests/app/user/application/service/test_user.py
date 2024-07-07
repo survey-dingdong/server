@@ -275,7 +275,7 @@ async def test_login():
 
 
 @pytest.mark.asyncio
-async def test_auth_login_already_exist():
+async def test_oauth_login_already_exist():
     # Given
     user = make_user(
         id=1,
@@ -300,7 +300,7 @@ async def test_auth_login_already_exist():
 
 
 @pytest.mark.asyncio
-async def test_auth_login_no_exist():
+async def test_oauth_login_no_exist():
     # Given
     user = make_user(
         id=1,
@@ -326,7 +326,7 @@ async def test_auth_login_no_exist():
 
 
 @pytest.mark.asyncio
-async def test_auth_login_diff_provider():
+async def test_oauth_login_diff_provider():
     # Given
     user = make_user(
         id=1,
@@ -357,7 +357,7 @@ async def test_auth_login_diff_provider():
 
 
 @pytest.mark.asyncio
-async def test_auth_login_first():
+async def test_oauth_login_first():
     # Given
     user = make_user(
         id=1,
@@ -390,7 +390,7 @@ async def test_auth_login_first():
 
 
 @pytest.mark.asyncio
-async def test_auth_login():
+async def test_oauth_login():
     # Given
     user = make_user(
         id=1,

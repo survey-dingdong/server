@@ -123,13 +123,23 @@ class UserService(UserUseCase):
         ):
             raise PasswordDoesNotMatchException
 
+        refresh_token_sub_value = make_random_string(16)
+        await self.cache.delete(key=f"{config.REDIS_KEY_PREFIX}::{user.id}")
+
         response = LoginResponseDTO(
             token=TokenHelper.encode(payload={"user_id": user.id}),
             refresh_token=TokenHelper.encode(
-                payload={"sub": make_random_string(16)},
+                payload={"sub": refresh_token_sub_value},
                 expire_period=config.REFRESH_TOKEN_TTL,
             ),
         )
+
+        await self.cache.set(
+            response=refresh_token_sub_value,
+            key=f"{config.REDIS_KEY_PREFIX}::{user.id}",
+            ttl=config.REFRESH_TOKEN_TTL,
+        )
+
         return response
 
     @Transactional()
