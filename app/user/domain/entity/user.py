@@ -20,8 +20,8 @@ class User(Base, TimestampMixin):
     phone_num: Mapped[str] = mapped_column(String(20), nullable=True)
     is_admin: Mapped[bool] = mapped_column(nullable=False, default=False)
     is_deleted: Mapped[bool] = mapped_column(nullable=False, default=False)
-    oauth_accounts: Mapped["UserOauth"] = relationship(
-        "UserOauth", back_populates="user"
+    oauth_accounts: Mapped[list["UserOauth"]] = relationship(
+        "UserOauth", back_populates="user", lazy="selectin"
     )
     experiment_participant_timeslots: Mapped[
         "ExperimentParticipantTimeslot"
