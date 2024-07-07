@@ -1,10 +1,17 @@
 from pydantic import BaseModel, Field
 
 
+class UserOauthResponse(BaseModel):
+    id: int = Field(..., description="ID")
+    oauth_id: str = Field(..., description="Oauth ID")
+    provider: str = Field(..., description="Provider")
+
+
 class GetUserListResponse(BaseModel):
     id: int = Field(..., description="ID")
     email: str = Field(..., description="Email")
     username: str = Field(..., description="username")
+    oauth_accounts: list[UserOauthResponse] = Field(..., description="oauth accounts")
 
 
 class CreateUserResponse(BaseModel):
