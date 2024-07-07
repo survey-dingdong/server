@@ -34,7 +34,7 @@ async def get_project_list(
     auth_info: Request,
     workspace_id: int,
     project_type: ProjectTypeEnum,
-    request: GetProjectListRequest,
+    request: GetProjectListRequest = Depends(),
     page: int = Query(default=1),
     size: int = Query(default=10),
     workspace_usecase: WorkspaceUseCase = Depends(

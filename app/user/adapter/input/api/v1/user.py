@@ -5,6 +5,7 @@ from app.user.adapter.input.api.v1.request import (
     ChangePasswordRequest,
     CreateUserRequest,
     LoginRequest,
+    OauthLoginRequest,
     UpdateUserRequest,
 )
 from app.user.adapter.input.api.v1.response import (
@@ -13,8 +14,9 @@ from app.user.adapter.input.api.v1.response import (
     LoginResponse,
 )
 from app.user.container import UserContainer
-from app.user.domain.command import CreateUserCommand
+from app.user.domain.command import CreateUserCommand, UserOauthCommand
 from app.user.domain.usecase.user import UserUseCase
+from app.user.domain.vo import OauthProviderTypeEnum
 from core.fastapi.dependencies import IsAdmin, IsAuthenticated, PermissionDependency
 
 user_router = APIRouter()
@@ -57,7 +59,9 @@ async def create_user(
     request: CreateUserRequest,
     usecase: UserUseCase = Depends(Provide[UserContainer.user_service]),
 ):
-    command = CreateUserCommand(**request.model_dump())
+    command = CreateUserCommand(
+        email=request.email, password=request.password, username=request.username
+    )
     return await usecase.create_user(command=command)
 
 
@@ -84,6 +88,27 @@ async def login(
     usecase: UserUseCase = Depends(Provide[UserContainer.user_service]),
 ):
     token = await usecase.login(email=request.email, password=request.password)
+    return LoginResponse(token=token.token, refresh_token=token.refresh_token)
+
+
+@user_router.post(
+    "/login/oauth",
+    response_model=LoginResponse,
+)
+@inject
+async def login_oauth(
+    provider: OauthProviderTypeEnum,
+    request: OauthLoginRequest,
+    usecase: UserUseCase = Depends(Provide[UserContainer.user_service]),
+):
+    command = UserOauthCommand(
+        email=request.email,
+        username=request.username,
+        provider=provider,
+        oauth_id=request.oauth_id,
+    )
+
+    token = await usecase.oauth_login(command=command)
     return LoginResponse(token=token.token, refresh_token=token.refresh_token)
 
 

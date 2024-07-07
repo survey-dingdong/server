@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "survey-dingdong"
+name = "dingdong-survey"
 version = "0.0.1"
 description = "Survey DingDong"
 authors = ["JongPil Yoon <whdvlf94@gmail.com>"]

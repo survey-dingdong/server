@@ -23,7 +23,7 @@ async def test_get_workspaces(session: AsyncSession):
     user = make_user(
         password="password",
         email="a@b.c",
-        username="survey-dingdong",
+        username="dingdong-survey",
         is_admin=True,
     )
     session.add(user)
@@ -49,7 +49,7 @@ async def test_create_workspace_too_many(session: AsyncSession):
         id=1,
         password="password",
         email="a@b.c",
-        username="survey-dingdong",
+        username="dingdong-survey",
         is_admin=True,
     )
     session.add(user)
@@ -87,7 +87,7 @@ async def test_create_workspace(session: AsyncSession):
     user = make_user(
         password="password",
         email="a@b.c",
-        username="survey-dingdong",
+        username="dingdong-survey",
         is_admin=True,
     )
     session.add(user)
@@ -112,7 +112,7 @@ async def test_update_workspace_not_exist(session: AsyncSession):
     user = make_user(
         password="password",
         email="a@b.c",
-        username="survey-dingdong",
+        username="dingdong-survey",
         is_admin=True,
     )
     session.add(user)
@@ -146,13 +146,13 @@ async def test_update_workspace_access_denied(session: AsyncSession):
     user1 = make_user(
         password="password",
         email="a@b.c",
-        username="survey-dingdong",
+        username="dingdong-survey",
         is_admin=True,
     )
     user2 = make_user(
         password="password",
         email="a2@b.c",
-        username="survey-dingdong2",
+        username="dingdong-survey2",
         is_admin=True,
     )
     session.add_all([user1, user2])
@@ -186,7 +186,7 @@ async def test_update_workspace_wrong_order_no(session: AsyncSession):
     user = make_user(
         password="password",
         email="a@b.c",
-        username="survey-dingdong",
+        username="dingdong-survey",
         is_admin=True,
     )
     session.add(user)
@@ -219,7 +219,7 @@ async def test_update_workspace(session: AsyncSession):
     user = make_user(
         password="password",
         email="a@b.c",
-        username="survey-dingdong",
+        username="dingdong-survey",
         is_admin=True,
     )
     session.add(user)
@@ -249,7 +249,7 @@ async def test_delete_workspace_not_exist(session: AsyncSession):
     user = make_user(
         password="password",
         email="a@b.c",
-        username="survey-dingdong",
+        username="dingdong-survey",
         is_admin=True,
     )
     session.add(user)
@@ -280,7 +280,7 @@ async def test_delete_workspace_access_denied(session: AsyncSession):
     user = make_user(
         password="password",
         email="a@b.c",
-        username="survey-dingdong",
+        username="dingdong-survey",
         is_admin=True,
     )
     session.add(user)
@@ -311,13 +311,13 @@ async def test_delete_workspace(session: AsyncSession):
     user1 = make_user(
         password="password",
         email="a@b.c",
-        username="survey-dingdong",
+        username="dingdong-survey",
         is_admin=True,
     )
     user2 = make_user(
         password="password",
         email="a2@b.c",
-        username="survey-dingdong2",
+        username="dingdong-survey2",
         is_admin=True,
     )
     session.add_all([user1, user2])

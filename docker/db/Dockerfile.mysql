@@ -1,6 +1,6 @@
 FROM mysql:8.0.33
 
-MAINTAINER Survey-DingDong <whdvlf94@gmail.com>
+MAINTAINER DingDong-Survey <survey.dingdong94@gmail.com>
 
 ENV MYSQL_USER=admin
 ENV MYSQL_PASSWORD=devpassword

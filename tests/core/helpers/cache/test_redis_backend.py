@@ -9,7 +9,7 @@ redis_backend = RedisBackend()
 @pytest.mark.asyncio
 async def test_get_empty():
     # Given
-    key = "survey-dingdong"
+    key = "dingdong-survey"
 
     # When
     sut = await redis_backend.get(key=key)
@@ -21,7 +21,7 @@ async def test_get_empty():
 @pytest.mark.asyncio
 async def test_get():
     # Given
-    key = "survey-dingdong"
+    key = "dingdong-survey"
     await redis_client.set(key, 1)
 
     # When
@@ -35,8 +35,8 @@ async def test_get():
 @pytest.mark.asyncio
 async def test_set_dict():
     # Given
-    data = {"name": "survey-dingdong"}
-    key = "survey-dingdong"
+    data = {"name": "dingdong-survey"}
+    key = "dingdong-survey"
 
     # When
     await redis_backend.set(response=data, key=key)

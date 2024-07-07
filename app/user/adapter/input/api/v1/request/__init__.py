@@ -32,6 +32,12 @@ class LoginRequest(BaseModel):
     password: SecretStr = Field(..., description="Password")
 
 
+class OauthLoginRequest(BaseModel):
+    email: EmailStr = Field(..., description="Email")
+    username: str | None = Field(None, description="User username")
+    oauth_id: str = Field(..., description="OAuth ID")
+
+
 class ChangePasswordRequest(BaseModel):
     old_password: SecretStr = Field(..., description="Origin Password")
     new_password: SecretStr = Field(..., description="New Password")

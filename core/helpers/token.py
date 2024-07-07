@@ -23,7 +23,7 @@ class TokenHelper:
     def encode(payload: dict, expire_period: int = 3600) -> str:
         token = jwt.encode(
             payload={
-                "iss": "survey-dingdong",
+                "iss": "dingdong-survey",
                 **payload,
                 "exp": datetime.now() + timedelta(seconds=expire_period),
             },

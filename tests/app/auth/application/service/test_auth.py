@@ -28,7 +28,7 @@ async def test_create_refresh_token_invalid_refresh_token():
 async def test_create_refresh_token():
     # Given
     token = USER_ID_1_TOKEN
-    await redis_backend.set(response="refresh", key="survey-dingdong::1")
+    await redis_backend.set(response="refresh", key="dingdong-survey::1")
 
     # When
     sut = await auth_service.create_refresh_token(token=token, refresh_token=token)
@@ -37,4 +37,4 @@ async def test_create_refresh_token():
     assert sut.token
     assert sut.refresh_token
 
-    await redis_backend.delete(key="survey-dingdong::1")
+    await redis_backend.delete(key="dingdong-survey::1")

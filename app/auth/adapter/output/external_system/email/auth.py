@@ -13,12 +13,12 @@ env = Environment(loader=file_loader)
 
 class EmailSender(ExternalSystemPort):
     def signup(self) -> tuple[str, Template]:
-        title = "[survey-dingdong] 회원가입 인증 메일"
+        title = "[dingdong-survey] 회원가입 인증 메일"
         template = env.get_template("signup.html")
         return title, template
 
     def reset_password(self) -> tuple[str, Template]:
-        title = "[survey-dingdong] 비밀번호 재설정 메일"
+        title = "[dingdong-survey] 비밀번호 재설정 메일"
         template = env.get_template("reset_password.html")
         return title, template
 

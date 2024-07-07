@@ -13,7 +13,7 @@ from app.project.domain.command import CreateProjectCommand
 from app.project.domain.entity.experiment import ExperimentParticipantTimeslotRead
 from app.project.domain.entity.project import ProjectRead
 from app.project.domain.vo import (
-    ExperimentAttendanceStatus,
+    ExperimentAttendanceStatusTypeEnum,
     ExperimentTypeEnum,
     ProjectTypeEnum,
 )
@@ -47,6 +47,7 @@ async def test_get_project_list():
     sut = await project_service.get_project_list(
         workspace_id=1,
         project_type=ProjectTypeEnum.EXPERIMENT,
+        filter_title="project",
         page=1,
         size=12,
     )
@@ -209,7 +210,7 @@ async def test_get_project_participant_list():
         id=1,
         username="username",
         reserved_date="2024-04-09 10:00AM ~ 11:00AM",
-        attendance_status=ExperimentAttendanceStatus.ATTENDED.value,
+        attendance_status=ExperimentAttendanceStatusTypeEnum.ATTENDED.value,
         created_at=datetime.now(),
         updated_at=datetime.now(),
     )

@@ -5,7 +5,7 @@ from app.project.domain.entity.experiment import (
     ExperimentProject,
     ExperimentTimeslot,
 )
-from app.project.domain.vo import ExperimentAttendanceStatus, ExperimentTypeEnum
+from app.project.domain.vo import ExperimentAttendanceStatusTypeEnum, ExperimentTypeEnum
 
 
 def make_experiment_project(
@@ -52,7 +52,7 @@ def make_experiment_project_participant(
     project_id: int = 1,
     experiment_timeslot_id: int = 1,
     experiment_date: date = datetime.now().date(),
-    attendance_status: ExperimentAttendanceStatus = ExperimentAttendanceStatus.ATTENDED,
+    attendance_status: ExperimentAttendanceStatusTypeEnum = ExperimentAttendanceStatusTypeEnum.ATTENDED,
 ):
     return ExperimentParticipantTimeslot(
         id=id,

@@ -61,7 +61,3 @@ class AuthService(AuthUseCase):
         )
         if str(cached_code) != code:
             raise InvalidTokenException
-
-        await self.cache.delete(
-            key=f"{config.REDIS_KEY_PREFIX}::{verification_type}::{email}"
-        )

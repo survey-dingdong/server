@@ -24,9 +24,7 @@ class ExperimentTimeslotRequest(BaseModel):
 
 class PutProjectRequest(BaseModel):
     title: str = Field(..., min_length=1, max_length=20, description="Title")
-    description: str = Field(
-        ..., min_length=0, max_length=512, description="Description"
-    )
+    description: str | None = Field(None, max_length=512, description="Description")
     is_public: bool = Field(..., description="Whether the project is public")
     start_date: date = Field(..., ddescription="Experiment start date")
     end_date: date = Field(..., description="Experiment end date")

@@ -1,4 +1,4 @@
-"""survey-dingdong
+"""dingdong-survey
 
 Revision ID: 26621970b947
 Revises:
@@ -145,7 +145,7 @@ def upgrade():
                 "SCHEDULED",
                 "NOT_ATTENDED",
                 "ATTENDED",
-                name="experimentattendancestatus",
+                name="ExperimentAttendanceStatusTypeEnum",
             ),
             nullable=False,
         ),

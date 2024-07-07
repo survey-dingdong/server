@@ -3,7 +3,7 @@ from datetime import date, datetime
 from pydantic import BaseModel, ConfigDict, Field
 
 from app.project.domain.entity.experiment import ExperimentTimeslotRead
-from app.project.domain.vo import ExperimentAttendanceStatus, ExperimentTypeEnum
+from app.project.domain.vo import ExperimentAttendanceStatusTypeEnum, ExperimentTypeEnum
 
 
 class CreateProjectResponse(BaseModel):
@@ -52,7 +52,7 @@ class GetExperimentParticipantResponse(BaseModel):
     id: int = Field(..., description="Participant ID")
     username: str = Field(..., description="Username")
     reserved_date: str = Field(..., description="Reserved Date")
-    attendance_status: ExperimentAttendanceStatus = Field(
+    attendance_status: ExperimentAttendanceStatusTypeEnum = Field(
         ..., description="Attendance Status"
     )
     created_at: datetime = Field(..., description="Created datetime")

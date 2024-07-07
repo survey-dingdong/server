@@ -11,7 +11,7 @@ class ExperimentTypeEnum(Enum):
     OFFLINE = "offline"
 
 
-class ExperimentAttendanceStatus(Enum):
+class ExperimentAttendanceStatusTypeEnum(Enum):
     SCHEDULED = "scheduled"
     NOT_ATTENDED = "not_attended"
     ATTENDED = "attended"

@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, status
 from app.auth.adapter.input.api.v1.request import (
     EmailVerificationRequest,
     RefreshTokenRequest,
+    ResetPasswordRequest,
     VerifyEmailRequest,
 )
 from app.auth.adapter.input.api.v1.response import (
@@ -44,7 +45,7 @@ async def check_email_availability(
     request: EmailVerificationRequest,
     user_usecase: UserUseCase = Depends(Provide[UserContainer.user_service]),
 ):
-    availability = await user_usecase.validate_email(email=request.email)
+    availability = await user_usecase.is_email_available(email=request.email)
     return ValidateEmailResponse(availability=availability)
 
 
@@ -75,4 +76,17 @@ async def validate_verification_email(
         email=request.email,
         code=request.code,
         verification_type=verification_type,
+    )
+
+
+@auth_router.post(
+    "/reset-password",
+)
+@inject
+async def reset_password(
+    request: ResetPasswordRequest,
+    user_usecase: UserUseCase = Depends(Provide[UserContainer.user_service]),
+):
+    await user_usecase.reset_password(
+        email=request.email, new_password=request.password
     )

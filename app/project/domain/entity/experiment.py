@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 from datetime import date, datetime, time
+from typing import TYPE_CHECKING
 
 from pydantic import BaseModel, Field
 from sqlalchemy import (
@@ -15,14 +18,16 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.project.domain.vo import ExperimentAttendanceStatus, ExperimentTypeEnum
-from app.user.domain.entity.user import User
+from app.project.domain.vo import ExperimentAttendanceStatusTypeEnum, ExperimentTypeEnum
 from app.workspace.domain.entity.workspace import Workspace
 from core.db import Base
 from core.db.mixins import TimestampMixin
 from core.helpers.utils import add_am_pm_indicator
 
 from .project import Project
+
+if TYPE_CHECKING:
+    from app.user.domain.entity.user import User
 
 
 class ExperimentProject(Base, Project):
@@ -119,15 +124,15 @@ class ExperimentParticipantTimeslot(Base, TimestampMixin):
         ForeignKey("experiment_timeslot.id"),
     )
     experiment_date: Mapped[date] = mapped_column(DATE, nullable=False, index=True)
-    attendance_status: Mapped[ExperimentAttendanceStatus] = mapped_column(
-        Enum(ExperimentAttendanceStatus),
+    attendance_status: Mapped[ExperimentAttendanceStatusTypeEnum] = mapped_column(
+        Enum(ExperimentAttendanceStatusTypeEnum),
         nullable=False,
-        default=ExperimentAttendanceStatus.SCHEDULED,
+        default=ExperimentAttendanceStatusTypeEnum.SCHEDULED,
     )
     is_deleted: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
 
     user: Mapped["User"] = relationship(
-        "User", back_populates="experiment_participant_timeslots"
+        "User", back_populates="experiment_participant_timeslots", uselist=False
     )
     experiment_timeslot: Mapped["ExperimentTimeslot"] = relationship(
         "ExperimentTimeslot", back_populates="experiment_participant_timeslots"
@@ -173,7 +178,7 @@ class ExperimentParticipantTimeslotRead(BaseModel):
     id: int = Field(..., description="Participant ID")
     username: str = Field(..., description="Username")
     reserved_date: str = Field(..., description="Reserved Date")
-    attendance_status: ExperimentAttendanceStatus = Field(
+    attendance_status: ExperimentAttendanceStatusTypeEnum = Field(
         ..., description="Attendance Status"
     )
     created_at: datetime = Field(..., description="Created datetime")

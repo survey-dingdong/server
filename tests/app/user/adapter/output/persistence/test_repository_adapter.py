@@ -20,7 +20,7 @@ async def test_get_users(session: AsyncSession):
         id=1,
         password="password",
         email="a@b.c",
-        username="survey-dingdong",
+        username="dingdong-survey",
         is_admin=True,
     )
     user_repo_mock.get_users.return_value = [user]
@@ -40,43 +40,12 @@ async def test_get_users(session: AsyncSession):
 
 
 @pytest.mark.asyncio
-async def test_get_user_by_email_or_username(session: AsyncSession):
-    # Given
-    user = make_user(
-        password="password",
-        email="a@b.c",
-        username="survey-dingdong",
-        is_admin=True,
-    )
-    user_repo_mock.get_user_by_email_or_username.return_value = user
-    repository_adapter.repository = user_repo_mock
-
-    # When
-    sut = await repository_adapter.get_user_by_email_or_username(
-        email=user.email,
-        username=user.username,
-    )
-
-    # Then
-    assert sut is not None
-    assert sut.id == user.id
-    assert sut.password == user.password
-    assert sut.email == user.email
-    assert sut.username == user.username
-    assert sut.is_admin == user.is_admin
-    repository_adapter.repository.get_user_by_email_or_username.assert_awaited_once_with(
-        email=user.email,
-        username=user.username,
-    )
-
-
-@pytest.mark.asyncio
 async def test_get_user_by_id(session: AsyncSession):
     # Given
     user = make_user(
         password="password",
         email="a@b.c",
-        username="survey-dingdong",
+        username="dingdong-survey",
         is_admin=True,
     )
     user_repo_mock.get_user_by_id.return_value = user
@@ -103,7 +72,7 @@ async def test_get_user_by_email(session: AsyncSession):
     user = make_user(
         password="password",
         email="a@b.c",
-        username="survey-dingdong",
+        username="dingdong-survey",
         is_admin=True,
     )
     user_repo_mock.get_user_by_email.return_value = user
@@ -131,7 +100,7 @@ async def test_save(session: AsyncSession):
         id=1,
         password="password",
         email="a@b.c",
-        username="survey-dingdong",
+        username="dingdong-survey",
         is_admin=True,
     )
     user_repo_mock.save.return_value = user

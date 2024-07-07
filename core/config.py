@@ -15,8 +15,8 @@ class Config(BaseSettings):
     REFRESH_TOKEN_TTL: int = 60 * 60 * 14  # 14 Days
     REDIS_HOST: str = "localhost"
     REDIS_PORT: int = 6379
-    REDIS_KEY_PREFIX: str = "survey-dingdong"
-    MAIL_USERNANE: EmailStr = "survey-dingdong@gmail.com"
+    REDIS_KEY_PREFIX: str = "dingdong-survey"
+    MAIL_USERNANE: EmailStr = "dingdong-survey@gmail.com"
     MAIL_PASSWORD: str = "?"
 
     model_config = SettingsConfigDict(env_file=".env", env_prefix="app_")

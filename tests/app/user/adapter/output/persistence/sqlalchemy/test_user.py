@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.user.adapter.output.persistence.sqlalchemy.user import UserSQLAlchemyRepo
 from app.user.domain.entity.user import User
-from tests.support.user_fixture import make_user
+from tests.support.user_fixture import make_user, make_user_oauth
 
 user_repo = UserSQLAlchemyRepo()
 
@@ -14,7 +14,7 @@ async def test_get_users(session: AsyncSession):
     user_1 = make_user(
         password="password",
         email="a@b.c",
-        username="survey-dingdong",
+        username="dingdong-survey",
         is_admin=True,
     )
     user_2 = make_user(
@@ -45,30 +45,6 @@ async def test_get_users(session: AsyncSession):
 
 
 @pytest.mark.asyncio
-async def test_get_user_by_email_or_username(session: AsyncSession):
-    # Given
-    email = "a@b.c"
-    username = "survey-dingdong"
-    user = make_user(
-        password="password2",
-        email=email,
-        username=username,
-        is_admin=False,
-    )
-    session.add(user)
-    await session.commit()
-
-    # When
-    sut = await user_repo.get_user_by_email_or_username(email=email, username=username)
-
-    # Then
-    assert isinstance(sut, User)
-    assert sut.id == user.id
-    assert sut.email == email
-    assert sut.username == username
-
-
-@pytest.mark.asyncio
 async def test_get_user_by_id(session: AsyncSession):
     # Given
     user_id = 1
@@ -83,12 +59,12 @@ async def test_get_user_by_id(session: AsyncSession):
 @pytest.mark.asyncio
 async def test_get_user_by_email(session: AsyncSession):
     # Given
-    email = "b@c.d"
-    password = "survey-dingdong"
+    email = "a@b.c"
+    username = "dingdong-survey"
     user = make_user(
-        password=password,
+        password="password2",
         email=email,
-        username="survey-dingdong",
+        username=username,
         is_admin=False,
     )
     session.add(user)
@@ -101,18 +77,46 @@ async def test_get_user_by_email(session: AsyncSession):
     assert isinstance(sut, User)
     assert sut.id == user.id
     assert sut.email == email
-    assert sut.password == password
+    assert sut.username == username
+
+
+@pytest.mark.asyncio
+async def get_user_oauth_by_id(session: AsyncSession):
+    # Given
+    email = "b@c.d"
+    password = "dingdong-survey"
+    user = make_user(
+        password=password,
+        email=email,
+        username="dingdong-survey",
+        is_admin=False,
+    )
+    user_oauth = make_user_oauth(
+        user_id=user.id,
+        oauth_id="1",
+    )
+    session.add_all([user, user_oauth])
+    await session.commit()
+
+    # When
+    sut = await user_repo.get_user_oauth_by_id(user_id=user.id, oauth_id=user_oauth.id)
+
+    # Then
+    assert isinstance(sut, User)
+    assert sut.id == user_oauth.id
+    assert sut.oauth_id == user_oauth.oauth_id
+    assert sut.provider == user_oauth.provider
 
 
 @pytest.mark.asyncio
 async def test_save(session: AsyncSession):
     # Given
     email = "b@c.d"
-    password = "survey-dingdong"
+    password = "dingdong-survey"
     user = make_user(
         password=password,
         email=email,
-        username="survey-dingdong",
+        username="dingdong-survey",
         is_admin=False,
     )
 

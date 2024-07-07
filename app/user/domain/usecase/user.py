@@ -7,13 +7,13 @@ from app.user.application.dto import (
     LoginResponseDTO,
     UpdateUserRequestDTO,
 )
-from app.user.domain.command import CreateUserCommand
+from app.user.domain.command import CreateUserCommand, UserOauthCommand
 from app.user.domain.entity.user import User
 
 
 class UserUseCase(ABC):
     @abstractmethod
-    async def validate_email(self, email: str) -> bool:
+    async def is_email_available(self, email: str) -> bool:
         """Validate user email"""
 
     @abstractmethod
@@ -45,7 +45,15 @@ class UserUseCase(ABC):
         """Login"""
 
     @abstractmethod
+    async def oauth_login(self, command: UserOauthCommand) -> LoginResponseDTO:
+        """Oauth Login"""
+
+    @abstractmethod
     async def change_password(
         self, user_id: int, old_password: SecretStr, new_password: SecretStr
     ) -> None:
         """Change password"""
+
+    @abstractmethod
+    async def reset_password(self, email: str, new_password: SecretStr) -> None:
+        """Reset password"""

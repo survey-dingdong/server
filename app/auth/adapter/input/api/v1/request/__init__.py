@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, SecretStr
 
 
 class RefreshTokenRequest(BaseModel):
@@ -13,3 +13,8 @@ class EmailVerificationRequest(BaseModel):
 class VerifyEmailRequest(BaseModel):
     email: EmailStr = Field(..., description="Email")
     code: str = Field(..., description="Code")
+
+
+class ResetPasswordRequest(BaseModel):
+    email: EmailStr = Field(..., description="Email")
+    password: SecretStr = Field(..., description="Password")
