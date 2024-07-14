@@ -98,6 +98,7 @@ class ProjectSQLAlchemyRepo(ProjectRepo):
             select(
                 ExperimentParticipantTimeslot.id,
                 User.username,
+                User.profile_color,
                 ExperimentParticipantTimeslot.experiment_date,
                 ExperimentTimeslot.start_time,
                 ExperimentTimeslot.end_time,

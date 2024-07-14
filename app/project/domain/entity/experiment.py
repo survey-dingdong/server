@@ -176,6 +176,7 @@ class ExperimentProjectRead(BaseModel):
 class ExperimentParticipantTimeslotRead(BaseModel):
     id: int = Field(..., description="Participant ID")
     username: str = Field(..., description="Username")
+    profile_color: str = Field(..., description="Profile color")
     experiment_date: date = Field(..., description="Experiment Date")
     start_time: time = Field(..., description="Experiment start time")
     end_time: time = Field(..., description="Experiment end time")

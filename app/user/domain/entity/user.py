@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import random
 from typing import TYPE_CHECKING
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -19,10 +20,11 @@ class User(Base, TimestampMixin):
     __tablename__ = "user"
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    password: Mapped[str] = mapped_column(String(255), nullable=True)
     email: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
+    password: Mapped[str] = mapped_column(String(255), nullable=True)
     username: Mapped[str] = mapped_column(String(64), nullable=False)
     phone_num: Mapped[str] = mapped_column(String(20), nullable=True)
+    profile_color: Mapped[str] = mapped_column(String(7), nullable=False)
     is_admin: Mapped[bool] = mapped_column(nullable=False, default=False)
     is_deleted: Mapped[bool] = mapped_column(nullable=False, default=False)
 
@@ -38,14 +40,20 @@ class User(Base, TimestampMixin):
         "ExperimentParticipantTimeslot", back_populates="user", lazy="selectin"
     )
 
+    @staticmethod
+    def random_color() -> str:
+        colors = ["#3F57FD", "#DB5654", "#613EE2", "#FD3F78", "#F08F1D", "#24A29A"]
+        return random.choice(colors)
+
     @classmethod
     def create(
         cls, *, email: str, username: str, password: str | None = None
     ) -> "User":
         return cls(
             email=email,
-            username=username,
             password=password,
+            username=username,
+            profile_color=cls.random_color(),
         )
 
 

@@ -11,6 +11,7 @@ class GetUserListResponse(BaseModel):
     id: int = Field(..., description="ID")
     email: str = Field(..., description="Email")
     username: str = Field(..., description="username")
+    profile_color: str = Field(..., description="profile color")
     oauth_accounts: list[UserOauthResponse] = Field(..., description="oauth accounts")
 
 

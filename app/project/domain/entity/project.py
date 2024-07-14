@@ -13,8 +13,8 @@ class Project(TimestampMixin):
         Integer,
         ForeignKey("workspace.id"),
     )
-    title: Mapped[str] = mapped_column(String(20), nullable=False)
-    description: Mapped[str] = mapped_column(String(512), nullable=True)
+    title: Mapped[str] = mapped_column(String(64), nullable=False)
+    description: Mapped[str] = mapped_column(String(1000), nullable=True)
     is_public: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     joined_participants: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     max_participants: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
