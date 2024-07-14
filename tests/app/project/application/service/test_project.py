@@ -212,6 +212,7 @@ async def test_get_project_participant_list():
     experiment_participant_timeslot = ExperimentParticipantTimeslotRead(
         id=1,
         username="username",
+        profile_color="#3F57FD",
         experiment_date="2024-04-09",
         start_time="10:00",
         end_time="11:00",

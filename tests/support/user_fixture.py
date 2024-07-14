@@ -15,6 +15,7 @@ def make_user(
         email=email,
         username=username,
         is_admin=is_admin,
+        profile_color="#3F57FD",
     )
 
 

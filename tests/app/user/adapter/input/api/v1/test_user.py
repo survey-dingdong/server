@@ -44,6 +44,7 @@ async def test_get_users(session: AsyncSession):
         "id": 1,
         "email": "a@b.c",
         "username": "dingdong-survey",
+        "profile_color": "#3F57FD",
         "oauth_accounts": [],
     }
 
@@ -70,6 +71,7 @@ async def test_get_user_me(session: AsyncSession):
         "id": 1,
         "email": "a@b.c",
         "username": "dingdong-survey",
+        "profile_color": "#3F57FD",
         "oauth_accounts": [],
     }
 

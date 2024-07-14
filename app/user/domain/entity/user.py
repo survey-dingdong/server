@@ -87,4 +87,5 @@ class UserRead(BaseModel):
     id: int = Field(..., title="USER ID")
     email: str = Field(..., title="Email")
     username: str = Field(..., title="username")
+    profile_color: str = Field(..., title="profile color")
     oauth_accounts: list[UserOauth] = Field(..., title="oauth accounts")
