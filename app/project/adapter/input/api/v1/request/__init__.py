@@ -6,7 +6,7 @@ from app.project.domain.vo import ExperimentTypeEnum
 
 
 class CreateProjectRequest(BaseModel):
-    title: str = Field(..., min_length=1, max_length=20, description="Title")
+    title: str = Field(..., min_length=1, max_length=30, description="Title")
 
 
 class GetProjectListRequest(BaseModel):
