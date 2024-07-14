@@ -6,7 +6,6 @@ from app.project.application.dto import (
     UpdateProjectRequestDTO,
 )
 from app.project.application.exception import (
-    ParticipantAccessDeniedException,
     ParticipantNotFoundException,
     ProjectAccessDeniedException,
     ProjectNotFoundException,
@@ -22,7 +21,7 @@ from app.project.domain.entity.experiment import (
 )
 from app.project.domain.entity.project import ProjectRead
 from app.project.domain.usecase.project import ProjectUseCsae
-from app.project.domain.vo import ProjectTypeEnum
+from app.project.domain.vo import ExperimentAttendanceStatusTypeEnum, ProjectTypeEnum
 from core.db import Transactional
 
 
@@ -194,6 +193,37 @@ class ProjectService(ProjectUseCsae):
         )
 
     @Transactional()
+    async def update_project_participant_status(
+        self,
+        user_id: int,
+        project_id: int,
+        participant_id: int,
+        project_type: ProjectTypeEnum,
+        attendance_status: ExperimentAttendanceStatusTypeEnum,
+    ) -> None:
+        project = await self.repository.get_project_by_id(
+            project_type=project_type,
+            project_id=project_id,
+        )
+
+        if project is None:
+            raise ProjectNotFoundException
+
+        if project.workspace.user_id != user_id:
+            raise ProjectAccessDeniedException
+
+        project_participant = await self.repository.get_project_participant_by_id(
+            project_id=project.id,
+            participant_id=participant_id,
+            project_type=project_type,
+        )
+
+        if project_participant is None:
+            raise ParticipantNotFoundException
+
+        project_participant.attendance_status = attendance_status
+
+    @Transactional()
     async def delete_project_participant(
         self,
         user_id: int,
@@ -220,8 +250,5 @@ class ProjectService(ProjectUseCsae):
 
         if project_participant is None:
             raise ParticipantNotFoundException
-
-        if project_participant.experiment_timeslot.experiment_project_id != project_id:
-            raise ParticipantAccessDeniedException
 
         project_participant.is_deleted = True

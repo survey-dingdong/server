@@ -10,7 +10,7 @@ from app.project.domain.entity.experiment import (
     ExperimentProjectRead,
 )
 from app.project.domain.entity.project import ProjectRead
-from app.project.domain.vo import ProjectTypeEnum
+from app.project.domain.vo import ExperimentAttendanceStatusTypeEnum, ProjectTypeEnum
 
 
 class ProjectUseCsae(ABC):
@@ -69,6 +69,17 @@ class ProjectUseCsae(ABC):
         size: int,
     ) -> list[ExperimentParticipantTimeslotRead]:
         """Get project participant list"""
+
+    @abstractmethod
+    async def update_project_participant_status(
+        self,
+        user_id: int,
+        project_id: int,
+        participant_id: int,
+        project_type: ProjectTypeEnum,
+        attendance_status: ExperimentAttendanceStatusTypeEnum,
+    ) -> None:
+        """Update project participant status"""
 
     @abstractmethod
     async def delete_project_participant(

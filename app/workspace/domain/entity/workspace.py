@@ -1,9 +1,12 @@
+from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
 from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy import Boolean, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from app.user.domain.entity.user import User
 from core.db import Base
 from core.db.mixins import TimestampMixin
 
@@ -25,10 +28,16 @@ class Workspace(Base, TimestampMixin):
     order_no: Mapped[int] = mapped_column(Integer, nullable=False)
     is_deleted: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
 
+    user: Mapped["User"] = relationship(
+        "User",
+        back_populates="workspaces",
+        uselist=False,
+        lazy="selectin",
+    )
+
     experiment_projects: Mapped[list["ExperimentProject"]] = relationship(
         "ExperimentProject",
         back_populates="workspace",
-        cascade="all, delete-orphan",
         lazy="selectin",
     )
 

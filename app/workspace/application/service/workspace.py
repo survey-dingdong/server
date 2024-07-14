@@ -31,8 +31,8 @@ class WorkspaceService(WorkspaceUseCase):
     async def get_workspace_list(self, user_id: int) -> list[WorkspaceRead]:
         workspaces = await self.repository.get_workspaces(user_id=user_id)
 
-        for idx, workspace in enumerate(workspaces):
-            workspace.order_no = idx + 1
+        for idx, workspace in enumerate(workspaces, start=1):
+            workspace.order_no = idx
 
         return [WorkspaceRead.model_validate(workspace) for workspace in workspaces]
 

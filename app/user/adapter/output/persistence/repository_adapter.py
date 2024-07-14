@@ -15,10 +15,10 @@ class UserRepositoryAdapter:
     async def get_user_by_email(self, email: str) -> User | None:
         return await self.repository.get_user_by_email(email=email)
 
-    async def get_user_oauth_by_id(
+    async def get_user_by_oauth_id(
         self, user_id: int, oauth_id: str
     ) -> UserOauth | None:
-        return await self.repository.get_user_oauth_by_id(
+        return await self.repository.get_user_by_oauth_id(
             user_id=user_id, oauth_id=oauth_id
         )
 

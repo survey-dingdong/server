@@ -40,7 +40,12 @@ async def test_get_users(session: AsyncSession):
     # Then
     sut = response.json()
     assert len(sut) == 1
-    assert sut[0] == {"id": 1, "email": "a@b.c", "username": "dingdong-survey"}
+    assert sut[0] == {
+        "id": 1,
+        "email": "a@b.c",
+        "username": "dingdong-survey",
+        "oauth_accounts": [],
+    }
 
 
 @pytest.mark.asyncio
@@ -61,7 +66,12 @@ async def test_get_user_me(session: AsyncSession):
 
     # Then
     sut = response.json()
-    assert sut == {"id": 1, "email": "a@b.c", "username": "dingdong-survey"}
+    assert sut == {
+        "id": 1,
+        "email": "a@b.c",
+        "username": "dingdong-survey",
+        "oauth_accounts": [],
+    }
 
 
 @pytest.mark.asyncio

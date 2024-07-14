@@ -23,9 +23,3 @@ class ParticipantNotFoundException(CustomException):
     code = 404
     error_code = "PARTICIPANT__NOT_FOUND"
     message = "participant not found"
-
-
-class ParticipantAccessDeniedException(CustomException):
-    code = 403
-    error_code = "PARTICIPANT__ACCESS_DENIED"
-    message = "participant does not belong to the project"

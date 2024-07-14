@@ -1,13 +1,18 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy import Enum, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.project.domain.entity.experiment import ExperimentParticipantTimeslot
 from app.user.domain.vo import OauthProviderTypeEnum
 from core.db import Base
 from core.db.mixins import TimestampMixin
+
+if TYPE_CHECKING:
+    from app.project.domain.entity.experiment import ExperimentParticipantTimeslot
+    from app.workspace.domain.entity.workspace import Workspace
 
 
 class User(Base, TimestampMixin):
@@ -20,6 +25,10 @@ class User(Base, TimestampMixin):
     phone_num: Mapped[str] = mapped_column(String(20), nullable=True)
     is_admin: Mapped[bool] = mapped_column(nullable=False, default=False)
     is_deleted: Mapped[bool] = mapped_column(nullable=False, default=False)
+
+    workspaces: Mapped[list["Workspace"]] = relationship(
+        "Workspace", back_populates="user", lazy="selectin"
+    )
     oauth_accounts: Mapped[list["UserOauth"]] = relationship(
         "UserOauth", back_populates="user", lazy="selectin"
     )
@@ -38,14 +47,6 @@ class User(Base, TimestampMixin):
             username=username,
             password=password,
         )
-
-
-class UserRead(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-
-    id: int = Field(..., title="USER ID")
-    email: str = Field(..., title="Email")
-    username: str = Field(..., title="username")
 
 
 class UserOauth(Base, TimestampMixin):
@@ -70,3 +71,12 @@ class UserOauth(Base, TimestampMixin):
             oauth_id=oauth_id,
             provider=provider,
         )
+
+
+class UserRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True, arbitrary_types_allowed=True)
+
+    id: int = Field(..., title="USER ID")
+    email: str = Field(..., title="Email")
+    username: str = Field(..., title="username")
+    oauth_accounts: list[UserOauth] = Field(..., title="oauth accounts")

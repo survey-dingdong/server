@@ -26,7 +26,7 @@ class UserSQLAlchemyRepo(UserRepo):
         )
         return result.scalars().first()
 
-    async def get_user_oauth_by_id(
+    async def get_user_by_oauth_id(
         self, user_id: int, oauth_id: str
     ) -> UserOauth | None:
         result = await session.execute(

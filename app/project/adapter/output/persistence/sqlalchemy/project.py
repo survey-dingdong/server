@@ -126,18 +126,19 @@ class ProjectSQLAlchemyRepo(ProjectRepo):
     async def get_project_participant_by_id(
         self, project_id: int, participant_id: int, project_type: ProjectTypeEnum
     ) -> ExperimentParticipantTimeslot | None:
-        if project_type == ProjectTypeEnum.EXPERIMENT:
-            participant_timeslot = ExperimentParticipantTimeslot
-        else:
+        if project_type != ProjectTypeEnum.EXPERIMENT:
             return None
 
-        query = select(participant_timeslot).where(
-            and_(
-                ExperimentParticipantTimeslot.experiment_timeslot.experiment_project_id
-                == project_id,
-                ExperimentParticipantTimeslot.id == participant_id,
-                ~ExperimentParticipantTimeslot.is_deleted,
-            ),
+        query = (
+            select(ExperimentParticipantTimeslot)
+            .join(ExperimentTimeslot)
+            .where(
+                and_(
+                    ExperimentTimeslot.experiment_project_id == project_id,
+                    ExperimentParticipantTimeslot.id == participant_id,
+                    ~ExperimentParticipantTimeslot.is_deleted,
+                ),
+            )
         )
         result = await session.execute(query)
         return result.scalars().first()

@@ -81,7 +81,7 @@ async def test_get_user_by_email(session: AsyncSession):
 
 
 @pytest.mark.asyncio
-async def get_user_oauth_by_id(session: AsyncSession):
+async def get_user_by_oauth_id(session: AsyncSession):
     # Given
     email = "b@c.d"
     password = "dingdong-survey"
@@ -99,7 +99,7 @@ async def get_user_oauth_by_id(session: AsyncSession):
     await session.commit()
 
     # When
-    sut = await user_repo.get_user_oauth_by_id(user_id=user.id, oauth_id=user_oauth.id)
+    sut = await user_repo.get_user_by_oauth_id(user_id=user.id, oauth_id=user_oauth.id)
 
     # Then
     assert isinstance(sut, User)

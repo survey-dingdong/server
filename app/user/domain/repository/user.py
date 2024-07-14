@@ -17,10 +17,10 @@ class UserRepo(ABC):
         """Get user by email"""
 
     @abstractmethod
-    async def get_user_oauth_by_id(
+    async def get_user_by_oauth_id(
         self, user_id: int, oauth_id: str
     ) -> UserOauth | None:
-        """Get user oauth by id"""
+        """Get user by oauth id"""
 
     @abstractmethod
     async def save(self, user: User | UserOauth, auto_flush: bool) -> User | UserOauth:

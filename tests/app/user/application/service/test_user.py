@@ -34,7 +34,9 @@ async def test_get_user_list():
     # Given
     page = 1
     size = 10
-    user = UserRead(id=1, email="survey@ding.dong", username="dingdong-survey")
+    user = UserRead(
+        id=1, email="survey@ding.dong", username="dingdong-survey", oauth_accounts=[]
+    )
     repository_mock.get_users.return_value = [user]
     user_service.repository = repository_mock
 
@@ -64,7 +66,9 @@ async def test_get_user_me_no_exist():
 @pytest.mark.asyncio
 async def test_get_user_me():
     # Given
-    user = UserRead(id=1, email="survey@ding.dong", username="dingdong-survey")
+    user = UserRead(
+        id=1, email="survey@ding.dong", username="dingdong-survey", oauth_accounts=[]
+    )
     repository_mock.get_user_by_id.return_value = user
     user_service.repository = repository_mock
 
@@ -317,7 +321,7 @@ async def test_oauth_login_no_exist():
         provider=OauthProviderTypeEnum.GOOGLE,
     )
     repository_mock.get_user_by_email.return_value = user
-    repository_mock.get_user_oauth_by_id.return_value = None
+    repository_mock.get_user_by_oauth_id.return_value = None
     user_service.repository = repository_mock
 
     # When, Then
@@ -348,7 +352,7 @@ async def test_oauth_login_diff_provider():
         provider="facebook",
     )
     repository_mock.get_user_by_email.return_value = user
-    repository_mock.get_user_oauth_by_id.return_value = user_oauth
+    repository_mock.get_user_by_oauth_id.return_value = user_oauth
     user_service.repository = repository_mock
 
     # When, Then

@@ -160,7 +160,7 @@ class UserService(UserUseCase):
         elif user.password:
             raise UserAlreadyExistsException
         else:
-            user_oauth = await self.repository.get_user_oauth_by_id(
+            user_oauth = await self.repository.get_user_by_oauth_id(
                 user_id=user.id, oauth_id=command.oauth_id
             )
             if user_oauth is None:
