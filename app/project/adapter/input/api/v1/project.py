@@ -15,7 +15,7 @@ from app.project.adapter.input.api.v1.response import (
 from app.project.container import ProjectContainer
 from app.project.domain.command import CreateProjectCommand
 from app.project.domain.usecase.project import ProjectUseCsae
-from app.project.domain.vo import ProjectTypeEnum
+from app.project.domain.vo import ExperimentAttendanceStatusTypeEnum, ProjectTypeEnum
 from app.workspace.container import WorkspaceContainer
 from app.workspace.domain.usecase.workspace import WorkspaceUseCase
 from core.fastapi.dependencies import IsAuthenticated, PermissionDependency
@@ -174,6 +174,31 @@ async def get_project_participant_list(
         project_type=project_type,
         page=page,
         size=size,
+    )
+
+
+@project_router.patch(
+    "/projects/{project_id}/participants/{participant_id}",
+    tags=["Project"],
+    dependencies=[Depends(PermissionDependency([IsAuthenticated]))],
+)
+@inject
+async def update_project_participant_status(
+    auth_info: Request,
+    project_id: int,
+    participant_id: int,
+    project_type: ProjectTypeEnum,
+    attendance_status: ExperimentAttendanceStatusTypeEnum,
+    project_usecase: ProjectUseCsae = Depends(
+        Provide[ProjectContainer.project_service]
+    ),
+):
+    await project_usecase.update_project_participant_status(
+        user_id=auth_info.user.id,
+        project_id=project_id,
+        participant_id=participant_id,
+        project_type=project_type,
+        attendance_status=attendance_status,
     )
 
 
