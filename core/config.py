@@ -35,17 +35,11 @@ class LocalConfig(Config):
     ...
 
 
-class ProductionConfig(Config):
-    DEBUG: bool = False
-    ENABLE_CORS_OPTION: bool = False
-
-
 def get_config():
     env = os.getenv("ENV", "local")
     config_type = {
         "test": TestConfig(),
         "local": LocalConfig(),
-        "prod": ProductionConfig(),
     }
     return config_type[env]
 
