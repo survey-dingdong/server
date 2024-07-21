@@ -91,22 +91,30 @@ def on_auth_error(request: Request, exc: Exception):
 
 
 def make_middleware() -> list[Middleware]:
-    middleware = [
-        Middleware(
-            CORSMiddleware,
-            allow_origins=["*"],
-            allow_credentials=True,
-            allow_methods=["*"],
-            allow_headers=["*"],
-        ),
-        Middleware(
-            AuthenticationMiddleware,
-            backend=AuthBackend(),
-            on_error=on_auth_error,
-        ),
-        Middleware(SQLAlchemyMiddleware),
-        Middleware(ResponseLogMiddleware),
-    ]
+    middleware: list[Middleware] = []
+
+    if config.ENABLE_CORS_OPTION:
+        middleware.append(
+            Middleware(
+                CORSMiddleware,
+                allow_origins=["*"],
+                allow_credentials=True,
+                allow_methods=["*"],
+                allow_headers=["*"],
+            )
+        )
+
+    middleware.extend(
+        [
+            Middleware(
+                AuthenticationMiddleware,
+                backend=AuthBackend(),
+                on_error=on_auth_error,
+            ),
+            Middleware(SQLAlchemyMiddleware),
+            Middleware(ResponseLogMiddleware),
+        ]
+    )
     return middleware
 
 

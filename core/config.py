@@ -7,6 +7,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Config(BaseSettings):
     ENV: str = "development"
     DEBUG: bool = True
+    ENABLE_CORS_OPTION: bool = True
     APP_HOST: str = "0.0.0.0"
     APP_PORT: int = 8000
     DB_URL: str = "mysql+aiomysql://admin:devpassword@127.0.0.1:3306/survey_dingdong"
@@ -36,6 +37,7 @@ class LocalConfig(Config):
 
 class ProductionConfig(Config):
     DEBUG: bool = False
+    ENABLE_CORS_OPTION: bool = False
 
 
 def get_config():
