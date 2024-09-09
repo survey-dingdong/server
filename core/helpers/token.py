@@ -2,20 +2,8 @@ from datetime import datetime, timedelta
 
 import jwt
 
+from app.auth.application.exception import DecodeTokenException, ExpiredTokenException
 from core.config import config
-from core.exceptions import CustomException
-
-
-class DecodeTokenException(CustomException):
-    code = 400
-    error_code = "TOKEN__DECODE_ERROR"
-    message = "token decode error"
-
-
-class ExpiredTokenException(CustomException):
-    code = 400
-    error_code = "TOKEN__EXPIRE_TOKEN"
-    message = "expired token"
 
 
 class TokenHelper:
