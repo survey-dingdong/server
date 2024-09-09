@@ -62,6 +62,3 @@ class WebSocketManager:
                 for socket in all_sockets:
                     data = message["data"].decode("utf-8")
                     await socket.send_text(data)
-
-
-_WebSocket = WebSocketManager()
