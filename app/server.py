@@ -7,10 +7,14 @@ from sqlalchemy.exc import DataError, IntegrityError
 
 from app.auth.adapter.input.api import router as auth_router
 from app.auth.container import Container
+from app.chat.adapter.input.api import router as chat_router
+from app.chat.container import ChatContainer
 from app.project.adapter.input.api import router as project_router
 from app.project.container import ProjectContainer
 from app.user.adapter.input.api import router as user_router
 from app.user.container import UserContainer
+from app.websocket.adapter.input.api import router as websocket_router
+from app.websocket.container import WebsocketContainer
 from app.workspace.adapter.input.api import router as workspace_router
 from app.workspace.container import WorkspaceContainer
 from core.config import config
@@ -38,10 +42,18 @@ def init_routers(app_: FastAPI) -> None:
     project_container = ProjectContainer()
     project_router.container = project_container
 
+    chat_container = ChatContainer()
+    chat_router.container = chat_container
+
+    websocket_container = WebsocketContainer()
+    websocket_router.container = websocket_container
+
     app_.include_router(auth_router)
     app_.include_router(user_router)
     app_.include_router(workspace_router)
     app_.include_router(project_router)
+    app_.include_router(chat_router)
+    app_.include_router(websocket_router)
 
 
 def init_listeners(app_: FastAPI) -> None:

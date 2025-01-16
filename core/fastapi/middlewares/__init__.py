@@ -1,4 +1,4 @@
-from .authentication import AuthenticationMiddleware, AuthBackend
+from .authentication import AuthBackend, AuthenticationMiddleware
 from .response_log import ResponseLogMiddleware
 from .sqlalchemy import SQLAlchemyMiddleware
 
