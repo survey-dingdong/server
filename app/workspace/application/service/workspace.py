@@ -72,7 +72,7 @@ class WorkspaceService(WorkspaceUseCase):
             raise WorkspaceAccessDeniedException
 
         if title is not None:
-            workspace.change_title(title=title)
+            workspace.title = title
 
         if order_no is not None:
             total_workspace_count = await self.repository.count(user_id=user_id)
@@ -88,7 +88,7 @@ class WorkspaceService(WorkspaceUseCase):
             await self.repository.reorder_workspace(
                 user_id=user_id, order_no=new_order_no
             )
-            workspace.change_order(order_no=new_order_no)
+            workspace.order_no = new_order_no
 
     @Transactional()
     async def delete_workspace(self, user_id: int, workspace_id: int) -> None:

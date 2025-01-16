@@ -1,3 +1,13 @@
+.PHONY: update_requirements
+update_requirements:
+	rm -f requirements.txt requirements-dev.txt
+	pip-compile --generate-hashes --resolver=backtracking --strip-extras --no-header -o requirements.txt pyproject.toml
+	pip-compile --generate-hashes --resolver=backtracking --strip-extras --no-header --extra dev -o requirements-dev.txt pyproject.toml
+.PHONY: format
+format:
+	mypy app/ core/ tests/
+	isort app/ core/ tests/
+	ruff --fix app/ core/ tests/
 cov:
 	coverage run -m pytest
 	coverage html

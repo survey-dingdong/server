@@ -26,7 +26,7 @@ class PutProjectRequest(BaseModel):
     title: str = Field(..., min_length=1, max_length=64, description="Title")
     description: str | None = Field(None, max_length=1000, description="Description")
     is_public: bool = Field(..., description="Whether the project is public")
-    start_date: date = Field(..., ddescription="Experiment start date")
+    start_date: date = Field(..., description="Experiment start date")
     end_date: date = Field(..., description="Experiment end date")
     excluded_dates: list[date] = Field(..., description="Experimental exclusion days")
     experiment_timeslots: list[ExperimentTimeslotRequest] = Field(

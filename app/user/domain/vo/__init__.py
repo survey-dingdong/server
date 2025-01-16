@@ -7,3 +7,8 @@ class OauthProviderTypeEnum(StrEnum):
     GITHUB = "github"
     KAKAO = "kakao"
     NAVER = "naver"
+
+
+class UserRoleEnum(StrEnum):
+    Researcher = "researcher"
+    Participant = "participant"

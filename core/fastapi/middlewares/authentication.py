@@ -1,5 +1,5 @@
 import jwt
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 from starlette.authentication import AuthenticationBackend
 from starlette.middleware.authentication import (
     AuthenticationMiddleware as BaseAuthenticationMiddleware,
@@ -10,7 +10,7 @@ from core.config import config
 
 
 class CurrentUser(BaseModel):
-    id: int = Field(None, description="ID")
+    id: int | None = None
 
 
 class AuthBackend(AuthenticationBackend):
