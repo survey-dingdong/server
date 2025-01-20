@@ -22,7 +22,7 @@ redis_backend = RedisBackend()
 
 
 @pytest.mark.asyncio
-async def test_get_users(session: AsyncSession):
+async def test_get_users(session: AsyncSession) -> None:
     # Given
     user = make_user(
         password="password",
@@ -50,7 +50,7 @@ async def test_get_users(session: AsyncSession):
 
 
 @pytest.mark.asyncio
-async def test_get_user_me(session: AsyncSession):
+async def test_get_user_me(session: AsyncSession) -> None:
     # Given
     user = make_user(
         password="password",
@@ -77,7 +77,7 @@ async def test_get_user_me(session: AsyncSession):
 
 
 @pytest.mark.asyncio
-async def test_create_user_unauthorized(session: AsyncSession):
+async def test_create_user_unauthorized(session: AsyncSession) -> None:
     # Given
     user = make_user(
         password="password",
@@ -107,7 +107,7 @@ async def test_create_user_unauthorized(session: AsyncSession):
 
 
 @pytest.mark.asyncio
-async def test_create_user_duplicated_user(session: AsyncSession):
+async def test_create_user_duplicated_user(session: AsyncSession) -> None:
     # Given
     user = make_user(
         password="password",
@@ -141,7 +141,7 @@ async def test_create_user_duplicated_user(session: AsyncSession):
 
 
 @pytest.mark.asyncio
-async def test_create_user(session: AsyncSession):
+async def test_create_user(session: AsyncSession) -> None:
     # Given
     email = "survey@ding.dong"
     username = "dingdong-survey"
@@ -168,7 +168,7 @@ async def test_create_user(session: AsyncSession):
 
 
 @pytest.mark.asyncio
-async def test_login_user_not_found(session: AsyncSession):
+async def test_login_user_not_found(session: AsyncSession) -> None:
     # Given
     email = "survey@ding.dong"
     password = "password"
@@ -187,7 +187,7 @@ async def test_login_user_not_found(session: AsyncSession):
 
 
 @pytest.mark.asyncio
-async def test_login(session: AsyncSession):
+async def test_login(session: AsyncSession) -> None:
     # Given
     email = "survey@ding.dong"
     password = "password"

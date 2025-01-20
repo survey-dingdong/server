@@ -1,3 +1,5 @@
+from typing import cast
+
 from app.project.adapter.output.persistence.repository_adapter import (
     ProjectRepositoryAdapter,
 )
@@ -13,13 +15,13 @@ from app.project.application.exception import (
 )
 from app.project.domain.command import CreateProjectCommand
 from app.project.domain.entity.experiment import (
-    ExperimentParticipantTimeslotRead,
+    ExperimentParticipantTimeslot,
     ExperimentProject,
     ExperimentProjectRead,
     ExperimentTimeslot,
     ExperimentTimeslotRead,
+    ProjectRead,
 )
-from app.project.domain.entity.project import ProjectRead
 from app.project.domain.usecase.project import ProjectUseCsae
 from app.project.domain.vo import ExperimentAttendanceStatusTypeEnum, ProjectTypeEnum
 from core.db import Transactional
@@ -58,7 +60,10 @@ class ProjectService(ProjectUseCsae):
             project = ExperimentProject.create(
                 workspace_id=command.workspace_id, title=command.title
             )
-        project = await self.repository.save(project=project, auto_flush=True)
+        project = cast(
+            ExperimentProject,
+            await self.repository.save(project=project, auto_flush=True),
+        )
         return CreateProjectResponseDTO(id=project.id)
 
     async def get_project(
@@ -122,7 +127,7 @@ class ProjectService(ProjectUseCsae):
             raise ProjectAccessDeniedException
 
         for column, value in project_dto.model_dump(
-            mode="json", exclude="experiment_timeslots"
+            mode="json", exclude={"experiment_timeslots"}
         ).items():
             setattr(project, column, value)
 
@@ -173,7 +178,7 @@ class ProjectService(ProjectUseCsae):
         project_type: ProjectTypeEnum,
         page: int,
         size: int,
-    ) -> list[ExperimentParticipantTimeslotRead]:
+    ) -> list[ExperimentParticipantTimeslot]:
         project = await self.repository.get_project_by_id(
             project_type=project_type,
             project_id=project_id,

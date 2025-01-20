@@ -37,13 +37,21 @@ class ExperimentProject(BaseWithInId):
 
     title: Mapped[str] = mapped_column(String(64), index=True)
 
-    description: Mapped[str] = mapped_column(String(1000), nullable=True)
+    description: Mapped[str | None] = mapped_column(
+        String(1000),
+        nullable=True,
+        init=False,
+    )
 
-    start_date: Mapped[datetime.date] = mapped_column(DATE, nullable=True, index=True)
+    start_date: Mapped[datetime.date | None] = mapped_column(
+        DATE, nullable=True, index=True, init=False
+    )
 
-    end_date: Mapped[datetime.date] = mapped_column(DATE, nullable=True, index=True)
+    end_date: Mapped[datetime.date | None] = mapped_column(
+        DATE, nullable=True, index=True, init=False
+    )
 
-    location: Mapped[str] = mapped_column(String(255), nullable=True)
+    location: Mapped[str | None] = mapped_column(String(255), nullable=True, init=False)
 
     is_public: Mapped[bool] = mapped_column(Boolean, default=False)
 
@@ -56,7 +64,7 @@ class ExperimentProject(BaseWithInId):
         default=ExperimentTypeEnum.OFFLINE.value,
     )
 
-    excluded_dates: Mapped[list[str]] = mapped_column(JSON, default_factory=[])
+    excluded_dates: Mapped[list[str]] = mapped_column(JSON, default_factory=list)
 
     is_deleted: Mapped[bool] = mapped_column(Boolean, default=False)
 

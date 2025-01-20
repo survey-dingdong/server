@@ -1,8 +1,10 @@
+from typing import cast
+
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.user.adapter.output.persistence.sqlalchemy.user import UserSQLAlchemyRepo
-from app.user.domain.entity.user import User
+from app.user.domain.entity.user import User, UserOauth
 from tests.support.user_fixture import make_user, make_user_oauth
 
 user_repo = UserSQLAlchemyRepo()
@@ -99,7 +101,12 @@ async def get_user_by_oauth_id(session: AsyncSession):
     await session.commit()
 
     # When
-    sut = await user_repo.get_user_by_oauth_id(user_id=user.id, oauth_id=user_oauth.id)
+    sut = cast(
+        UserOauth,
+        await user_repo.get_user_by_oauth_id(
+            user_id=user.id, oauth_id=user_oauth.oauth_id
+        ),
+    )
 
     # Then
     assert isinstance(sut, User)

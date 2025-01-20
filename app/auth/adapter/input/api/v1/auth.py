@@ -29,7 +29,7 @@ auth_router = APIRouter()
 async def refresh_token(
     request: RefreshTokenRequest,
     auth_usecase: AuthUseCase = Depends(Provide[Container.auth_service]),
-):
+) -> RefreshTokenResponse:
     token = await auth_usecase.create_refresh_token(
         token=request.token, refresh_token=request.refresh_token
     )
@@ -44,7 +44,7 @@ async def refresh_token(
 async def check_email_availability(
     request: EmailVerificationRequest,
     user_usecase: UserUseCase = Depends(Provide[UserContainer.user_service]),
-):
+) -> ValidateEmailResponse:
     availability = await user_usecase.is_email_available(email=request.email)
     return ValidateEmailResponse(availability=availability)
 
@@ -57,7 +57,7 @@ async def send_verification_email(
     request: EmailVerificationRequest,
     verification_type: EmailVerificationType,
     auth_usecase: AuthUseCase = Depends(Provide[Container.auth_service]),
-):
+) -> None:
     await auth_usecase.send_verification_email(
         email=request.email, verification_type=verification_type
     )
@@ -71,7 +71,7 @@ async def validate_verification_email(
     request: VerifyEmailRequest,
     verification_type: EmailVerificationType,
     auth_usecase: AuthUseCase = Depends(Provide[Container.auth_service]),
-):
+) -> None:
     await auth_usecase.validate_verification_email(
         email=request.email,
         code=request.code,
@@ -86,7 +86,7 @@ async def validate_verification_email(
 async def reset_password(
     request: ResetPasswordRequest,
     user_usecase: UserUseCase = Depends(Provide[UserContainer.user_service]),
-):
+) -> None:
     await user_usecase.reset_password(
         email=request.email, new_password=request.password
     )

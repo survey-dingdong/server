@@ -1,12 +1,11 @@
-import pytest
-from httpx import AsyncClient
 from unittest.mock import patch
 
+import pytest
+from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import async_scoped_session
-
-from core.fastapi.middlewares import SQLAlchemyMiddleware
-from core.fastapi.middlewares import sqlalchemy
 from starlette.types import Receive, Scope, Send
+
+from core.fastapi.middlewares import SQLAlchemyMiddleware, sqlalchemy
 
 
 async def app(scope: Scope, receive: Receive, send: Send) -> None:
@@ -49,7 +48,7 @@ async def test_sqlalchemy_middleware(session_mock):
 
 @pytest.mark.asyncio
 @patch.object(sqlalchemy, "session", spec=async_scoped_session)
-async def test_sqlalchemy_middleware_exception(session_mock):
+async def test_sqlalchemy_middleware_exception(session_mock) -> None:
     # Given
     test_app = SQLAlchemyMiddleware(app=exception_app)
 

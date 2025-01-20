@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import random
 from typing import TYPE_CHECKING
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -9,6 +8,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.user.domain.vo import OauthProviderTypeEnum, UserRoleEnum
 from core.db import BaseWithInId
+from core.helpers.utils import get_random_color
 
 if TYPE_CHECKING:
     from app.project.domain.entity.experiment import ExperimentParticipantTimeslot
@@ -20,11 +20,11 @@ class User(BaseWithInId):
 
     email: Mapped[str] = mapped_column(String(255), index=True)
 
-    password: Mapped[str] = mapped_column(String(255), nullable=True)
+    password: Mapped[str | None] = mapped_column(String(255), nullable=True)
 
     username: Mapped[str] = mapped_column(String(64))
 
-    phone_num: Mapped[str] = mapped_column(String(20), init=False, nullable=True)
+    phone_num: Mapped[str | None] = mapped_column(String(20), init=False, nullable=True)
 
     profile_color: Mapped[str] = mapped_column(String(7))
 
@@ -51,11 +51,6 @@ class User(BaseWithInId):
         lazy="selectin",
     )
 
-    @property
-    def random_color(self) -> str:
-        colors = ["#3F57FD", "#DB5654", "#613EE2", "#FD3F78", "#F08F1D", "#24A29A"]
-        return random.choice(colors)
-
     @classmethod
     def create(
         cls,
@@ -70,7 +65,7 @@ class User(BaseWithInId):
             password=password,
             username=username,
             role=role,
-            profile_color=cls.random_color,
+            profile_color=get_random_color(),
         )
 
 
@@ -79,7 +74,9 @@ class UserOauth(BaseWithInId):
 
     user_id: Mapped[int] = mapped_column(Integer, ForeignKey("user.id"))
 
-    user: Mapped[User] = relationship("User", back_populates="oauth_accounts")
+    user: Mapped[User] = relationship(
+        "User", back_populates="oauth_accounts", init=False
+    )
 
     oauth_id: Mapped[str] = mapped_column(String(255))
 

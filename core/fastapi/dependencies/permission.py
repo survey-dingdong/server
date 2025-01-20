@@ -55,7 +55,7 @@ class PermissionDependency(SecurityBase):
         self.model: APIKey = APIKey(**{"in": APIKeyIn.header}, name="Authorization")
         self.scheme_name = self.__class__.__name__
 
-    async def __call__(self, request: Request):
+    async def __call__(self, request: Request) -> None:
         for permission in self.permissions:
             cls = permission()
             if not await cls.has_permission(request=request):

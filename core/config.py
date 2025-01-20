@@ -35,7 +35,7 @@ class LocalConfig(Config):
     ...
 
 
-def get_config():
+def get_config() -> Config:
     env = os.getenv("ENV", "local")
     config_type = {
         "test": TestConfig(),

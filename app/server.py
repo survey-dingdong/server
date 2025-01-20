@@ -27,16 +27,16 @@ from core.helpers.cache import Cache, CustomKeyMaker, RedisBackend
 
 def init_routers(app_: FastAPI) -> None:
     container = Container()
-    auth_router.container = container
+    setattr(auth_router, "container", container)
 
     user_container = UserContainer()
-    user_router.container = user_container
+    setattr(user_router, "container", user_container)
 
     workspace_container = WorkspaceContainer()
-    workspace_router.container = workspace_container
+    setattr(workspace_router, "container", workspace_container)
 
     project_container = ProjectContainer()
-    project_router.container = project_container
+    setattr(project_router, "container", project_container)
 
     app_.include_router(auth_router)
     app_.include_router(user_router)
@@ -47,7 +47,9 @@ def init_routers(app_: FastAPI) -> None:
 def init_listeners(app_: FastAPI) -> None:
     # Exception handler
     @app_.exception_handler(CustomException)
-    async def custom_exception_handler(request: Request, exc: CustomException):
+    async def custom_exception_handler(
+        request: Request, exc: CustomException
+    ) -> JSONResponse:
         return JSONResponse(
             status_code=exc.code,
             content={"error_code": exc.error_code, "message": exc.message},
@@ -56,28 +58,32 @@ def init_listeners(app_: FastAPI) -> None:
     @app_.exception_handler(ValidationError)
     async def pydantic_validation_exception_handler(
         request: Request, exc: ValidationError
-    ):
+    ) -> JSONResponse:
         return JSONResponse(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             content={"error_code": "VALIDATION_ERROR", "message": str(exc)},
         )
 
     @app_.exception_handler(IntegrityError)
-    async def sql_integrity_exception_handler(request: Request, exc: IntegrityError):
+    async def sql_integrity_exception_handler(
+        request: Request, exc: IntegrityError
+    ) -> JSONResponse:
         return JSONResponse(
             status_code=status.HTTP_409_CONFLICT,
-            content={"error_code": "INTEGIRTY_ERROR", "message": exc.er},
+            content={"error_code": "INTEGIRTY_ERROR", "message": exc.args},
         )
 
     @app_.exception_handler(DataError)
-    async def sql_data_exception_handler(request: Request, exc: DataError):
+    async def sql_data_exception_handler(
+        request: Request, exc: DataError
+    ) -> JSONResponse:
         return JSONResponse(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             content={"error_code": "DATA_ERROR", "message": str(exc.orig)},
         )
 
 
-def on_auth_error(request: Request, exc: Exception):
+def on_auth_error(request: Request, exc: Exception) -> JSONResponse:
     status_code, error_code, message = 401, None, str(exc)
     if isinstance(exc, CustomException):
         status_code = int(exc.code)

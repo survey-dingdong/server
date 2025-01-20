@@ -1,3 +1,5 @@
+from typing import Any
+
 import jwt
 from pydantic import BaseModel
 from starlette.authentication import AuthenticationBackend
@@ -18,8 +20,9 @@ class AuthBackend(AuthenticationBackend):
         self, conn: HTTPConnection
     ) -> tuple[bool, CurrentUser | None]:
         current_user = CurrentUser()
-        authorization: str = conn.headers.get("Authorization")
-        if not authorization:
+
+        authorization: str | None = conn.headers.get("Authorization")
+        if authorization is None:
             return False, current_user
 
         try:
@@ -33,7 +36,7 @@ class AuthBackend(AuthenticationBackend):
             return False, current_user
 
         try:
-            payload = jwt.decode(
+            payload: dict[str, Any] = jwt.decode(
                 credentials,
                 config.JWT_SECRET_KEY,
                 algorithms=[config.JWT_ALGORITHM],

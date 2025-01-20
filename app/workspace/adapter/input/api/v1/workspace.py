@@ -26,7 +26,7 @@ workspace_router = APIRouter()
 async def get_workspace_list(
     auth_info: Request,
     usecase: WorkspaceUseCase = Depends(Provide[WorkspaceContainer.workspace_service]),
-):
+) -> list[GetWorkspaceListResponse]:
     return await usecase.get_workspace_list(user_id=auth_info.user.id)
 
 
@@ -41,7 +41,7 @@ async def create_workspace(
     auth_info: Request,
     request: CreateWorkspaceRequest,
     usecase: WorkspaceUseCase = Depends(Provide[WorkspaceContainer.workspace_service]),
-):
+) -> CreateWorkspaceResponse:
     command = CreateWorkspaceCommand(user_id=auth_info.user.id, title=request.title)
     return await usecase.create_workspace(command=command)
 
@@ -56,8 +56,8 @@ async def update_workspace(
     workspace_id: int,
     request: UpdateWorkspaceRequest,
     usecase: WorkspaceUseCase = Depends(Provide[WorkspaceContainer.workspace_service]),
-):
-    return await usecase.update_workspace(
+) -> None:
+    await usecase.update_workspace(
         user_id=auth_info.user.id,
         workspace_id=workspace_id,
         title=request.title,
@@ -74,7 +74,5 @@ async def delete_workspace(
     auth_info: Request,
     workspace_id: int,
     usecase: WorkspaceUseCase = Depends(Provide[WorkspaceContainer.workspace_service]),
-):
-    return await usecase.delete_workspace(
-        user_id=auth_info.user.id, workspace_id=workspace_id
-    )
+) -> None:
+    await usecase.delete_workspace(user_id=auth_info.user.id, workspace_id=workspace_id)

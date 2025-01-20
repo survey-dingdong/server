@@ -1,7 +1,6 @@
 from app.project.application.dto import ExperimentTimeslotDTO
 from app.project.domain.entity.experiment import (
     ExperimentParticipantTimeslot,
-    ExperimentParticipantTimeslotRead,
     ExperimentProject,
     ExperimentTimeslot,
 )
@@ -55,19 +54,13 @@ class ProjectRepositoryAdapter:
         project_type: ProjectTypeEnum,
         page: int,
         size: int,
-    ) -> list[ExperimentParticipantTimeslotRead]:
-        project_participants: list[
-            ExperimentParticipantTimeslot
-        ] = await self.repository.get_project_participants(
+    ) -> list[ExperimentParticipantTimeslot]:
+        return await self.repository.get_project_participants(
             project_id=project_id,
             project_type=project_type,
             page=page,
             size=size,
         )
-        return [
-            ExperimentParticipantTimeslotRead(**project_participant)
-            for project_participant in project_participants
-        ]
 
     async def get_project_participant_by_id(
         self,
