@@ -20,7 +20,7 @@ workspace_service = WorkspaceService(repository=repository_mock)
 
 
 @pytest.mark.asyncio
-async def test_get_workspace_list():
+async def test_get_workspace_list() -> None:
     # Given
     workspace = WorkspaceRead(id=1, title="workspace", order_no=1)
     repository_mock.get_workspaces.return_value = [workspace]
@@ -38,7 +38,7 @@ async def test_get_workspace_list():
 
 
 @pytest.mark.asyncio
-async def test_create_workspace_too_many():
+async def test_create_workspace_too_many() -> None:
     # Given
     command = CreateWorkspaceCommand(user_id=1, title="workspace")
 
@@ -51,7 +51,7 @@ async def test_create_workspace_too_many():
 
 
 @pytest.mark.asyncio
-async def test_create_workspace():
+async def test_create_workspace() -> None:
     # Given
     command = CreateWorkspaceCommand(user_id=1, title="workspace")
     repository_mock.count.return_value = 0
@@ -65,7 +65,7 @@ async def test_create_workspace():
 
 
 @pytest.mark.asyncio
-async def test_update_workspace_not_exist():
+async def test_update_workspace_not_exist() -> None:
     # Given
     repository_mock.get_workspace_by_id.return_value = None
     workspace_service.repository = repository_mock
@@ -78,7 +78,7 @@ async def test_update_workspace_not_exist():
 
 
 @pytest.mark.asyncio
-async def test_update_workspace_access_denied():
+async def test_update_workspace_access_denied() -> None:
     # Given
     workspace = make_workspace(id=1)
     repository_mock.get_workspace_by_id.return_value = workspace
@@ -92,26 +92,23 @@ async def test_update_workspace_access_denied():
 
 
 @pytest.mark.asyncio
-async def test_update_workspace_title():
+async def test_update_workspace_title() -> None:
     # Given
     workspace = make_workspace(id=1, title="workspace2")
     repository_mock.get_workspace_by_id.return_value = workspace
     workspace_service.repository = repository_mock
 
     # When
-    sut = await workspace_service.update_workspace(
+    await workspace_service.update_workspace(
         user_id=1,
         workspace_id=workspace.id,
         title=workspace.title,
         order_no=None,
     )
 
-    # Then
-    assert sut is None
-
 
 @pytest.mark.asyncio
-async def test_update_workspace_order():
+async def test_update_workspace_order() -> None:
     # Given
     workspace1 = make_workspace(id=1, order_no=1)
     workspace2 = make_workspace(id=2, order_no=2)
@@ -123,19 +120,16 @@ async def test_update_workspace_order():
     repository_mock.get_workspaces.return_value = [workspace1, workspace2]
 
     # When
-    sut = await workspace_service.update_workspace(
+    await workspace_service.update_workspace(
         user_id=1,
         workspace_id=workspace2.id,
         title=workspace2.title,
         order_no=workspace1.order_no,
     )
 
-    # Then
-    assert sut is None
-
 
 @pytest.mark.asyncio
-async def test_delete_workspace_not_exist():
+async def test_delete_workspace_not_exist() -> None:
     # Given
     repository_mock.get_workspace_by_id.return_value = None
     workspace_service.repository = repository_mock
@@ -146,7 +140,7 @@ async def test_delete_workspace_not_exist():
 
 
 @pytest.mark.asyncio
-async def test_delete_workspace_access_denied():
+async def test_delete_workspace_access_denied() -> None:
     # Given
     workspace = make_workspace(id=1)
     repository_mock.get_workspace_by_id.return_value = workspace
@@ -158,7 +152,7 @@ async def test_delete_workspace_access_denied():
 
 
 @pytest.mark.asyncio
-async def test_delete_workspace():
+async def test_delete_workspace() -> None:
     # Given
     workspace = make_workspace(id=1)
     repository_mock.get_workspace_by_id.return_value = workspace

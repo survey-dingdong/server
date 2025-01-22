@@ -35,7 +35,7 @@ async def exception_app(scope: Scope, receive: Receive, send: Send) -> None:
 
 @pytest.mark.asyncio
 @patch.object(sqlalchemy, "session", spec=async_scoped_session)
-async def test_sqlalchemy_middleware(session_mock):
+async def test_sqlalchemy_middleware(session_mock: async_scoped_session) -> None:
     # Given
     test_app = SQLAlchemyMiddleware(app=app)
 
@@ -48,7 +48,9 @@ async def test_sqlalchemy_middleware(session_mock):
 
 @pytest.mark.asyncio
 @patch.object(sqlalchemy, "session", spec=async_scoped_session)
-async def test_sqlalchemy_middleware_exception(session_mock) -> None:
+async def test_sqlalchemy_middleware_exception(
+    session_mock: async_scoped_session,
+) -> None:
     # Given
     test_app = SQLAlchemyMiddleware(app=exception_app)
 

@@ -1,10 +1,11 @@
-"""add role cole to user
+"""refactor table columns
 
 Revision ID: 76faf768d6d6
 Revises: 6f61d7ff6c84
 Create Date: 2025-01-17 02:15:15.844009
 
 """
+
 import sqlalchemy as sa
 from alembic import op
 from sqlalchemy.dialects import mysql
@@ -78,14 +79,6 @@ def upgrade():
         existing_type=mysql.DATETIME(),
         type_=sa.TIMESTAMP(),
         existing_nullable=False,
-    )
-    op.add_column(
-        "user",
-        sa.Column(
-            "role",
-            sa.Enum("Researcher", "Participant", name="userroleenum"),
-            nullable=False,
-        ),
     )
     op.alter_column(
         "user",
@@ -178,7 +171,6 @@ def downgrade():
         type_=mysql.DATETIME(),
         existing_nullable=False,
     )
-    op.drop_column("user", "role")
     op.alter_column(
         "experiment_timeslot",
         "updated_at",

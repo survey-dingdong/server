@@ -6,7 +6,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy import Boolean, Enum, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.user.domain.vo import OauthProviderTypeEnum, UserRoleEnum
+from app.user.domain.vo import OauthProviderTypeEnum
 from core.db import BaseWithInId
 from core.helpers.utils import get_random_color
 
@@ -27,8 +27,6 @@ class User(BaseWithInId):
     phone_num: Mapped[str | None] = mapped_column(String(20), init=False, nullable=True)
 
     profile_color: Mapped[str] = mapped_column(String(7))
-
-    role: Mapped[UserRoleEnum] = mapped_column(Enum(UserRoleEnum))
 
     is_admin: Mapped[bool] = mapped_column(Boolean, default=False)
 
@@ -58,13 +56,11 @@ class User(BaseWithInId):
         email: str,
         username: str,
         password: str | None = None,
-        role: UserRoleEnum = UserRoleEnum.Researcher,
     ) -> "User":
         return cls(
             email=email,
             password=password,
             username=username,
-            role=role,
             profile_color=get_random_color(),
         )
 
@@ -99,5 +95,5 @@ class UserRead(BaseModel):
     id: int = Field(..., title="USER ID")
     email: str = Field(..., title="Email")
     username: str = Field(..., title="username")
-    profile_color: str = Field(..., title="profile color")
+    profile_color: str = Field(default="#3F57FD", title="profile color")
     oauth_accounts: list[UserOauth] = Field(..., title="oauth accounts")

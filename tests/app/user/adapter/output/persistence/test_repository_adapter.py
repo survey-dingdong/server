@@ -14,7 +14,7 @@ repository_adapter = UserRepositoryAdapter(repository=user_repo_mock)
 
 
 @pytest.mark.asyncio
-async def test_get_users(session: AsyncSession):
+async def test_get_users(session: AsyncSession) -> None:
     # Given
     page = 1
     size = 1
@@ -42,7 +42,7 @@ async def test_get_users(session: AsyncSession):
 
 
 @pytest.mark.asyncio
-async def test_get_user_by_id(session: AsyncSession):
+async def test_get_user_by_id(session: AsyncSession) -> None:
     # Given
     user = make_user(
         password="password",
@@ -69,7 +69,7 @@ async def test_get_user_by_id(session: AsyncSession):
 
 
 @pytest.mark.asyncio
-async def test_get_user_by_email(session: AsyncSession):
+async def test_get_user_by_email(session: AsyncSession) -> None:
     # Given
     user = make_user(
         password="password",
@@ -96,7 +96,7 @@ async def test_get_user_by_email(session: AsyncSession):
 
 
 @pytest.mark.asyncio
-async def test_save(session: AsyncSession):
+async def test_save(session: AsyncSession) -> None:
     # Given
     user = make_user(
         id=1,

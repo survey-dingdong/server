@@ -7,7 +7,7 @@ redis_backend = RedisBackend()
 
 
 @pytest.mark.asyncio
-async def test_get_empty():
+async def test_get_empty() -> None:
     # Given
     key = "dingdong-survey"
 
@@ -19,7 +19,7 @@ async def test_get_empty():
 
 
 @pytest.mark.asyncio
-async def test_get():
+async def test_get() -> None:
     # Given
     key = "dingdong-survey"
     await redis_client.set(key, 1)
@@ -33,7 +33,7 @@ async def test_get():
 
 
 @pytest.mark.asyncio
-async def test_set_dict():
+async def test_set_dict() -> None:
     # Given
     data = {"name": "dingdong-survey"}
     key = "dingdong-survey"
@@ -48,7 +48,7 @@ async def test_set_dict():
 
 
 @pytest.mark.asyncio
-async def test_delete_startswith():
+async def test_delete_startswith() -> None:
     # Given
     await redis_client.set("data1", "b")
     await redis_client.set("data2", "a")

@@ -196,7 +196,7 @@ class ProjectRead(BaseModel):
     id: int = Field(..., description="ID")
     workspace_id: int = Field(..., description="Workspace ID")
     title: str = Field(..., description="Title")
-    description: str | None = Field(None, description="Description")
+    description: str | None = None
     is_public: bool = Field(..., description="Whether the project is public")
     joined_participants: int = Field(
         ..., description="Number of experiment participants"

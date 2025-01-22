@@ -1,4 +1,4 @@
-from datetime import datetime
+import datetime
 from unittest.mock import AsyncMock
 
 import pytest
@@ -33,7 +33,7 @@ project_service = ProjectService(repository=repository_mock)
 
 
 @pytest.mark.asyncio
-async def test_get_project_list():
+async def test_get_project_list() -> None:
     # Given
     project = ProjectRead(
         id=1,
@@ -42,8 +42,8 @@ async def test_get_project_list():
         is_public=False,
         joined_participants=0,
         max_participants=0,
-        created_at=datetime.now(),
-        updated_at=datetime.now(),
+        created_at=datetime.datetime.now(),
+        updated_at=datetime.datetime.now(),
     )
     repository_mock.get_projects.return_value = [project]
     project_service.repository = repository_mock
@@ -66,7 +66,7 @@ async def test_get_project_list():
 
 
 @pytest.mark.asyncio
-async def test_get_project_not_exist():
+async def test_get_project_not_exist() -> None:
     # Given
     repository_mock.get_project_by_id.return_value = None
     project_service.repository = repository_mock
@@ -81,7 +81,7 @@ async def test_get_project_not_exist():
 
 
 @pytest.mark.asyncio
-async def test_get_project_by_id():
+async def test_get_project_by_id() -> None:
     # Given
     workspace = make_workspace(id=1)
     project = make_experiment_project(id=1)
@@ -100,7 +100,7 @@ async def test_get_project_by_id():
 
 
 @pytest.mark.asyncio
-async def test_create_project():
+async def test_create_project() -> None:
     # Given
     command = CreateProjectCommand(
         workspace_id=1,
@@ -116,7 +116,7 @@ async def test_create_project():
 
 
 @pytest.mark.asyncio
-async def test_update_project_not_exist():
+async def test_update_project_not_exist() -> None:
     # Given
     repository_mock.get_project_by_id.return_value = None
     project_service.repository = repository_mock
@@ -125,8 +125,8 @@ async def test_update_project_not_exist():
         title="Change title",
         description="",
         is_public=False,
-        start_date=datetime.now().date().strftime("%Y-%m-%d"),
-        end_date=datetime.now().date().strftime("%Y-%m-%d"),
+        start_date=datetime.datetime.now().date(),
+        end_date=datetime.datetime.now().date(),
         excluded_dates=[],
         experiment_timeslots=[],
         max_participants=0,
@@ -145,7 +145,7 @@ async def test_update_project_not_exist():
 
 
 @pytest.mark.asyncio
-async def test_updated_project():
+async def test_updated_project() -> None:
     # Given
     workspace = make_workspace(id=1)
     project = make_experiment_project(id=1)
@@ -176,7 +176,7 @@ async def test_updated_project():
 
 
 @pytest.mark.asyncio
-async def test_delete_project_not_exist():
+async def test_delete_project_not_exist() -> None:
     # Given
     repository_mock.get_project_by_id.return_value = None
     project_service.repository = repository_mock
@@ -191,7 +191,7 @@ async def test_delete_project_not_exist():
 
 
 @pytest.mark.asyncio
-async def test_delete_project():
+async def test_delete_project() -> None:
     # Given
     workspace = make_workspace(id=1)
     project = make_experiment_project(id=1)
@@ -209,18 +209,18 @@ async def test_delete_project():
 
 
 @pytest.mark.asyncio
-async def test_get_project_participant_list():
+async def test_get_project_participant_list() -> None:
     # Given
     experiment_participant_timeslot = ExperimentParticipantTimeslotRead(
         id=1,
         username="username",
         profile_color="#3F57FD",
-        experiment_date="2024-04-09",
-        start_time="10:00",
-        end_time="11:00",
-        attendance_status=ExperimentAttendanceStatusTypeEnum.ATTENDED.value,
-        created_at=datetime.now(),
-        updated_at=datetime.now(),
+        experiment_date=datetime.datetime.now().date(),
+        start_time=datetime.datetime.strptime("10:00", "%H:%M").time(),
+        end_time=datetime.datetime.strptime("11:00", "%H:%M").time(),
+        attendance_status=ExperimentAttendanceStatusTypeEnum.ATTENDED,
+        created_at=datetime.datetime.now(),
+        updated_at=datetime.datetime.now(),
     )
     repository_mock.get_project_participants.return_value = [
         experiment_participant_timeslot
@@ -243,7 +243,7 @@ async def test_get_project_participant_list():
 
 
 @pytest.mark.asyncio
-async def test_update_project_participant_access_denied():
+async def test_update_project_participant_access_denied() -> None:
     # Given
     workspace = make_workspace(id=1)
     project = make_experiment_project(id=1)
@@ -267,7 +267,7 @@ async def test_update_project_participant_access_denied():
 
 
 @pytest.mark.asyncio
-async def test_update_project_participant():
+async def test_update_project_participant() -> None:
     # Given
     workspace = make_workspace(id=1)
     project = make_experiment_project(id=1)
@@ -290,7 +290,7 @@ async def test_update_project_participant():
 
 
 @pytest.mark.asyncio
-async def test_delete_project_participant_access_denied():
+async def test_delete_project_participant_access_denied() -> None:
     # Given
     project_participant = make_experiment_project_participant(id=1)
     repository_mock.get_project_participant_by_id.return_value = project_participant
@@ -307,7 +307,7 @@ async def test_delete_project_participant_access_denied():
 
 
 @pytest.mark.asyncio
-async def test_delete_project_participant():
+async def test_delete_project_participant() -> None:
     # Given
     project_participant = make_experiment_project_participant(id=1)
     repository_mock.get_project_participant_by_id.return_value = project_participant

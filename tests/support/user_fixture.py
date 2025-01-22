@@ -1,5 +1,5 @@
 from app.user.domain.entity.user import User, UserOauth
-from app.user.domain.vo import OauthProviderTypeEnum, UserRoleEnum
+from app.user.domain.vo import OauthProviderTypeEnum
 
 
 def make_user(
@@ -15,7 +15,6 @@ def make_user(
         username=username,
         is_admin=is_admin,
         profile_color="#3F57FD",
-        role=UserRoleEnum.Participant,
     )
     user.id = id
     return user

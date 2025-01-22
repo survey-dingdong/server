@@ -9,7 +9,7 @@ from tests.support.constants import EXPIRED_TOKEN
 
 
 @pytest.mark.asyncio
-async def test_encode():
+async def test_encode() -> None:
     # Given
     payload = {"user_id": 1}
 
@@ -18,13 +18,13 @@ async def test_encode():
 
     # Then
     decoded_token: dict[str, Any] = jwt.decode(
-        sut, config.JWT_SECRET_KEY, config.JWT_ALGORITHM
+        sut, config.JWT_SECRET_KEY, [config.JWT_ALGORITHM]
     )
     assert decoded_token["user_id"] == 1
 
 
 @pytest.mark.asyncio
-async def test_decode():
+async def test_decode() -> None:
     # Given
     token = jwt.encode({"user_id": 1}, config.JWT_SECRET_KEY, config.JWT_ALGORITHM)
 
@@ -36,7 +36,7 @@ async def test_decode():
 
 
 @pytest.mark.asyncio
-async def test_decode_expired_decode_error():
+async def test_decode_expired_decode_error() -> None:
     # Given
     token = "invalid"
 
@@ -46,7 +46,7 @@ async def test_decode_expired_decode_error():
 
 
 @pytest.mark.asyncio
-async def test_decode_expired_signature_error():
+async def test_decode_expired_signature_error() -> None:
     # Given
     token = EXPIRED_TOKEN
 
@@ -56,7 +56,7 @@ async def test_decode_expired_signature_error():
 
 
 @pytest.mark.asyncio
-async def test_decode_expired_token():
+async def test_decode_expired_token() -> None:
     # Given
     token = EXPIRED_TOKEN
 
@@ -68,7 +68,7 @@ async def test_decode_expired_token():
 
 
 @pytest.mark.asyncio
-async def test_decode_expired_token_decode_error():
+async def test_decode_expired_token_decode_error() -> None:
     # Given
     token = "invalid"
 
