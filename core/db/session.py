@@ -6,7 +6,6 @@ from sqlalchemy.ext.asyncio import (
     async_sessionmaker,
     create_async_engine,
 )
-from sqlalchemy.orm import DeclarativeBase
 
 from core.config import config
 
@@ -34,11 +33,8 @@ async_session_factory = async_sessionmaker(
     autoflush=False,
     expire_on_commit=False,
 )
+
 session = async_scoped_session(
     session_factory=async_session_factory,
     scopefunc=get_session_context,
 )
-
-
-class Base(DeclarativeBase):
-    ...

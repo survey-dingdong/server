@@ -6,10 +6,10 @@ from app.project.application.dto import (
 )
 from app.project.domain.command import CreateProjectCommand
 from app.project.domain.entity.experiment import (
-    ExperimentParticipantTimeslotRead,
+    ExperimentParticipantTimeslot,
     ExperimentProjectRead,
+    ProjectRead,
 )
-from app.project.domain.entity.project import ProjectRead
 from app.project.domain.vo import ExperimentAttendanceStatusTypeEnum, ProjectTypeEnum
 
 
@@ -67,7 +67,7 @@ class ProjectUseCsae(ABC):
         project_type: ProjectTypeEnum,
         page: int,
         size: int,
-    ) -> list[ExperimentParticipantTimeslotRead]:
+    ) -> list[ExperimentParticipantTimeslot]:
         """Get project participant list"""
 
     @abstractmethod

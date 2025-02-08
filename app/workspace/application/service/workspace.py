@@ -9,7 +9,7 @@ from app.workspace.application.exception import (
     WrongOrderNoWorkspacesException,
 )
 from app.workspace.domain.command import CreateWorkspaceCommand
-from app.workspace.domain.entity.workspace import Workspace, WorkspaceRead
+from app.workspace.domain.entity.workspace import Workspace
 from app.workspace.domain.usecase.workspace import WorkspaceUseCase
 from core.db import Transactional
 
@@ -28,13 +28,13 @@ class WorkspaceService(WorkspaceUseCase):
 
         return workspace
 
-    async def get_workspace_list(self, user_id: int) -> list[WorkspaceRead]:
+    async def get_workspace_list(self, user_id: int) -> list[Workspace]:
         workspaces = await self.repository.get_workspaces(user_id=user_id)
 
         for idx, workspace in enumerate(workspaces, start=1):
             workspace.order_no = idx
 
-        return [WorkspaceRead.model_validate(workspace) for workspace in workspaces]
+        return workspaces
 
     @Transactional()
     async def create_workspace(
@@ -72,7 +72,7 @@ class WorkspaceService(WorkspaceUseCase):
             raise WorkspaceAccessDeniedException
 
         if title is not None:
-            workspace.change_title(title=title)
+            workspace.title = title
 
         if order_no is not None:
             total_workspace_count = await self.repository.count(user_id=user_id)
@@ -88,7 +88,7 @@ class WorkspaceService(WorkspaceUseCase):
             await self.repository.reorder_workspace(
                 user_id=user_id, order_no=new_order_no
             )
-            workspace.change_order(order_no=new_order_no)
+            workspace.order_no = new_order_no
 
     @Transactional()
     async def delete_workspace(self, user_id: int, workspace_id: int) -> None:

@@ -1,3 +1,5 @@
+from typing import cast
+
 from dependency_injector.wiring import Provide, inject
 from fastapi import APIRouter, Depends, Query, Request, status
 
@@ -13,6 +15,7 @@ from app.user.adapter.input.api.v1.response import (
     GetUserListResponse,
     LoginResponse,
 )
+from app.user.application.dto import UpdateUserRequestDTO
 from app.user.container import UserContainer
 from app.user.domain.command import CreateUserCommand, UserOauthCommand
 from app.user.domain.usecase.user import UserUseCase
@@ -32,7 +35,7 @@ async def get_user_list(
     page: int = Query(default=1),
     size: int = Query(default=10),
     usecase: UserUseCase = Depends(Provide[UserContainer.user_service]),
-):
+) -> list[GetUserListResponse]:
     return await usecase.get_user_list(page=page, size=size)
 
 
@@ -45,7 +48,7 @@ async def get_user_list(
 async def get_user_me(
     auth_info: Request,
     usecase: UserUseCase = Depends(Provide[UserContainer.user_service]),
-):
+) -> GetUserListResponse:
     return await usecase.get_user_by_id(user_id=auth_info.user.id)
 
 
@@ -58,7 +61,7 @@ async def get_user_me(
 async def create_user(
     request: CreateUserRequest,
     usecase: UserUseCase = Depends(Provide[UserContainer.user_service]),
-):
+) -> CreateUserResponse:
     command = CreateUserCommand(
         email=request.email, password=request.password, username=request.username
     )
@@ -74,8 +77,10 @@ async def update_user(
     auth_info: Request,
     request: UpdateUserRequest,
     usecase: UserUseCase = Depends(Provide[UserContainer.user_service]),
-):
-    await usecase.update_user(user_id=auth_info.user.id, user_dto=request)
+) -> None:
+    await usecase.update_user(
+        user_id=auth_info.user.id, user_dto=cast(UpdateUserRequestDTO, request)
+    )
 
 
 @user_router.post(
@@ -86,7 +91,7 @@ async def update_user(
 async def login(
     request: LoginRequest,
     usecase: UserUseCase = Depends(Provide[UserContainer.user_service]),
-):
+) -> LoginResponse:
     token = await usecase.login(email=request.email, password=request.password)
     return LoginResponse(token=token.token, refresh_token=token.refresh_token)
 
@@ -100,7 +105,7 @@ async def login_oauth(
     provider: OauthProviderTypeEnum,
     request: OauthLoginRequest,
     usecase: UserUseCase = Depends(Provide[UserContainer.user_service]),
-):
+) -> LoginResponse:
     command = UserOauthCommand(
         email=request.email,
         username=request.username,
@@ -122,7 +127,7 @@ async def change_password(
     auth_info: Request,
     request: ChangePasswordRequest,
     usecase: UserUseCase = Depends(Provide[UserContainer.user_service]),
-):
+) -> None:
     await usecase.change_password(
         user_id=auth_info.user.id,
         old_password=request.old_password,
@@ -139,5 +144,5 @@ async def change_password(
 async def delete_user(
     auth_info: Request,
     usecase: UserUseCase = Depends(Provide[UserContainer.user_service]),
-):
+) -> None:
     await usecase.delete_user(user_id=auth_info.user.id)

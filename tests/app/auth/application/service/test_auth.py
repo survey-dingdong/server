@@ -15,7 +15,7 @@ auth_service = AuthService(port=port_mock, cache=redis_backend)
 
 
 @pytest.mark.asyncio
-async def test_create_refresh_token_invalid_refresh_token():
+async def test_create_refresh_token_invalid_refresh_token() -> None:
     # Given
     token = INVALID_REFRESH_TOKEN
 
@@ -25,7 +25,7 @@ async def test_create_refresh_token_invalid_refresh_token():
 
 
 @pytest.mark.asyncio
-async def test_create_refresh_token():
+async def test_create_refresh_token() -> None:
     # Given
     token = USER_ID_1_TOKEN
     await redis_backend.set(response="refresh", key="dingdong-survey::1")

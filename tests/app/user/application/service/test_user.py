@@ -30,7 +30,7 @@ user_service = UserService(repository=repository_mock, cache=redis_backend)
 
 
 @pytest.mark.asyncio
-async def test_get_user_list():
+async def test_get_user_list() -> None:
     # Given
     page = 1
     size = 10
@@ -53,7 +53,7 @@ async def test_get_user_list():
 
 
 @pytest.mark.asyncio
-async def test_get_user_me_no_exist():
+async def test_get_user_me_no_exist() -> None:
     # Given
     repository_mock.get_user_by_id.return_value = None
     user_service.repository = repository_mock
@@ -64,7 +64,7 @@ async def test_get_user_me_no_exist():
 
 
 @pytest.mark.asyncio
-async def test_get_user_me():
+async def test_get_user_me() -> None:
     # Given
     user = UserRead(
         id=1, email="survey@ding.dong", username="dingdong-survey", oauth_accounts=[]
@@ -81,11 +81,11 @@ async def test_get_user_me():
 
 
 @pytest.mark.asyncio
-async def test_create_user_duplicated():
+async def test_create_user_duplicated() -> None:
     # Given
     command = CreateUserCommand(
         email="survey@ding.dong",
-        password="Qwer1234!",
+        password=SecretStr("Qwer1234!"),
         username="dingdong-survey",
     )
     # When, Then
@@ -94,11 +94,11 @@ async def test_create_user_duplicated():
 
 
 @pytest.mark.asyncio
-async def test_create_user_unauthorized():
+async def test_create_user_unauthorized() -> None:
     # Given
     command = CreateUserCommand(
         email="survey@ding.dong",
-        password="Qwer1234!",
+        password=SecretStr("Qwer1234!"),
         username="dingdong-survey",
     )
     user = make_user(
@@ -123,11 +123,11 @@ async def test_create_user_unauthorized():
 
 
 @pytest.mark.asyncio
-async def test_create_user():
+async def test_create_user() -> None:
     # Given
     command = CreateUserCommand(
         email="survey@ding.dong",
-        password="Qwer1234!",
+        password=SecretStr("Qwer1234!"),
         username="dingdong-survey",
     )
     repository_mock.get_user_by_email.return_value = None
@@ -156,7 +156,7 @@ async def test_create_user():
 
 
 @pytest.mark.asyncio
-async def test_is_admin_user_no_exist():
+async def test_is_admin_user_no_exist() -> None:
     # Given
     repository_mock.get_user_by_id.return_value = None
     user_service.repository = repository_mock
@@ -169,7 +169,7 @@ async def test_is_admin_user_no_exist():
 
 
 @pytest.mark.asyncio
-async def test_is_admin_user_is_not_admin():
+async def test_is_admin_user_is_not_admin() -> None:
     # Given
     user = make_user(
         password="password",
@@ -188,7 +188,7 @@ async def test_is_admin_user_is_not_admin():
 
 
 @pytest.mark.asyncio
-async def test_is_admin():
+async def test_is_admin() -> None:
     # Given
     user = make_user(
         password="password",
@@ -207,18 +207,18 @@ async def test_is_admin():
 
 
 @pytest.mark.asyncio
-async def test_login_user_no_exist():
+async def test_login_user_no_exist() -> None:
     # Given
     repository_mock.get_user_by_email.return_value = None
     user_service.repository = repository_mock
 
     # When, Then
     with pytest.raises(UserNotFoundException):
-        await user_service.login(email="email", password="password")
+        await user_service.login(email="email", password=SecretStr("password"))
 
 
 @pytest.mark.asyncio
-async def test_oauth_login_with_password():
+async def test_oauth_login_with_password() -> None:
     # Given
     user = make_user(
         id=1,
@@ -232,11 +232,13 @@ async def test_oauth_login_with_password():
 
     # When, Then
     with pytest.raises(OAuthLoginWithPasswordAttemptException):
-        await user_service.login(email="survey@ding.dong", password="password")
+        await user_service.login(
+            email="survey@ding.dong", password=SecretStr("password")
+        )
 
 
 @pytest.mark.asyncio
-async def test_login_not_matched_password():
+async def test_login_not_matched_password() -> None:
     # Given
     user = make_user(
         id=1,
@@ -256,7 +258,7 @@ async def test_login_not_matched_password():
 
 
 @pytest.mark.asyncio
-async def test_login():
+async def test_login() -> None:
     # Given
     user = make_user(
         id=1,
@@ -279,7 +281,7 @@ async def test_login():
 
 
 @pytest.mark.asyncio
-async def test_oauth_login_already_exist():
+async def test_oauth_login_already_exist() -> None:
     # Given
     user = make_user(
         id=1,
@@ -304,7 +306,7 @@ async def test_oauth_login_already_exist():
 
 
 @pytest.mark.asyncio
-async def test_oauth_login_no_exist():
+async def test_oauth_login_no_exist() -> None:
     # Given
     user = make_user(
         id=1,
@@ -330,7 +332,7 @@ async def test_oauth_login_no_exist():
 
 
 @pytest.mark.asyncio
-async def test_oauth_login_diff_provider():
+async def test_oauth_login_diff_provider() -> None:
     # Given
     user = make_user(
         id=1,
@@ -349,7 +351,7 @@ async def test_oauth_login_diff_provider():
         email=user.email,
         username=user.username,
         oauth_id=user_oauth.oauth_id,
-        provider="facebook",
+        provider=OauthProviderTypeEnum.FACEBOOK,
     )
     repository_mock.get_user_by_email.return_value = user
     repository_mock.get_user_by_oauth_id.return_value = user_oauth
@@ -361,7 +363,7 @@ async def test_oauth_login_diff_provider():
 
 
 @pytest.mark.asyncio
-async def test_oauth_login_first():
+async def test_oauth_login_first() -> None:
     # Given
     user = make_user(
         id=1,
@@ -394,7 +396,7 @@ async def test_oauth_login_first():
 
 
 @pytest.mark.asyncio
-async def test_oauth_login():
+async def test_oauth_login() -> None:
     # Given
     user = make_user(
         id=1,
@@ -427,7 +429,7 @@ async def test_oauth_login():
 
 
 @pytest.mark.asyncio
-async def test_change_password_not_matched():
+async def test_change_password_not_matched() -> None:
     # Given
     user = make_user(
         id=1,
@@ -449,7 +451,7 @@ async def test_change_password_not_matched():
 
 
 @pytest.mark.asyncio
-async def test_change_password_not_changed():
+async def test_change_password_not_changed() -> None:
     # Given
     user = make_user(
         id=1,
@@ -471,7 +473,7 @@ async def test_change_password_not_changed():
 
 
 @pytest.mark.asyncio
-async def test_change_password():
+async def test_change_password() -> None:
     # Given
     user = make_user(
         id=1,
@@ -492,7 +494,7 @@ async def test_change_password():
 
 
 @pytest.mark.asyncio
-async def test_reset_password_unauthorized():
+async def test_reset_password_unauthorized() -> None:
     # Given
     user = make_user(
         id=1,
@@ -513,7 +515,7 @@ async def test_reset_password_unauthorized():
 
 
 @pytest.mark.asyncio
-async def test_reset_password():
+async def test_reset_password() -> None:
     # Given
     user = make_user(
         id=1,

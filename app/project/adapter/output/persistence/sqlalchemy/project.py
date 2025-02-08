@@ -1,4 +1,4 @@
-from typing import Any
+from typing import cast
 
 from sqlalchemy import and_, select
 
@@ -14,10 +14,6 @@ from core.db.session import session
 
 
 class ProjectSQLAlchemyRepo(ProjectRepo):
-    @staticmethod
-    def _get_entity_by_project_type(project_type: ProjectTypeEnum) -> Any:
-        return {ProjectTypeEnum.EXPERIMENT: ExperimentProject}.get(project_type)
-
     async def get_projects(
         self,
         workspace_id: int,
@@ -26,14 +22,8 @@ class ProjectSQLAlchemyRepo(ProjectRepo):
         page: int,
         size: int,
     ) -> list[ExperimentProject]:
-        project: ExperimentProject = ProjectSQLAlchemyRepo._get_entity_by_project_type(
-            project_type
-        )
-        if project is None:
-            return []
-
         query = (
-            select(project)
+            select(ExperimentProject)
             .where(
                 and_(
                     ExperimentProject.workspace_id == workspace_id,
@@ -48,18 +38,12 @@ class ProjectSQLAlchemyRepo(ProjectRepo):
 
         query = query.offset((page - 1) * size).limit(size)
         result = await session.execute(query)
-        return result.scalars().all()
+        return cast(list[ExperimentProject], result.scalars().all())
 
     async def get_project_by_id(
         self, project_id: int, project_type: ProjectTypeEnum
     ) -> ExperimentProject | None:
-        project: ExperimentProject = ProjectSQLAlchemyRepo._get_entity_by_project_type(
-            project_type
-        )
-        if project is None:
-            return None
-
-        query = select(project).where(
+        query = select(ExperimentProject).where(
             and_(
                 ExperimentProject.id == project_id,
                 ~ExperimentProject.is_deleted,
@@ -122,7 +106,7 @@ class ProjectSQLAlchemyRepo(ProjectRepo):
         )
         query = query.offset((page - 1) * size).limit(size)
         result = await session.execute(query)
-        return result.mappings().all()
+        return cast(list[ExperimentParticipantTimeslot], result.all())
 
     async def get_project_participant_by_id(
         self, project_id: int, participant_id: int, project_type: ProjectTypeEnum

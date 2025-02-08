@@ -29,8 +29,7 @@ from app.project.domain.entity.experiment import (
     ExperimentProject,
     ExperimentTimeslot,
 )
-from app.project.domain.entity.project import Project
-from app.user.domain.entity.user import User
+from app.user.domain.entity.user import User, UserOauth
 from app.workspace.domain.entity.workspace import Workspace
 
 # For auto generate schemas

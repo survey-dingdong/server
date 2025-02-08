@@ -11,7 +11,7 @@ container = UserContainer()
 
 
 @pytest.mark.asyncio
-async def test_permission_dependency_is_authenticated():
+async def test_permission_dependency_is_authenticated() -> None:
     # Given
     dependency = PermissionDependency(permissions=[IsAuthenticated])
     request = AsyncMock(spec=Request)
@@ -23,7 +23,7 @@ async def test_permission_dependency_is_authenticated():
 
 
 @pytest.mark.asyncio
-async def test_permission_dependency_is_admin_user_is_not_admin():
+async def test_permission_dependency_is_admin_user_is_not_admin() -> None:
     # Given
     dependency = PermissionDependency(permissions=[IsAdmin])
     request = AsyncMock(spec=Request)
@@ -39,7 +39,7 @@ async def test_permission_dependency_is_admin_user_is_not_admin():
 
 
 @pytest.mark.asyncio
-async def test_permission_dependency_is_admin_user_id_is_none():
+async def test_permission_dependency_is_admin_user_id_is_none() -> None:
     # Given
     dependency = PermissionDependency(permissions=[IsAdmin])
     request = AsyncMock(spec=Request)

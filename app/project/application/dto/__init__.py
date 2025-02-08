@@ -20,10 +20,10 @@ class ExperimentTimeslotDTO(BaseModel):
 
 class UpdateProjectRequestDTO(BaseModel):
     title: str = Field(..., description="Title")
-    description: str = Field(..., description="Description")
+    description: str | None = Field(None, description="Description")
     is_public: bool = Field(..., description="Whether the project is public")
-    start_date: date = Field(..., description="Experiment start date")
-    end_date: date = Field(..., description="Experiment end date")
+    start_date: date | None = Field(None, description="Experiment start date")
+    end_date: date | None = Field(None, description="Experiment end date")
     excluded_dates: list[date] = Field(..., description="Experimental exclusion days")
     experiment_timeslots: list[ExperimentTimeslotDTO] = Field(
         ..., description="Time information of experiment"

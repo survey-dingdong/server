@@ -1,9 +1,11 @@
+from typing import cast
 from unittest.mock import AsyncMock
 
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.user.adapter.output.persistence.repository_adapter import UserRepositoryAdapter
+from app.user.domain.entity.user import User
 from app.user.domain.repository.user import UserRepo
 from tests.support.user_fixture import make_user
 
@@ -12,7 +14,7 @@ repository_adapter = UserRepositoryAdapter(repository=user_repo_mock)
 
 
 @pytest.mark.asyncio
-async def test_get_users(session: AsyncSession):
+async def test_get_users(session: AsyncSession) -> None:
     # Given
     page = 1
     size = 1
@@ -40,7 +42,7 @@ async def test_get_users(session: AsyncSession):
 
 
 @pytest.mark.asyncio
-async def test_get_user_by_id(session: AsyncSession):
+async def test_get_user_by_id(session: AsyncSession) -> None:
     # Given
     user = make_user(
         password="password",
@@ -67,7 +69,7 @@ async def test_get_user_by_id(session: AsyncSession):
 
 
 @pytest.mark.asyncio
-async def test_get_user_by_email(session: AsyncSession):
+async def test_get_user_by_email(session: AsyncSession) -> None:
     # Given
     user = make_user(
         password="password",
@@ -94,7 +96,7 @@ async def test_get_user_by_email(session: AsyncSession):
 
 
 @pytest.mark.asyncio
-async def test_save(session: AsyncSession):
+async def test_save(session: AsyncSession) -> None:
     # Given
     user = make_user(
         id=1,
@@ -107,7 +109,7 @@ async def test_save(session: AsyncSession):
     repository_adapter.repository = user_repo_mock
 
     # When
-    sut = await repository_adapter.save(user=user, auto_flush=True)
+    sut = cast(User, await repository_adapter.save(user=user, auto_flush=True))
 
     # Then
     assert sut.id == user.id

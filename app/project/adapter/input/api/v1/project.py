@@ -1,3 +1,5 @@
+from typing import cast
+
 from dependency_injector.wiring import Provide, inject
 from fastapi import APIRouter, Depends, Query, Request, status
 
@@ -12,6 +14,7 @@ from app.project.adapter.input.api.v1.response import (
     GetExperimentProjectResponse,
     GetProjectListResponse,
 )
+from app.project.application.dto import UpdateProjectRequestDTO
 from app.project.container import ProjectContainer
 from app.project.domain.command import CreateProjectCommand
 from app.project.domain.usecase.project import ProjectUseCsae
@@ -43,7 +46,7 @@ async def get_project_list(
     project_usecase: ProjectUseCsae = Depends(
         Provide[ProjectContainer.project_service]
     ),
-):
+) -> list[GetProjectListResponse]:
     workspace = await workspace_usecase.get_workspace_by_id(
         user_id=auth_info.user.id, workspace_id=workspace_id
     )
@@ -75,7 +78,7 @@ async def create_project(
     project_usecase: ProjectUseCsae = Depends(
         Provide[ProjectContainer.project_service]
     ),
-):
+) -> CreateProjectResponse:
     workspace = await workspace_usecase.get_workspace_by_id(
         user_id=auth_info.user.id, workspace_id=workspace_id
     )
@@ -99,7 +102,7 @@ async def get_project(
     project_usecase: ProjectUseCsae = Depends(
         Provide[ProjectContainer.project_service]
     ),
-):
+) -> GetExperimentProjectResponse:
     return await project_usecase.get_project(
         user_id=auth_info.user.id,
         project_id=project_id,
@@ -121,12 +124,12 @@ async def update_project(
     project_usecase: ProjectUseCsae = Depends(
         Provide[ProjectContainer.project_service]
     ),
-):
+) -> None:
     await project_usecase.update_project(
         user_id=auth_info.user.id,
         project_id=project_id,
         project_type=project_type,
-        project_dto=request,
+        project_dto=cast(UpdateProjectRequestDTO, request),
     )
 
 
@@ -143,7 +146,7 @@ async def delete_project(
     project_usecase: ProjectUseCsae = Depends(
         Provide[ProjectContainer.project_service]
     ),
-):
+) -> None:
     await project_usecase.delete_project(
         user_id=auth_info.user.id,
         project_id=project_id,
@@ -167,7 +170,7 @@ async def get_project_participant_list(
     project_usecase: ProjectUseCsae = Depends(
         Provide[ProjectContainer.project_service]
     ),
-):
+) -> list[GetExperimentParticipantResponse]:
     return await project_usecase.get_project_participant_list(
         user_id=auth_info.user.id,
         project_id=project_id,
@@ -192,7 +195,7 @@ async def update_project_participant_status(
     project_usecase: ProjectUseCsae = Depends(
         Provide[ProjectContainer.project_service]
     ),
-):
+) -> None:
     await project_usecase.update_project_participant_status(
         user_id=auth_info.user.id,
         project_id=project_id,
@@ -216,7 +219,7 @@ async def delete_project_participant(
     project_usecase: ProjectUseCsae = Depends(
         Provide[ProjectContainer.project_service]
     ),
-):
+) -> None:
     await project_usecase.delete_project_participant(
         user_id=auth_info.user.id,
         project_id=project_id,

@@ -1,7 +1,7 @@
 from core.exceptions import CustomException
 
 
-def test_custom_exception():
+def test_custom_exception() -> None:
     # Given
     message = "dingdong-survey"
 

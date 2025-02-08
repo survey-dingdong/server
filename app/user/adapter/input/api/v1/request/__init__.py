@@ -34,7 +34,7 @@ class LoginRequest(BaseModel):
 
 class OauthLoginRequest(BaseModel):
     email: EmailStr = Field(..., description="Email")
-    username: str | None = Field(None, description="User username")
+    username: str = Field(..., description="User username")
     oauth_id: str = Field(..., description="OAuth ID")
 
 

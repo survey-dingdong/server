@@ -14,7 +14,7 @@ BASE_URL = "http://test"
 
 
 @pytest.mark.asyncio
-async def test_get_project_list(session: AsyncSession):
+async def test_get_project_list(session: AsyncSession) -> None:
     # Given
     user = make_user(
         password="password",
@@ -54,7 +54,7 @@ async def test_get_project_list(session: AsyncSession):
 
 
 @pytest.mark.asyncio
-async def test_get_project_not_exist(session: AsyncSession):
+async def test_get_project_not_exist(session: AsyncSession) -> None:
     # Given
     user = make_user(
         password="password",
@@ -90,7 +90,7 @@ async def test_get_project_not_exist(session: AsyncSession):
 
 
 @pytest.mark.asyncio
-async def test_get_project_by_id(session: AsyncSession):
+async def test_get_project_by_id(session: AsyncSession) -> None:
     # Given
     user = make_user(
         password="password",
@@ -136,7 +136,7 @@ async def test_get_project_by_id(session: AsyncSession):
 
 
 @pytest.mark.asyncio
-async def test_create_project(session: AsyncSession):
+async def test_create_project(session: AsyncSession) -> None:
     # Given
     user = make_user(
         password="password",
@@ -169,7 +169,7 @@ async def test_create_project(session: AsyncSession):
 
 
 @pytest.mark.asyncio
-async def test_update_project_not_exist(session: AsyncSession):
+async def test_update_project_not_exist(session: AsyncSession) -> None:
     # Given
     user = make_user(
         password="password",
@@ -225,7 +225,7 @@ async def test_update_project_not_exist(session: AsyncSession):
 
 
 @pytest.mark.asyncio
-async def test_update_project(session: AsyncSession):
+async def test_update_project(session: AsyncSession) -> None:
     # Given
     user = make_user(
         password="password",
@@ -281,7 +281,7 @@ async def test_update_project(session: AsyncSession):
 
 
 @pytest.mark.asyncio
-async def test_delete_project_not_exist(session: AsyncSession):
+async def test_delete_project_not_exist(session: AsyncSession) -> None:
     # Given
     user = make_user(
         password="password",
@@ -315,7 +315,7 @@ async def test_delete_project_not_exist(session: AsyncSession):
 
 
 @pytest.mark.asyncio
-async def test_delete_project(session: AsyncSession):
+async def test_delete_project(session: AsyncSession) -> None:
     # Given
     user = make_user(
         password="password",

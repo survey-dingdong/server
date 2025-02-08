@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from typing import Any, cast
 
 import jwt
 
@@ -30,15 +31,18 @@ class TokenHelper:
             key=config.JWT_SECRET_KEY,
             algorithm=config.JWT_ALGORITHM,
         )
-        return token
+        return cast(str, token)
 
     @staticmethod
-    def decode(token: str) -> dict:
+    def decode(token: str) -> dict[str, Any]:
         try:
-            return jwt.decode(
-                token,
-                config.JWT_SECRET_KEY,
-                config.JWT_ALGORITHM,
+            return cast(
+                dict[str, Any],
+                jwt.decode(
+                    token,
+                    config.JWT_SECRET_KEY,
+                    [config.JWT_ALGORITHM],
+                ),
             )
         except jwt.exceptions.DecodeError:
             raise DecodeTokenException
@@ -46,15 +50,18 @@ class TokenHelper:
             raise ExpiredTokenException
 
     @staticmethod
-    def decode_expired_token(token: str) -> dict:
+    def decode_expired_token(token: str) -> dict[str, Any]:
         try:
-            return jwt.decode(
-                token,
-                config.JWT_SECRET_KEY,
-                config.JWT_ALGORITHM,
-                options={
-                    "verify_exp": False,
-                },
+            return cast(
+                dict[str, Any],
+                jwt.decode(
+                    token,
+                    config.JWT_SECRET_KEY,
+                    [config.JWT_ALGORITHM],
+                    options={
+                        "verify_exp": False,
+                    },
+                ),
             )
         except jwt.exceptions.DecodeError:
             raise DecodeTokenException

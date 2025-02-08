@@ -2,6 +2,7 @@ from http.client import HTTPConnection
 from unittest.mock import Mock, patch
 
 import pytest
+from jwt import PyJWT
 from jwt.exceptions import PyJWTError
 
 from core.fastapi.middlewares import authentication
@@ -12,7 +13,7 @@ auth_backend = AuthBackend()
 
 @pytest.mark.asyncio
 @patch.object(authentication, "jwt")
-async def test_auth_backend_empty_header(jwt_mock):
+async def test_auth_backend_empty_header(jwt_mock: PyJWT) -> None:
     # Given
     conn_mock = Mock(spec=HTTPConnection)
     conn_mock.headers = {}
@@ -28,7 +29,7 @@ async def test_auth_backend_empty_header(jwt_mock):
 
 @pytest.mark.asyncio
 @patch.object(authentication, "jwt")
-async def test_auth_backend_invalid_header(jwt_mock):
+async def test_auth_backend_invalid_header(jwt_mock: PyJWT) -> None:
     # Given
     conn_mock = Mock(spec=HTTPConnection)
     conn_mock.headers = {"Authorization": "Bearer1234"}
@@ -44,7 +45,7 @@ async def test_auth_backend_invalid_header(jwt_mock):
 
 @pytest.mark.asyncio
 @patch.object(authentication, "jwt")
-async def test_auth_backend_not_startswith_bearer(jwt_mock):
+async def test_auth_backend_not_startswith_bearer(jwt_mock: PyJWT) -> None:
     # Given
     conn_mock = Mock(spec=HTTPConnection)
     conn_mock.headers = {"Authorization": "dingdong-survey 1234"}
@@ -60,7 +61,7 @@ async def test_auth_backend_not_startswith_bearer(jwt_mock):
 
 @pytest.mark.asyncio
 @patch.object(authentication, "jwt")
-async def test_auth_backend_empty_credentials(jwt_mock):
+async def test_auth_backend_empty_credentials(jwt_mock: PyJWT) -> None:
     # Given
     conn_mock = Mock(spec=HTTPConnection)
     conn_mock.headers = {"Authorization": "Bearer "}
@@ -76,7 +77,7 @@ async def test_auth_backend_empty_credentials(jwt_mock):
 
 @pytest.mark.asyncio
 @patch.object(authentication, "jwt")
-async def test_auth_backend_invalid_token(jwt_mock):
+async def test_auth_backend_invalid_token(jwt_mock: PyJWT) -> None:
     # Given
     conn_mock = Mock(spec=HTTPConnection)
     conn_mock.headers = {"Authorization": "Bearer"}
@@ -92,7 +93,7 @@ async def test_auth_backend_invalid_token(jwt_mock):
 
 @pytest.mark.asyncio
 @patch.object(authentication, "jwt")
-async def test_auth_backend(jwt_mock):
+async def test_auth_backend(jwt_mock: PyJWT) -> None:
     # Given
     conn_mock = Mock(spec=HTTPConnection)
     conn_mock.headers = {"Authorization": "bearer credentials"}

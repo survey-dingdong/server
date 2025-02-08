@@ -1,15 +1,17 @@
+from typing import cast
+
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.user.adapter.output.persistence.sqlalchemy.user import UserSQLAlchemyRepo
-from app.user.domain.entity.user import User
+from app.user.domain.entity.user import User, UserOauth
 from tests.support.user_fixture import make_user, make_user_oauth
 
 user_repo = UserSQLAlchemyRepo()
 
 
 @pytest.mark.asyncio
-async def test_get_users(session: AsyncSession):
+async def test_get_users(session: AsyncSession) -> None:
     # Given
     user_1 = make_user(
         password="password",
@@ -45,7 +47,7 @@ async def test_get_users(session: AsyncSession):
 
 
 @pytest.mark.asyncio
-async def test_get_user_by_id(session: AsyncSession):
+async def test_get_user_by_id(session: AsyncSession) -> None:
     # Given
     user_id = 1
 
@@ -57,7 +59,7 @@ async def test_get_user_by_id(session: AsyncSession):
 
 
 @pytest.mark.asyncio
-async def test_get_user_by_email(session: AsyncSession):
+async def test_get_user_by_email(session: AsyncSession) -> None:
     # Given
     email = "a@b.c"
     username = "dingdong-survey"
@@ -81,7 +83,7 @@ async def test_get_user_by_email(session: AsyncSession):
 
 
 @pytest.mark.asyncio
-async def get_user_by_oauth_id(session: AsyncSession):
+async def get_user_by_oauth_id(session: AsyncSession) -> None:
     # Given
     email = "b@c.d"
     password = "dingdong-survey"
@@ -99,7 +101,12 @@ async def get_user_by_oauth_id(session: AsyncSession):
     await session.commit()
 
     # When
-    sut = await user_repo.get_user_by_oauth_id(user_id=user.id, oauth_id=user_oauth.id)
+    sut = cast(
+        UserOauth,
+        await user_repo.get_user_by_oauth_id(
+            user_id=user.id, oauth_id=user_oauth.oauth_id
+        ),
+    )
 
     # Then
     assert isinstance(sut, User)
@@ -109,7 +116,7 @@ async def get_user_by_oauth_id(session: AsyncSession):
 
 
 @pytest.mark.asyncio
-async def test_save(session: AsyncSession):
+async def test_save(session: AsyncSession) -> None:
     # Given
     email = "b@c.d"
     password = "dingdong-survey"

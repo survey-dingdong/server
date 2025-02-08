@@ -1,3 +1,5 @@
+from typing import cast
+
 from sqlalchemy import and_, func, select, update
 
 from app.workspace.domain.entity.workspace import Workspace
@@ -19,7 +21,7 @@ class WorkspaceSQLAlchemyRepo(WorkspaceRepo):
         )
 
         result = await session.execute(query)
-        return result.scalars().all()
+        return cast(list[Workspace], result.scalars().all())
 
     async def get_workspace_by_id(self, workspace_id: int) -> Workspace | None:
         query = select(Workspace).where(
@@ -55,7 +57,7 @@ class WorkspaceSQLAlchemyRepo(WorkspaceRepo):
                 )
             )
         )
-        obj_count: int = await session.scalar(query)
+        obj_count = await session.scalar(query) or 0
         return obj_count
 
     async def save(self, workspace: Workspace, auto_flush: bool = False) -> Workspace:

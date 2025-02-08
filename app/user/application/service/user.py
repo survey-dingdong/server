@@ -1,3 +1,5 @@
+from typing import cast
+
 from pydantic import SecretStr
 
 from app.auth.domain.vo import EmailVerificationType
@@ -18,10 +20,11 @@ from app.user.application.exception import (
     UserNotFoundException,
 )
 from app.user.domain.command import CreateUserCommand, UserOauthCommand
-from app.user.domain.entity.user import User, UserOauth, UserRead
+from app.user.domain.entity.user import User, UserOauth
 from app.user.domain.usecase.user import UserUseCase
 from core.config import config
 from core.db import Transactional
+from core.exceptions.base import InvalidAccessException
 from core.helpers.auth import (
     generate_hashed_password,
     make_random_string,
@@ -43,9 +46,8 @@ class UserService(UserUseCase):
 
         return False
 
-    async def get_user_list(self, page: int, size: int) -> list[UserRead]:
-        users = await self.repository.get_users(page=page, size=size)
-        return [UserRead.model_validate(user) for user in users]
+    async def get_user_list(self, page: int, size: int) -> list[User]:
+        return await self.repository.get_users(page=page, size=size)
 
     async def get_user_by_id(self, user_id: int) -> User:
         user = await self.repository.get_user_by_id(user_id=user_id)
@@ -73,7 +75,7 @@ class UserService(UserUseCase):
                 password=command.password.get_secret_value()
             ),
         )
-        user = await self.repository.save(user=user, auto_flush=True)
+        user = cast(User, await self.repository.save(user=user, auto_flush=True))
 
         await self.cache.delete(
             key=f"{config.REDIS_KEY_PREFIX}::{EmailVerificationType.SIGNUP}::{command.email}"
@@ -150,24 +152,29 @@ class UserService(UserUseCase):
                 email=command.email,
                 username=command.username,
             )
-            user = await self.repository.save(user=new_user, auto_flush=True)
+            user = cast(
+                User, await self.repository.save(user=new_user, auto_flush=True)
+            )
+
             new_user_oauth = UserOauth.create(
                 user_id=new_user.id,
                 oauth_id=command.oauth_id,
                 provider=command.provider,
             )
             await self.repository.save(new_user_oauth)
-        elif user.password:
-            raise UserAlreadyExistsException
-        else:
-            user_oauth = await self.repository.get_user_by_oauth_id(
-                user_id=user.id, oauth_id=command.oauth_id
-            )
-            if user_oauth is None:
-                raise UserNotFoundException
 
-            if user_oauth.provider != command.provider:
-                raise DifferentOAuthProviderException
+        if user.password:
+            raise UserAlreadyExistsException
+
+        user_oauth = await self.repository.get_user_by_oauth_id(
+            user_id=user.id, oauth_id=command.oauth_id
+        )
+
+        if user_oauth is None:
+            raise UserNotFoundException
+
+        if user_oauth.provider != command.provider:
+            raise DifferentOAuthProviderException
 
         response = LoginResponseDTO(
             token=TokenHelper.encode(payload={"user_id": user.id}),
@@ -185,6 +192,9 @@ class UserService(UserUseCase):
         user = await self.repository.get_user_by_id(user_id=user_id)
         if user is None:
             raise UserNotFoundException
+
+        if user.password is None:
+            raise InvalidAccessException
 
         if not validate_hashed_password(
             password=old_password.get_secret_value(), hashed_password=user.password

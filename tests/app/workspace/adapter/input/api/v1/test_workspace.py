@@ -18,7 +18,7 @@ BASE_URL = "http://test"
 
 
 @pytest.mark.asyncio
-async def test_get_workspaces(session: AsyncSession):
+async def test_get_workspaces(session: AsyncSession) -> None:
     # Given
     user = make_user(
         password="password",
@@ -43,7 +43,7 @@ async def test_get_workspaces(session: AsyncSession):
 
 
 @pytest.mark.asyncio
-async def test_create_workspace_too_many(session: AsyncSession):
+async def test_create_workspace_too_many(session: AsyncSession) -> None:
     # Given
     user = make_user(
         id=1,
@@ -82,7 +82,7 @@ async def test_create_workspace_too_many(session: AsyncSession):
 
 
 @pytest.mark.asyncio
-async def test_create_workspace(session: AsyncSession):
+async def test_create_workspace(session: AsyncSession) -> None:
     # Given
     user = make_user(
         password="password",
@@ -107,7 +107,7 @@ async def test_create_workspace(session: AsyncSession):
 
 
 @pytest.mark.asyncio
-async def test_update_workspace_not_exist(session: AsyncSession):
+async def test_update_workspace_not_exist(session: AsyncSession) -> None:
     # Given
     user = make_user(
         password="password",
@@ -141,7 +141,7 @@ async def test_update_workspace_not_exist(session: AsyncSession):
 
 
 @pytest.mark.asyncio
-async def test_update_workspace_access_denied(session: AsyncSession):
+async def test_update_workspace_access_denied(session: AsyncSession) -> None:
     # Given
     user1 = make_user(
         password="password",
@@ -181,7 +181,7 @@ async def test_update_workspace_access_denied(session: AsyncSession):
 
 
 @pytest.mark.asyncio
-async def test_update_workspace_wrong_order_no(session: AsyncSession):
+async def test_update_workspace_wrong_order_no(session: AsyncSession) -> None:
     # Given
     user = make_user(
         password="password",
@@ -214,7 +214,7 @@ async def test_update_workspace_wrong_order_no(session: AsyncSession):
 
 
 @pytest.mark.asyncio
-async def test_update_workspace(session: AsyncSession):
+async def test_update_workspace(session: AsyncSession) -> None:
     # Given
     user = make_user(
         password="password",
@@ -244,7 +244,7 @@ async def test_update_workspace(session: AsyncSession):
 
 
 @pytest.mark.asyncio
-async def test_delete_workspace_not_exist(session: AsyncSession):
+async def test_delete_workspace_not_exist(session: AsyncSession) -> None:
     # Given
     user = make_user(
         password="password",
@@ -275,7 +275,7 @@ async def test_delete_workspace_not_exist(session: AsyncSession):
 
 
 @pytest.mark.asyncio
-async def test_delete_workspace_access_denied(session: AsyncSession):
+async def test_delete_workspace_access_denied(session: AsyncSession) -> None:
     # Given
     user = make_user(
         password="password",
@@ -306,7 +306,7 @@ async def test_delete_workspace_access_denied(session: AsyncSession):
 
 
 @pytest.mark.asyncio
-async def test_delete_workspace(session: AsyncSession):
+async def test_delete_workspace(session: AsyncSession) -> None:
     # Given
     user1 = make_user(
         password="password",
