@@ -1,15 +1,14 @@
 import asyncio
 from asyncio import AbstractEventLoop
-from typing import AsyncGenerator, Generator, Iterator
+from collections.abc import AsyncGenerator, Generator, Iterator
 from uuid import uuid4
 
 import pytest
 import pytest_asyncio
 from sqlalchemy.ext.asyncio import AsyncSession, async_scoped_session
 
-from core.db.session import reset_session_context
+from core.db.session import reset_session_context, set_session_context
 from core.db.session import session as db_session
-from core.db.session import set_session_context
 from tests.support.test_db_coordinator import TestDbCoordinator
 
 test_db_coordinator = TestDbCoordinator()

@@ -17,9 +17,8 @@ def generate_hashed_password(password: str) -> str:
         _PBKDF2_ITERATIONS,
     )
 
-    return "%s:%s" % (
-        binascii.hexlify(pbkdf2_salt).decode(),
-        binascii.hexlify(pw_hash).decode(),
+    return (
+        f"{binascii.hexlify(pbkdf2_salt).decode()}:{binascii.hexlify(pw_hash).decode()}"
     )
 
 
@@ -40,4 +39,4 @@ def make_random_string(
     length: int,
     letters: str = string.ascii_letters + string.digits,
 ) -> str:
-    return "".join((secrets.choice(letters) for _ in range(length)))
+    return "".join([secrets.choice(letters) for _ in range(length)])

@@ -16,14 +16,14 @@ class Base(MappedAsDataclass, DeclarativeBase):
 
     created_at: Mapped[datetime.datetime] = mapped_column(
         TIMESTAMP(timezone=True),
-        default_factory=lambda: datetime.datetime.now(datetime.timezone.utc),
+        default_factory=lambda: datetime.datetime.now(datetime.UTC),
         init=False,
         index=True,
     )
 
     updated_at: Mapped[datetime.datetime | None] = mapped_column(
         TIMESTAMP(timezone=True),
-        onupdate=lambda: datetime.datetime.now(datetime.timezone.utc),
+        onupdate=lambda: datetime.datetime.now(datetime.UTC),
         nullable=True,
         init=False,
     )

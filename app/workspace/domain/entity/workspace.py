@@ -21,7 +21,7 @@ class Workspace(BaseWithInId):
 
     is_deleted: Mapped[bool] = mapped_column(Boolean, default=False)
 
-    user: Mapped["User"] = relationship(
+    user: Mapped[User] = relationship(
         "User",
         uselist=False,
         init=False,
