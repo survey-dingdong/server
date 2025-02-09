@@ -4,7 +4,6 @@ from app.workspace.application.dto import (
     CreateWorkspaceResponseDTO,
     GetWorkspaceRepsonseDTO,
 )
-from app.workspace.domain.command import CreateWorkspaceCommand
 from app.workspace.domain.entity.workspace import Workspace
 
 
@@ -19,7 +18,7 @@ class WorkspaceUseCase(ABC):
 
     @abstractmethod
     async def create_workspace(
-        self, command: CreateWorkspaceCommand
+        self, user_id: int, title: str
     ) -> CreateWorkspaceResponseDTO:
         """Create workspace"""
 

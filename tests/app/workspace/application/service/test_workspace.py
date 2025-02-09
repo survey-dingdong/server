@@ -12,7 +12,6 @@ from app.workspace.application.exception import (
     WorkspaceNotFoundeException,
 )
 from app.workspace.application.service.workspace import WorkspaceService
-from app.workspace.domain.command import CreateWorkspaceCommand
 from tests.support.workspace_fixture import make_workspace
 
 repository_mock = AsyncMock(spec=WorkspaceRepositoryAdapter)
@@ -40,25 +39,22 @@ async def test_get_workspace_list() -> None:
 @pytest.mark.asyncio
 async def test_create_workspace_too_many() -> None:
     # Given
-    command = CreateWorkspaceCommand(user_id=1, title="workspace")
-
     repository_mock.count.return_value = 10
     workspace_service.repository = repository_mock
 
     # When, Then
     with pytest.raises(TooManyWorkspacesException):
-        await workspace_service.create_workspace(command=command)
+        await workspace_service.create_workspace(user_id=1, title="workspace")
 
 
 @pytest.mark.asyncio
 async def test_create_workspace() -> None:
     # Given
-    command = CreateWorkspaceCommand(user_id=1, title="workspace")
     repository_mock.count.return_value = 0
     workspace_service.repository = repository_mock
 
     # When
-    sut = await workspace_service.create_workspace(command=command)
+    sut = await workspace_service.create_workspace(user_id=1, title="workspace")
 
     # Then
     assert sut.id == 1

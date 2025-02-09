@@ -13,7 +13,6 @@ from app.workspace.application.exception import (
     WorkspaceNotFoundeException,
     WrongOrderNoWorkspacesException,
 )
-from app.workspace.domain.command import CreateWorkspaceCommand
 from app.workspace.domain.entity.workspace import Workspace
 from app.workspace.domain.usecase.workspace import WorkspaceUseCase
 from core.db import Transactional
@@ -39,15 +38,15 @@ class WorkspaceService(WorkspaceUseCase):
 
     @Transactional()
     async def create_workspace(
-        self, command: CreateWorkspaceCommand
+        self, user_id: int, title: str
     ) -> CreateWorkspaceResponseDTO:
-        workspace_count = await self.repository.count(user_id=command.user_id)
+        workspace_count = await self.repository.count(user_id=user_id)
         if workspace_count >= 10:
             raise TooManyWorkspacesException
 
         workspace = Workspace(
-            user_id=command.user_id,
-            title=command.title,
+            user_id=user_id,
+            title=title,
             order_no=workspace_count + 1,
         )
 
