@@ -1,2 +1,2 @@
-CREATE DATABASE survey_dingdong_test;
-GRANT ALL PRIVILEGES ON survey_dingdong_test.* TO admin@'%' WITH GRANT OPTION;
+CREATE DATABASE survey_dingdong;
+GRANT ALL PRIVILEGES ON survey_dingdong.* TO admin@'%' WITH GRANT OPTION;

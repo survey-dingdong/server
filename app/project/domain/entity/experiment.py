@@ -32,7 +32,6 @@ class ExperimentProject(BaseWithInId):
     workspace_id: Mapped[int] = mapped_column(
         Integer,
         ForeignKey("workspace.id"),
-        index=True,
     )
 
     title: Mapped[str] = mapped_column(String(64), index=True)
@@ -70,17 +69,8 @@ class ExperimentProject(BaseWithInId):
 
     workspace: Mapped["Workspace"] = relationship(
         "Workspace",
-        back_populates="experiment_projects",
         init=False,
         uselist=False,
-        lazy="selectin",
-    )
-
-    experiment_timeslots: Mapped[list["ExperimentTimeslot"]] = relationship(
-        "ExperimentTimeslot",
-        back_populates="experiment_project",
-        init=False,
-        lazy="selectin",
     )
 
     @classmethod
@@ -89,13 +79,6 @@ class ExperimentProject(BaseWithInId):
             workspace_id=workspace_id,
             title=title,
         )
-
-
-Index(
-    None,
-    ExperimentProject.workspace_id,
-    ExperimentProject.title,
-)
 
 
 class ExperimentTimeslot(BaseWithInId):
@@ -114,18 +97,7 @@ class ExperimentTimeslot(BaseWithInId):
 
     experiment_project: Mapped["ExperimentProject"] = relationship(
         "ExperimentProject",
-        back_populates="experiment_timeslots",
         init=False,
-        lazy="selectin",
-    )
-
-    experiment_participant_timeslots: Mapped[
-        list["ExperimentParticipantTimeslot"]
-    ] = relationship(
-        "ExperimentParticipantTimeslot",
-        back_populates="experiment_timeslot",
-        init=False,
-        lazy="selectin",
     )
 
     @classmethod
@@ -175,18 +147,14 @@ class ExperimentParticipantTimeslot(BaseWithInId):
 
     user: Mapped["User"] = relationship(
         "User",
-        back_populates="experiment_participant_timeslots",
         init=False,
         uselist=False,
-        lazy="selectin",
     )
 
     experiment_timeslot: Mapped["ExperimentTimeslot"] = relationship(
         "ExperimentTimeslot",
-        back_populates="experiment_participant_timeslots",
         init=False,
         uselist=False,
-        lazy="selectin",
     )
 
 

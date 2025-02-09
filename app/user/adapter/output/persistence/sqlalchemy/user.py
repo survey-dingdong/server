@@ -15,7 +15,7 @@ class UserSQLAlchemyRepo(UserRepo):
 
     async def get_user_by_id(self, user_id: int) -> User | None:
         result = await session.execute(select(User).where(User.id == user_id))
-        return result.scalar_one_or_none()  # type: ignore[no-any-return]
+        return result.scalar_one_or_none()
 
     async def get_user_by_email(self, email: str) -> User | None:
         result = await session.execute(
@@ -26,7 +26,7 @@ class UserSQLAlchemyRepo(UserRepo):
                 )
             )
         )
-        return result.scalar_one_or_none()  # type: ignore[no-any-return]
+        return result.scalar_one_or_none()
 
     async def get_user_by_oauth_id(
         self, user_id: int, oauth_id: str
@@ -42,7 +42,7 @@ class UserSQLAlchemyRepo(UserRepo):
                 )
             )
         )
-        return result.scalar_one_or_none()  # type: ignore[no-any-return]
+        return result.scalar_one_or_none()
 
     async def save(self, user: User | UserOauth, auto_flush: bool = False) -> User:
         session.add(user)

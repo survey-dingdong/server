@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
 from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy import Boolean, Enum, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -9,10 +7,6 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.user.domain.vo import OauthProviderTypeEnum
 from core.db import BaseWithInId
 from core.helpers.utils import get_random_color
-
-if TYPE_CHECKING:
-    from app.project.domain.entity.experiment import ExperimentParticipantTimeslot
-    from app.workspace.domain.entity.workspace import Workspace
 
 
 class User(BaseWithInId):
@@ -31,23 +25,6 @@ class User(BaseWithInId):
     is_admin: Mapped[bool] = mapped_column(Boolean, default=False)
 
     is_deleted: Mapped[bool] = mapped_column(Boolean, default=False)
-
-    workspaces: Mapped[list["Workspace"]] = relationship(
-        "Workspace", back_populates="user", init=False, lazy="selectin"
-    )
-
-    oauth_accounts: Mapped[list["UserOauth"]] = relationship(
-        "UserOauth", back_populates="user", init=False, lazy="selectin"
-    )
-
-    experiment_participant_timeslots: Mapped[
-        "ExperimentParticipantTimeslot"
-    ] = relationship(
-        "ExperimentParticipantTimeslot",
-        back_populates="user",
-        init=False,
-        lazy="selectin",
-    )
 
     @classmethod
     def create(
@@ -70,9 +47,7 @@ class UserOauth(BaseWithInId):
 
     user_id: Mapped[int] = mapped_column(Integer, ForeignKey("user.id"))
 
-    user: Mapped[User] = relationship(
-        "User", back_populates="oauth_accounts", init=False
-    )
+    user: Mapped[User] = relationship("User", init=False)
 
     oauth_id: Mapped[str] = mapped_column(String(255))
 
