@@ -5,9 +5,9 @@ from app.workspace.adapter.input.api.v1.request import (
     CreateWorkspaceRequest,
     UpdateWorkspaceRequest,
 )
-from app.workspace.adapter.input.api.v1.response import (
-    CreateWorkspaceResponse,
-    GetWorkspaceListResponse,
+from app.workspace.application.dto import (
+    CreateWorkspaceResponseDTO,
+    GetWorkspaceRepsonseDTO,
 )
 from app.workspace.container import WorkspaceContainer
 from app.workspace.domain.command import CreateWorkspaceCommand
@@ -19,20 +19,20 @@ workspace_router = APIRouter()
 
 @workspace_router.get(
     "",
-    response_model=list[GetWorkspaceListResponse],
+    response_model=list[GetWorkspaceRepsonseDTO],
     dependencies=[Depends(PermissionDependency([IsAuthenticated]))],
 )
 @inject
 async def get_workspace_list(
     auth_info: Request,
     usecase: WorkspaceUseCase = Depends(Provide[WorkspaceContainer.workspace_service]),
-) -> list[GetWorkspaceListResponse]:
+) -> list[GetWorkspaceRepsonseDTO]:
     return await usecase.get_workspace_list(user_id=auth_info.user.id)
 
 
 @workspace_router.post(
     "",
-    response_model=CreateWorkspaceResponse,
+    response_model=CreateWorkspaceResponseDTO,
     dependencies=[Depends(PermissionDependency([IsAuthenticated]))],
     status_code=status.HTTP_201_CREATED,
 )
@@ -41,7 +41,7 @@ async def create_workspace(
     auth_info: Request,
     request: CreateWorkspaceRequest,
     usecase: WorkspaceUseCase = Depends(Provide[WorkspaceContainer.workspace_service]),
-) -> CreateWorkspaceResponse:
+) -> CreateWorkspaceResponseDTO:
     command = CreateWorkspaceCommand(user_id=auth_info.user.id, title=request.title)
     return await usecase.create_workspace(command=command)
 

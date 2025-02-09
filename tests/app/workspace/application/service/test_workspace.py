@@ -5,6 +5,7 @@ import pytest
 from app.workspace.adapter.output.persistence.repository_adapter import (
     WorkspaceRepositoryAdapter,
 )
+from app.workspace.application.dto import GetWorkspaceRepsonseDTO
 from app.workspace.application.exception import (
     TooManyWorkspacesException,
     WorkspaceAccessDeniedException,
@@ -12,7 +13,6 @@ from app.workspace.application.exception import (
 )
 from app.workspace.application.service.workspace import WorkspaceService
 from app.workspace.domain.command import CreateWorkspaceCommand
-from app.workspace.domain.entity.workspace import WorkspaceRead
 from tests.support.workspace_fixture import make_workspace
 
 repository_mock = AsyncMock(spec=WorkspaceRepositoryAdapter)
@@ -22,7 +22,7 @@ workspace_service = WorkspaceService(repository=repository_mock)
 @pytest.mark.asyncio
 async def test_get_workspace_list() -> None:
     # Given
-    workspace = WorkspaceRead(id=1, title="workspace", order_no=1)
+    workspace = GetWorkspaceRepsonseDTO(id=1, title="workspace", order_no=1)
     repository_mock.get_workspaces.return_value = [workspace]
     workspace_service.repository = repository_mock
 
