@@ -150,6 +150,7 @@ async def test_update_workspace_access_denied(session: AsyncSession) -> None:
         is_admin=True,
     )
     user2 = make_user(
+        id=2,
         password="password",
         email="a2@b.c",
         username="dingdong-survey2",
@@ -315,6 +316,7 @@ async def test_delete_workspace(session: AsyncSession) -> None:
         is_admin=True,
     )
     user2 = make_user(
+        id=2,
         password="password",
         email="a2@b.c",
         username="dingdong-survey2",

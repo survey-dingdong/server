@@ -1,7 +1,12 @@
+from typing import cast
+
 from app.workspace.adapter.output.persistence.repository_adapter import (
     WorkspaceRepositoryAdapter,
 )
-from app.workspace.application.dto import CreateWorkspaceResponseDTO
+from app.workspace.application.dto import (
+    CreateWorkspaceResponseDTO,
+    GetWorkspaceRepsonseDTO,
+)
 from app.workspace.application.exception import (
     TooManyWorkspacesException,
     WorkspaceAccessDeniedException,
@@ -28,13 +33,9 @@ class WorkspaceService(WorkspaceUseCase):
 
         return workspace
 
-    async def get_workspace_list(self, user_id: int) -> list[Workspace]:
+    async def get_workspace_list(self, user_id: int) -> list[GetWorkspaceRepsonseDTO]:
         workspaces = await self.repository.get_workspaces(user_id=user_id)
-
-        for idx, workspace in enumerate(workspaces, start=1):
-            workspace.order_no = idx
-
-        return workspaces
+        return cast(list[GetWorkspaceRepsonseDTO], workspaces)
 
     @Transactional()
     async def create_workspace(
@@ -44,12 +45,13 @@ class WorkspaceService(WorkspaceUseCase):
         if workspace_count >= 10:
             raise TooManyWorkspacesException
 
-        workspace = Workspace.create(
+        workspace = Workspace(
             user_id=command.user_id,
             title=command.title,
             order_no=workspace_count + 1,
         )
-        workspace = await self.repository.save(
+
+        workspace = await self.repository.add(
             workspace=workspace,
             auto_flush=True,
         )
@@ -76,7 +78,7 @@ class WorkspaceService(WorkspaceUseCase):
 
         if order_no is not None:
             total_workspace_count = await self.repository.count(user_id=user_id)
-            if order_no < 1 or order_no > total_workspace_count:
+            if order_no > total_workspace_count:
                 raise WrongOrderNoWorkspacesException
 
             workspaces = await self.repository.get_workspaces(user_id=user_id)
@@ -88,6 +90,7 @@ class WorkspaceService(WorkspaceUseCase):
             await self.repository.reorder_workspace(
                 user_id=user_id, order_no=new_order_no
             )
+
             workspace.order_no = new_order_no
 
     @Transactional()

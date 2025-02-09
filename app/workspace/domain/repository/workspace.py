@@ -21,5 +21,5 @@ class WorkspaceRepo(ABC):
         """Count workspaces"""
 
     @abstractmethod
-    async def save(self, workspace: Workspace, auto_flush: bool) -> Workspace:
+    async def add(self, workspace: Workspace, auto_flush: bool) -> Workspace:
         """Save workspace"""

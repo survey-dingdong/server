@@ -18,5 +18,5 @@ class WorkspaceRepositoryAdapter:
     async def count(self, user_id: int) -> int:
         return await self.repository.count(user_id=user_id)
 
-    async def save(self, workspace: Workspace, auto_flush: bool = False) -> Workspace:
-        return await self.repository.save(workspace=workspace, auto_flush=auto_flush)
+    async def add(self, workspace: Workspace, auto_flush: bool = False) -> Workspace:
+        return await self.repository.add(workspace=workspace, auto_flush=auto_flush)
