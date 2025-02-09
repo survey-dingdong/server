@@ -1,3 +1,4 @@
+from app.user.application.dto import UserOauthResponseDTO
 from app.user.domain.entity.user import User, UserOauth
 from app.user.domain.repository.user import UserRepo
 
@@ -5,6 +6,11 @@ from app.user.domain.repository.user import UserRepo
 class UserRepositoryAdapter:
     def __init__(self, repository: UserRepo):
         self.repository = repository
+
+    async def get_user_oauth_accounts(
+        self, user_ids: list[int]
+    ) -> dict[int, list[UserOauthResponseDTO]]:
+        return await self.repository.get_user_oauth_accounts(user_ids=user_ids)
 
     async def get_users(self, page: int, size: int) -> list[User]:
         return await self.repository.get_users(page=page, size=size)
@@ -22,7 +28,5 @@ class UserRepositoryAdapter:
             user_id=user_id, oauth_id=oauth_id
         )
 
-    async def save(
-        self, user: User | UserOauth, auto_flush: bool = False
-    ) -> User | UserOauth:
-        return await self.repository.save(user=user, auto_flush=auto_flush)
+    async def add(self, user: User | UserOauth, auto_flush: bool = False) -> User:
+        return await self.repository.add(user=user, auto_flush=auto_flush)

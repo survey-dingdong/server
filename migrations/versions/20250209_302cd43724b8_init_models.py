@@ -24,7 +24,6 @@ def upgrade():
         sa.Column("password", sa.String(length=255), nullable=True),
         sa.Column("username", sa.String(length=64), nullable=False),
         sa.Column("phone_num", sa.String(length=20), nullable=True),
-        sa.Column("profile_color", sa.String(length=7), nullable=False),
         sa.Column("is_admin", sa.Boolean(), nullable=False),
         sa.Column("is_deleted", sa.Boolean(), nullable=False),
         sa.Column("id", sa.Integer(), autoincrement=True, nullable=False),

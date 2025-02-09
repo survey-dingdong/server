@@ -1,11 +1,11 @@
-from typing import cast
-
 from pydantic import SecretStr
 
 from app.auth.domain.vo import EmailVerificationType
 from app.user.adapter.output.persistence.repository_adapter import UserRepositoryAdapter
 from app.user.application.dto import (
     CreateUserResponseDTO,
+    GetUserListResponseDTO,
+    GetUserResponseDTO,
     LoginResponseDTO,
     UpdateUserRequestDTO,
 )
@@ -19,9 +19,9 @@ from app.user.application.exception import (
     UserAlreadyExistsException,
     UserNotFoundException,
 )
-from app.user.domain.command import CreateUserCommand, UserOauthCommand
 from app.user.domain.entity.user import User, UserOauth
 from app.user.domain.usecase.user import UserUseCase
+from app.user.domain.vo import OauthProviderTypeEnum
 from core.config import config
 from core.db import Transactional
 from core.exceptions.base import InvalidAccessException
@@ -46,43 +46,72 @@ class UserService(UserUseCase):
 
         return False
 
-    async def get_user_list(self, page: int, size: int) -> list[User]:
-        return await self.repository.get_users(page=page, size=size)
+    async def get_user_list(self, page: int, size: int) -> list[GetUserListResponseDTO]:
+        users = await self.repository.get_users(page=page, size=size)
 
-    async def get_user_by_id(self, user_id: int) -> User:
+        user_id_to_oauth_accounts = {}
+        if users:
+            user_ids = [user.id for user in users]
+            user_id_to_oauth_accounts = await self.repository.get_user_oauth_accounts(
+                user_ids
+            )
+
+        return [
+            GetUserListResponseDTO(
+                id=user.id,
+                email=user.email,
+                username=user.username,
+                is_admin=user.is_admin,
+                is_deleted=user.is_deleted,
+                oauth_accounts=user_id_to_oauth_accounts.get(user.id, []),
+            )
+            for user in users
+        ]
+
+    async def get_user_by_id(self, user_id: int) -> GetUserResponseDTO:
         user = await self.repository.get_user_by_id(user_id=user_id)
         if user is None:
             raise UserNotFoundException
 
-        return user
+        user_id_to_oauth_accounts = await self.repository.get_user_oauth_accounts(
+            [user_id]
+        )
+
+        return GetUserResponseDTO(
+            id=user.id,
+            email=user.email,
+            username=user.username,
+            oauth_accounts=user_id_to_oauth_accounts.get(user.id, []),
+        )
 
     @Transactional()
-    async def create_user(self, command: CreateUserCommand) -> CreateUserResponseDTO:
+    async def create_user(
+        self, email: str, username: str, password: SecretStr
+    ) -> CreateUserResponseDTO:
         signup_code = await self.cache.get(
-            key=f"{config.REDIS_KEY_PREFIX}::{EmailVerificationType.SIGNUP}::{command.email}"
+            key=f"{config.REDIS_KEY_PREFIX}::{EmailVerificationType.SIGNUP}::{email}"
         )
         if signup_code is None:
             raise UnauthorizedAccessException
 
-        is_exist = await self.repository.get_user_by_email(email=command.email)
-        if is_exist:
+        user = await self.repository.get_user_by_email(email=email)
+        if user is not None:
             raise DuplicateEmailOrusernameException
 
-        user = User.create(
-            email=command.email,
-            username=command.username,
-            password=generate_hashed_password(
-                password=command.password.get_secret_value()
-            ),
+        user = User(
+            email=email,
+            username=username,
+            password=generate_hashed_password(password=password.get_secret_value()),
         )
-        user = cast(User, await self.repository.save(user=user, auto_flush=True))
+
+        await self.repository.add(user=user, auto_flush=True)
 
         await self.cache.delete(
-            key=f"{config.REDIS_KEY_PREFIX}::{EmailVerificationType.SIGNUP}::{command.email}"
+            key=f"{config.REDIS_KEY_PREFIX}::{EmailVerificationType.SIGNUP}::{email}"
         )
 
         return CreateUserResponseDTO(
-            token=TokenHelper.encode(payload={"user_id:": user.id}),
+            token=TokenHelper.encode(payload={"user_id": user.id}),
         )
 
     @Transactional()
@@ -107,7 +136,7 @@ class UserService(UserUseCase):
         if user is None:
             return False
 
-        if user.is_admin is False:
+        if not user.is_admin:
             return False
 
         return True
@@ -125,16 +154,9 @@ class UserService(UserUseCase):
         ):
             raise PasswordDoesNotMatchException
 
-        refresh_token_sub_value = make_random_string(16)
         await self.cache.delete(key=f"{config.REDIS_KEY_PREFIX}::{user.id}")
 
-        response = LoginResponseDTO(
-            token=TokenHelper.encode(payload={"user_id": user.id}),
-            refresh_token=TokenHelper.encode(
-                payload={"sub": refresh_token_sub_value},
-                expire_period=config.REFRESH_TOKEN_TTL,
-            ),
-        )
+        refresh_token_sub_value = make_random_string(16)
 
         await self.cache.set(
             response=refresh_token_sub_value,
@@ -142,38 +164,45 @@ class UserService(UserUseCase):
             ttl=config.REFRESH_TOKEN_TTL,
         )
 
-        return response
+        return LoginResponseDTO(
+            token=TokenHelper.encode(payload={"user_id": user.id}),
+            refresh_token=TokenHelper.encode(
+                payload={"sub": refresh_token_sub_value},
+                expire_period=config.REFRESH_TOKEN_TTL,
+            ),
+        )
 
     @Transactional()
-    async def oauth_login(self, command: UserOauthCommand) -> LoginResponseDTO:
-        user = await self.repository.get_user_by_email(email=command.email)
+    async def oauth_login(
+        self,
+        email: str,
+        username: str,
+        provider: OauthProviderTypeEnum,
+        oauth_id: str,
+    ) -> LoginResponseDTO:
+        user = await self.repository.get_user_by_email(email=email)
         if user is None:
-            new_user = User.create(
-                email=command.email,
-                username=command.username,
+            new_user = User(
+                email=email,
+                password=None,
+                username=username,
             )
-            user = cast(
-                User, await self.repository.save(user=new_user, auto_flush=True)
-            )
+            user = await self.repository.add(user=new_user, auto_flush=True)
 
-            new_user_oauth = UserOauth.create(
-                user_id=new_user.id,
-                oauth_id=command.oauth_id,
-                provider=command.provider,
-            )
-            await self.repository.save(new_user_oauth)
-
-        if user.password:
+        if user.password is not None:
             raise UserAlreadyExistsException
 
         user_oauth = await self.repository.get_user_by_oauth_id(
-            user_id=user.id, oauth_id=command.oauth_id
+            user_id=user.id, oauth_id=oauth_id
         )
-
         if user_oauth is None:
-            raise UserNotFoundException
+            user_oauth = UserOauth(
+                user_id=user.id,
+                oauth_id=oauth_id,
+                provider=provider,
+            )
 
-        if user_oauth.provider != command.provider:
+        if user_oauth.provider != provider:
             raise DifferentOAuthProviderException
 
         response = LoginResponseDTO(

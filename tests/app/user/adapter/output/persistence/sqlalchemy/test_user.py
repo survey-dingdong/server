@@ -20,6 +20,7 @@ async def test_get_users(session: AsyncSession) -> None:
         is_admin=True,
     )
     user_2 = make_user(
+        id=2,
         password="password2",
         email="b@b.c",
         username="test",
@@ -128,4 +129,4 @@ async def test_save(session: AsyncSession) -> None:
     )
 
     # When, Then
-    await user_repo.save(user=user)
+    await user_repo.add(user=user)

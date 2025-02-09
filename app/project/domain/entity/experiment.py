@@ -10,7 +10,6 @@ from sqlalchemy import (
     Boolean,
     Enum,
     ForeignKey,
-    Index,
     Integer,
     String,
     Time,

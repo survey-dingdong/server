@@ -24,15 +24,14 @@ class Config(BaseSettings):
 
 
 class TestConfig(Config):
-    DB_URL: (
-        str
-    ) = "mysql+aiomysql://admin:devpassword@127.0.0.1:3306/survey_dingdong_test"
+    DB_URL: str = (
+        "mysql+aiomysql://admin:devpassword@127.0.0.1:3306/survey_dingdong_test"
+    )
 
     model_config = SettingsConfigDict(env_file=".env.test", env_prefix="test_")
 
 
-class LocalConfig(Config):
-    ...
+class LocalConfig(Config): ...
 
 
 def get_config() -> Config:

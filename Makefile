@@ -5,9 +5,9 @@ update_requirements:
 	pip-compile --generate-hashes --resolver=backtracking --strip-extras --no-header --extra dev -o requirements-dev.txt pyproject.toml
 .PHONY: format
 format:
+	ruff check app/ core/ tests/
+	ruff format app/ core/ tests/
 	mypy app/ core/ tests/
-	isort app/ core/ tests/
-	ruff --fix app/ core/ tests/
 cov:
 	coverage run -m pytest
 	coverage html

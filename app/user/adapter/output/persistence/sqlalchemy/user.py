@@ -1,21 +1,55 @@
+from collections import defaultdict
 from typing import cast
 
 from sqlalchemy import and_, select
 
+from app.user.application.dto import UserOauthResponseDTO
 from app.user.domain.entity.user import User, UserOauth
 from app.user.domain.repository.user import UserRepo
 from core.db.session import session
 
 
 class UserSQLAlchemyRepo(UserRepo):
+    async def get_user_oauth_accounts(
+        self, user_ids: list[int]
+    ) -> dict[int, list[UserOauthResponseDTO]]:
+        user_oauths = (
+            (
+                await session.execute(
+                    select(UserOauth).where(UserOauth.user_id.in_(user_ids))
+                )
+            )
+            .scalars()
+            .all()
+        )
+
+        user_id_to_oauth_accounts = defaultdict(list)
+        for user_oauth in user_oauths:
+            user_id_to_oauth_accounts[user_oauth.user_id].append(
+                UserOauthResponseDTO(
+                    id=user_oauth.id,
+                    oauth_id=user_oauth.oauth_id,
+                    provider=user_oauth.provider,
+                )
+            )
+
+        return user_id_to_oauth_accounts
+
     async def get_users(self, page: int, size: int) -> list[User]:
-        query = select(User).offset((page - 1) * size).limit(size)
-        result = await session.execute(query)
-        return cast(list[User], result.scalars().all())
+        users = (
+            (await session.execute(select(User).offset((page - 1) * size).limit(size)))
+            .scalars()
+            .all()
+        )
+
+        return cast(list[User], users)
 
     async def get_user_by_id(self, user_id: int) -> User | None:
-        result = await session.execute(select(User).where(User.id == user_id))
-        return result.scalar_one_or_none()
+        user = (
+            await session.execute(select(User).where(User.id == user_id))
+        ).scalar_one_or_none()
+
+        return user
 
     async def get_user_by_email(self, email: str) -> User | None:
         result = await session.execute(
@@ -44,7 +78,7 @@ class UserSQLAlchemyRepo(UserRepo):
         )
         return result.scalar_one_or_none()
 
-    async def save(self, user: User | UserOauth, auto_flush: bool = False) -> User:
+    async def add(self, user: User | UserOauth, auto_flush: bool = False) -> User:
         session.add(user)
         if auto_flush:
             await session.flush()

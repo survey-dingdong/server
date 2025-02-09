@@ -1,5 +1,6 @@
 from app.user.domain.entity.user import User, UserOauth
 from app.user.domain.vo import OauthProviderTypeEnum
+from core.helpers.auth import generate_hashed_password
 
 
 def make_user(
@@ -10,11 +11,10 @@ def make_user(
     is_admin: bool = False,
 ) -> User:
     user = User(
-        password=password,
+        password=generate_hashed_password(password) if password is not None else None,
         email=email,
         username=username,
         is_admin=is_admin,
-        profile_color="#3F57FD",
     )
     user.id = id
     return user
