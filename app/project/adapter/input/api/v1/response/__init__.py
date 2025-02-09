@@ -2,7 +2,7 @@ from datetime import date, datetime, time
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from app.project.domain.entity.experiment import ExperimentTimeslotRead
+from app.project.domain.entity.project import ExperimentTimeslotRead
 from app.project.domain.vo import ExperimentAttendanceStatusTypeEnum, ExperimentTypeEnum
 
 

@@ -1,6 +1,6 @@
 from datetime import date, datetime
 
-from app.project.domain.entity.experiment import (
+from app.project.domain.entity.project import (
     ExperimentParticipantTimeslot,
     ExperimentProject,
 )

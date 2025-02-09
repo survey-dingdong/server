@@ -9,14 +9,15 @@ from app.project.adapter.input.api.v1.request import (
     PutProjectRequest,
 )
 from app.project.adapter.input.api.v1.response import (
-    CreateProjectResponse,
     GetExperimentParticipantResponse,
-    GetExperimentProjectResponse,
-    GetProjectListResponse,
 )
-from app.project.application.dto import UpdateProjectRequestDTO
+from app.project.application.dto import (
+    CreateProjectResponseDTO,
+    GetProjectListResponseDTO,
+    GetProjectResponseDTO,
+    UpdateProjectRequestDTO,
+)
 from app.project.container import ProjectContainer
-from app.project.domain.command import CreateProjectCommand
 from app.project.domain.usecase.project import ProjectUseCsae
 from app.project.domain.vo import ExperimentAttendanceStatusTypeEnum, ProjectTypeEnum
 from app.workspace.container import WorkspaceContainer
@@ -29,7 +30,7 @@ project_router = APIRouter()
 @project_router.get(
     "/workspaces/{workspace_id}/projects",
     tags=["Workspace"],
-    response_model=list[GetProjectListResponse],
+    response_model=list[GetProjectListResponseDTO],
     dependencies=[Depends(PermissionDependency([IsAuthenticated]))],
 )
 @inject
@@ -38,15 +39,15 @@ async def get_project_list(
     workspace_id: int,
     project_type: ProjectTypeEnum,
     request: GetProjectListRequest = Depends(),
-    page: int = Query(default=1),
-    size: int = Query(default=10),
+    page: int = Query(default=1, ge=1, le=1_000),
+    size: int = Query(default=10, ge=1, le=10),
     workspace_usecase: WorkspaceUseCase = Depends(
         Provide[WorkspaceContainer.workspace_service]
     ),
     project_usecase: ProjectUseCsae = Depends(
         Provide[ProjectContainer.project_service]
     ),
-) -> list[GetProjectListResponse]:
+) -> list[GetProjectListResponseDTO]:
     workspace = await workspace_usecase.get_workspace_by_id(
         user_id=auth_info.user.id, workspace_id=workspace_id
     )
@@ -62,7 +63,7 @@ async def get_project_list(
 @project_router.post(
     "/workspaces/{workspace_id}/projects",
     tags=["Workspace"],
-    response_model=CreateProjectResponse,
+    response_model=CreateProjectResponseDTO,
     dependencies=[Depends(PermissionDependency([IsAuthenticated]))],
     status_code=status.HTTP_201_CREATED,
 )
@@ -78,20 +79,19 @@ async def create_project(
     project_usecase: ProjectUseCsae = Depends(
         Provide[ProjectContainer.project_service]
     ),
-) -> CreateProjectResponse:
+) -> CreateProjectResponseDTO:
     workspace = await workspace_usecase.get_workspace_by_id(
         user_id=auth_info.user.id, workspace_id=workspace_id
     )
-    command = CreateProjectCommand(
+    return await project_usecase.create_project(
         workspace_id=workspace.id, title=request.title, project_type=project_type
     )
-    return await project_usecase.create_project(command=command)
 
 
 @project_router.get(
     "/projects/{project_id}",
     tags=["Project"],
-    response_model=GetExperimentProjectResponse,
+    response_model=GetProjectResponseDTO,
     dependencies=[Depends(PermissionDependency([IsAuthenticated]))],
 )
 @inject
@@ -102,7 +102,7 @@ async def get_project(
     project_usecase: ProjectUseCsae = Depends(
         Provide[ProjectContainer.project_service]
     ),
-) -> GetExperimentProjectResponse:
+) -> GetProjectResponseDTO:
     return await project_usecase.get_project(
         user_id=auth_info.user.id,
         project_id=project_id,

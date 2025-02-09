@@ -1,8 +1,9 @@
 from typing import cast
 
 from sqlalchemy import and_, select
+from sqlalchemy.orm import joinedload
 
-from app.project.domain.entity.experiment import (
+from app.project.domain.entity.project import (
     ExperimentParticipantTimeslot,
     ExperimentProject,
     ExperimentTimeslot,
@@ -17,7 +18,6 @@ class ProjectSQLAlchemyRepo(ProjectRepo):
     async def get_projects(
         self,
         workspace_id: int,
-        project_type: ProjectTypeEnum,
         filter_title: str | None,
         page: int,
         size: int,
@@ -34,24 +34,26 @@ class ProjectSQLAlchemyRepo(ProjectRepo):
         )
 
         if filter_title is not None:
-            query = query.where(ExperimentProject.title.ilike(f"%{filter_title}%"))
+            query = query.where(ExperimentProject.title.ilike(f"{filter_title}%"))
 
         query = query.offset((page - 1) * size).limit(size)
         result = await session.execute(query)
         return cast(list[ExperimentProject], result.scalars().all())
 
-    async def get_project_by_id(
-        self, project_id: int, project_type: ProjectTypeEnum
-    ) -> ExperimentProject | None:
-        query = select(ExperimentProject).where(
-            and_(
-                ExperimentProject.id == project_id,
-                ~ExperimentProject.is_deleted,
-            ),
+    async def get_project_by_id(self, project_id: int) -> ExperimentProject | None:
+        query = (
+            select(ExperimentProject)
+            .options(joinedload(ExperimentProject.workspace))
+            .where(
+                and_(
+                    ExperimentProject.id == project_id,
+                    ~ExperimentProject.is_deleted,
+                ),
+            )
         )
 
         result = await session.execute(query)
-        return result.scalars().first()
+        return result.scalar_one_or_none()
 
     async def get_project_timeslot(
         self,
@@ -66,7 +68,25 @@ class ProjectSQLAlchemyRepo(ProjectRepo):
         )
 
         result = await session.execute(query)
-        return result.scalars().first()
+        return result.scalar_one_or_none()
+
+    async def get_project_timeslots(
+        self,
+        project_id: int,
+    ) -> list[ExperimentTimeslot]:
+        experiment_timeslots = (
+            (
+                await session.execute(
+                    select(ExperimentTimeslot).where(
+                        ExperimentTimeslot.experiment_project_id == project_id,
+                    )
+                )
+            )
+            .scalars()
+            .all()
+        )
+
+        return cast(list[ExperimentTimeslot], experiment_timeslots)
 
     async def get_project_participants(
         self,
@@ -128,9 +148,9 @@ class ProjectSQLAlchemyRepo(ProjectRepo):
         result = await session.execute(query)
         return result.scalars().first()
 
-    async def save(
+    async def add(
         self, project: ExperimentProject | ExperimentTimeslot, auto_flush: bool
-    ) -> ExperimentProject | ExperimentTimeslot:
+    ) -> ExperimentProject:
         session.add(project)
         if auto_flush:
             await session.flush()

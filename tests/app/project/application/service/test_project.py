@@ -13,7 +13,7 @@ from app.project.application.exception import (
 )
 from app.project.application.service.project import ProjectService
 from app.project.domain.command import CreateProjectCommand
-from app.project.domain.entity.experiment import (
+from app.project.domain.entity.project import (
     ExperimentParticipantTimeslotRead,
     ProjectRead,
 )

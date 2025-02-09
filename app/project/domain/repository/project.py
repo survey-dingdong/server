@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from app.project.domain.entity.experiment import (
+from app.project.domain.entity.project import (
     ExperimentParticipantTimeslot,
     ExperimentProject,
     ExperimentTimeslot,
@@ -13,7 +13,6 @@ class ProjectRepo(ABC):
     async def get_projects(
         self,
         workspace_id: int,
-        project_type: ProjectTypeEnum,
         filter_title: str | None,
         page: int,
         size: int,
@@ -24,9 +23,15 @@ class ProjectRepo(ABC):
     async def get_project_by_id(
         self,
         project_id: int,
-        project_type: ProjectTypeEnum,
     ) -> ExperimentProject | None:
         """Get project by id"""
+
+    @abstractmethod
+    async def get_project_timeslots(
+        self,
+        project_id: int,
+    ) -> list[ExperimentTimeslot]:
+        """Get project timeslot list"""
 
     @abstractmethod
     async def get_project_timeslot(
@@ -56,9 +61,9 @@ class ProjectRepo(ABC):
         """Get project participant by id"""
 
     @abstractmethod
-    async def save(
+    async def add(
         self,
         project: ExperimentProject | ExperimentTimeslot,
         auto_flush: bool,
-    ) -> ExperimentProject | ExperimentTimeslot:
+    ) -> ExperimentProject:
         """Save project"""

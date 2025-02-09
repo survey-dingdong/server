@@ -1,4 +1,4 @@
-from .experiment import (
+from .project import (
     ExperimentParticipantTimeslot,
     ExperimentProject,
     ExperimentTimeslot,

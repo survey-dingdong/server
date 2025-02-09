@@ -2,13 +2,12 @@ from abc import ABC, abstractmethod
 
 from app.project.application.dto import (
     CreateProjectResponseDTO,
+    GetProjectListResponseDTO,
+    GetProjectResponseDTO,
     UpdateProjectRequestDTO,
 )
-from app.project.domain.command import CreateProjectCommand
-from app.project.domain.entity.experiment import (
+from app.project.domain.entity.project import (
     ExperimentParticipantTimeslot,
-    ExperimentProjectRead,
-    ProjectRead,
 )
 from app.project.domain.vo import ExperimentAttendanceStatusTypeEnum, ProjectTypeEnum
 
@@ -18,11 +17,10 @@ class ProjectUseCsae(ABC):
     async def get_project_list(
         self,
         workspace_id: int,
-        project_type: ProjectTypeEnum,
         filter_title: str | None,
         page: int,
         size: int,
-    ) -> list[ProjectRead]:
+    ) -> list[GetProjectListResponseDTO]:
         """Get project list"""
 
     @abstractmethod
@@ -30,13 +28,12 @@ class ProjectUseCsae(ABC):
         self,
         user_id: int,
         project_id: int,
-        project_type: ProjectTypeEnum,
-    ) -> ExperimentProjectRead:
+    ) -> GetProjectResponseDTO:
         """Get experiment project"""
 
     @abstractmethod
     async def create_project(
-        self, command: CreateProjectCommand
+        self, workspace_id: int, title: str
     ) -> CreateProjectResponseDTO:
         """Create project"""
 
@@ -45,7 +42,6 @@ class ProjectUseCsae(ABC):
         self,
         user_id: int,
         project_id: int,
-        project_type: ProjectTypeEnum,
         project_dto: UpdateProjectRequestDTO,
     ) -> None:
         """Update project"""
@@ -55,7 +51,6 @@ class ProjectUseCsae(ABC):
         self,
         user_id: int,
         project_id: int,
-        project_type: ProjectTypeEnum,
     ) -> None:
         """Delete project"""
 

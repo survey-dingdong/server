@@ -72,13 +72,6 @@ class ExperimentProject(BaseWithInId):
         uselist=False,
     )
 
-    @classmethod
-    def create(cls, workspace_id: int, title: str) -> ExperimentProject:
-        return cls(
-            workspace_id=workspace_id,
-            title=title,
-        )
-
 
 class ExperimentTimeslot(BaseWithInId):
     __tablename__ = "experiment_timeslot"
@@ -88,9 +81,9 @@ class ExperimentTimeslot(BaseWithInId):
         ForeignKey("experiment_project.id"),
     )
 
-    start_time: Mapped[datetime.time] = mapped_column(Time, index=True)
+    start_time: Mapped[datetime.time] = mapped_column(Time(timezone=True), index=True)
 
-    end_time: Mapped[datetime.time] = mapped_column(Time, index=True)
+    end_time: Mapped[datetime.time] = mapped_column(Time(timezone=True), index=True)
 
     max_participants: Mapped[int] = mapped_column(Integer)
 
@@ -98,21 +91,6 @@ class ExperimentTimeslot(BaseWithInId):
         "ExperimentProject",
         init=False,
     )
-
-    @classmethod
-    def create(
-        cls,
-        experiment_project_id: int,
-        start_time: datetime.time,
-        end_time: datetime.time,
-        max_participants: int,
-    ) -> ExperimentTimeslot:
-        return cls(
-            experiment_project_id=experiment_project_id,
-            start_time=start_time,
-            end_time=end_time,
-            max_participants=max_participants,
-        )
 
 
 UniqueConstraint(
@@ -155,61 +133,6 @@ class ExperimentParticipantTimeslot(BaseWithInId):
         init=False,
         uselist=False,
     )
-
-
-class ProjectRead(BaseModel):
-    model_config = ConfigDict(from_attributes=True, arbitrary_types_allowed=True)
-
-    id: int = Field(..., description="ID")
-    workspace_id: int = Field(..., description="Workspace ID")
-    title: str = Field(..., description="Title")
-    description: str | None = None
-    is_public: bool = Field(..., description="Whether the project is public")
-    joined_participants: int = Field(
-        ..., description="Number of experiment participants"
-    )
-    max_participants: int = Field(
-        ..., description="Maximum number of experiment participants"
-    )
-    created_at: datetime.datetime = Field(...)
-    updated_at: datetime.datetime = Field(...)
-
-
-class ExperimentTimeslotRead(BaseModel):
-    model_config = ConfigDict(from_attributes=True, arbitrary_types_allowed=True)
-
-    id: int = Field(..., description="ID")
-    start_time: datetime.time = Field(..., description="Experiment start datetime.time")
-    end_time: datetime.time = Field(..., description="Experiment end datetime.time")
-    max_participants: int = Field(
-        ..., description="Maximum number of exparticipants per session"
-    )
-
-
-class ExperimentProjectRead(BaseModel):
-    model_config = ConfigDict(from_attributes=True, arbitrary_types_allowed=True)
-
-    id: int = Field(..., description="ID")
-    title: str = Field(..., description="Title")
-    description: str | None = Field(None, description="Description")
-    is_public: bool = Field(..., description="Whether the project is public")
-    start_date: datetime.date | None = Field(
-        ..., description="Experiment start datetime.date"
-    )
-    end_date: datetime.date | None = Field(
-        ..., description="Experiment end datetime.date"
-    )
-    excluded_dates: list[str] = Field(..., description="Experimental exclusion days")
-    experiment_timeslots: list[ExperimentTimeslotRead] = Field(
-        ..., description="Time information of experiment"
-    )
-    max_participants: int = Field(
-        ..., description="Maximum number of experiment participants"
-    )
-    experiment_type: ExperimentTypeEnum = Field(...)
-    location: str | None = Field(..., description="Experiment location")
-    created_at: datetime.datetime = Field(..., description="Created datetime")
-    updated_at: datetime.datetime = Field(..., description="Updated datetime")
 
 
 class ExperimentParticipantTimeslotRead(BaseModel):
