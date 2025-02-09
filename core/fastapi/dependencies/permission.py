@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-from typing import Type
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, Request
@@ -23,7 +22,7 @@ class BasePermission(ABC):
 
     @abstractmethod
     async def has_permission(self, request: Request) -> bool:
-        """has permssion"""
+        """Has permssion"""
 
 
 class IsAuthenticated(BasePermission):
@@ -50,7 +49,7 @@ class IsAdmin(BasePermission):
 
 
 class PermissionDependency(SecurityBase):
-    def __init__(self, permissions: list[Type[BasePermission]]):
+    def __init__(self, permissions: list[type[BasePermission]]):
         self.permissions = permissions
         self.model: APIKey = APIKey(**{"in": APIKeyIn.header}, name="Authorization")  # type: ignore [arg-type]
         self.scheme_name = self.__class__.__name__

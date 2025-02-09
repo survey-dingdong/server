@@ -66,14 +66,14 @@ class ExperimentProject(BaseWithInId):
 
     is_deleted: Mapped[bool] = mapped_column(Boolean, default=False)
 
-    workspace: Mapped["Workspace"] = relationship(
+    workspace: Mapped[Workspace] = relationship(
         "Workspace",
         init=False,
         uselist=False,
     )
 
     @classmethod
-    def create(cls, workspace_id: int, title: str) -> "ExperimentProject":
+    def create(cls, workspace_id: int, title: str) -> ExperimentProject:
         return cls(
             workspace_id=workspace_id,
             title=title,
@@ -94,7 +94,7 @@ class ExperimentTimeslot(BaseWithInId):
 
     max_participants: Mapped[int] = mapped_column(Integer)
 
-    experiment_project: Mapped["ExperimentProject"] = relationship(
+    experiment_project: Mapped[ExperimentProject] = relationship(
         "ExperimentProject",
         init=False,
     )
@@ -106,7 +106,7 @@ class ExperimentTimeslot(BaseWithInId):
         start_time: datetime.time,
         end_time: datetime.time,
         max_participants: int,
-    ) -> "ExperimentTimeslot":
+    ) -> ExperimentTimeslot:
         return cls(
             experiment_project_id=experiment_project_id,
             start_time=start_time,
@@ -144,13 +144,13 @@ class ExperimentParticipantTimeslot(BaseWithInId):
 
     is_deleted: Mapped[bool] = mapped_column(Boolean, default=False)
 
-    user: Mapped["User"] = relationship(
+    user: Mapped[User] = relationship(
         "User",
         init=False,
         uselist=False,
     )
 
-    experiment_timeslot: Mapped["ExperimentTimeslot"] = relationship(
+    experiment_timeslot: Mapped[ExperimentTimeslot] = relationship(
         "ExperimentTimeslot",
         init=False,
         uselist=False,

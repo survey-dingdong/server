@@ -1,5 +1,6 @@
+from collections.abc import Awaitable, Callable
 from functools import wraps
-from typing import Awaitable, Callable, TypeVar
+from typing import TypeVar
 
 from core.db import session
 
