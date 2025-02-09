@@ -10,7 +10,6 @@ from app.workspace.application.dto import (
     GetWorkspaceRepsonseDTO,
 )
 from app.workspace.container import WorkspaceContainer
-from app.workspace.domain.command import CreateWorkspaceCommand
 from app.workspace.domain.usecase.workspace import WorkspaceUseCase
 from core.fastapi.dependencies import IsAuthenticated, PermissionDependency
 
@@ -42,8 +41,9 @@ async def create_workspace(
     request: CreateWorkspaceRequest,
     usecase: WorkspaceUseCase = Depends(Provide[WorkspaceContainer.workspace_service]),
 ) -> CreateWorkspaceResponseDTO:
-    command = CreateWorkspaceCommand(user_id=auth_info.user.id, title=request.title)
-    return await usecase.create_workspace(command=command)
+    return await usecase.create_workspace(
+        user_id=auth_info.user.id, title=request.title
+    )
 
 
 @workspace_router.patch(
