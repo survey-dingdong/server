@@ -31,7 +31,7 @@ class TokenHelper:
             key=config.JWT_SECRET_KEY,
             algorithm=config.JWT_ALGORITHM,
         )
-        return cast(str, token)
+        return token
 
     @staticmethod
     def decode(token: str) -> dict[str, Any]:

@@ -22,7 +22,6 @@ from core.fastapi.middlewares import (
     ResponseLogMiddleware,
     SQLAlchemyMiddleware,
 )
-from core.helpers.cache import Cache, CustomKeyMaker, RedisBackend
 
 
 def init_routers(app_: FastAPI) -> None:
@@ -124,10 +123,6 @@ def make_middleware() -> list[Middleware]:
     return middleware
 
 
-def init_cache() -> None:
-    Cache.init(backend=RedisBackend(), key_maker=CustomKeyMaker())
-
-
 def create_app() -> FastAPI:
     app_ = FastAPI(
         title="DingDong Survey",
@@ -140,7 +135,6 @@ def create_app() -> FastAPI:
     )
     init_routers(app_=app_)
     init_listeners(app_=app_)
-    init_cache()
     return app_
 
 

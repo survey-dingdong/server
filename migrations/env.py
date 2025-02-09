@@ -1,42 +1,68 @@
+import asyncio
 import os
 import sys
 from logging.config import fileConfig
 
 from alembic import context
+from alembic.autogenerate import rewriter
+from alembic.operations.ops import AddColumnOp, AlterColumnOp, MigrateOperation
+from alembic.runtime.migration import MigrationContext
+from alembic.script.revision import Revision
 from sqlalchemy import create_engine, pool
+from sqlalchemy.ext.asyncio import create_async_engine
+from sqlalchemy.future.engine import Connection
+from sqlalchemy.schema import MetaData
 
-parent_dir = os.path.abspath(os.path.join(os.getcwd(), ".."))
+parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.append(parent_dir)
 
-# this is the Alembic Config object, which provides
-# access to the values within the .ini file input use.
 config = context.config
-fileConfig(config.config_file_name)
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
+
+if config.config_file_name is not None:
+    fileConfig(config.config_file_name)
 
 
-# Interpret the config file for Python logging.
-# This line sets up loggers basically.
-fileConfig(config.config_file_name)
+def _app_init() -> MetaData:
+    from app.project.domain.entity import (
+        ExperimentParticipantTimeslot,
+        ExperimentProject,
+        ExperimentTimeslot,
+    )
+    from app.user.domain.entity import User, UserOauth
+    from app.workspace.domain.entity import Workspace
+    from core.config import config as server_config
+    from core.db import Base
 
-# add your model's MetaData object here
-# for 'autogenerate' support
-# from myapp import mymodel
-# target_metadata = mymodel.Base.metadata
+    config.set_main_option("sqlalchemy.url", str(server_config.DB_URL))
+    return Base.metadata
 
-from app.project.domain.entity.experiment import (
-    ExperimentParticipantTimeslot,
-    ExperimentProject,
-    ExperimentTimeslot,
-)
-from app.user.domain.entity.user import User, UserOauth
-from app.workspace.domain.entity.workspace import Workspace
 
-# For auto generate schemas
-from core.config import config
-from core.db import Base
+target_metadata = _app_init()
 
-target_metadata = Base.metadata
+
+writer = rewriter.Rewriter()
+
+
+@writer.rewrites(AddColumnOp)
+def _(
+    context: MigrationContext,
+    revision: Revision,
+    op: AddColumnOp,
+) -> list[MigrateOperation]:
+    if op.column.nullable:
+        return [op]
+    else:
+        op.column.nullable = True
+        return [
+            op,
+            AlterColumnOp(
+                op.table_name,
+                op.column.name,
+                modify_nullable=False,
+                existing_type=op.column.type,
+            ),
+        ]
+
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
@@ -55,10 +81,12 @@ def run_migrations_offline():
     """
     url = config.get_main_option("sqlalchemy.url")
     context.configure(
-        url=config.DB_URL,
+        url=url,
         target_metadata=target_metadata,
+        include_object=lambda *args: True,
         literal_binds=True,
-        dialect_opts={"paramstyle": "named"},
+        compare_server_default=True,
+        compare_type=True,
     )
 
     with context.begin_transaction():
@@ -66,7 +94,15 @@ def run_migrations_offline():
 
 
 def do_run_migrations(connection):
-    context.configure(connection=connection, target_metadata=target_metadata)
+    context.configure(
+        connection=connection,
+        target_metadata=target_metadata,
+        include_object=lambda *args: True,
+        sqlalchemy_module_prefix="sa.",
+        process_revision_directives=writer,
+        compare_server_default=True,
+        compare_type=True,
+    )
 
     with context.begin_transaction():
         context.run_migrations()
@@ -77,8 +113,10 @@ def run_migrations_online():
     In this scenario we need to create an Engine
     and associate a connection with the context.
     """
+    from core.config import config as server_config
+
     connectable = create_engine(
-        config.DB_URL.replace("aiomysql", "pymysql"),
+        server_config.DB_URL.replace("aiomysql", "pymysql"),
         poolclass=pool.NullPool,
     )
 
