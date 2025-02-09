@@ -1,9 +1,16 @@
 from abc import ABC, abstractmethod
 
+from app.user.application.dto import UserOauthResponseDTO
 from app.user.domain.entity.user import User, UserOauth
 
 
 class UserRepo(ABC):
+    @abstractmethod
+    async def get_user_oauth_accounts(
+        self, user_ids: list[int]
+    ) -> dict[int, list[UserOauthResponseDTO]]:
+        """Get user oauth accounts"""
+
     @abstractmethod
     async def get_users(self, page: int, size: int) -> list[User]:
         """Get user list"""
@@ -23,5 +30,5 @@ class UserRepo(ABC):
         """Get user by oauth id"""
 
     @abstractmethod
-    async def save(self, user: User | UserOauth, auto_flush: bool) -> User | UserOauth:
+    async def add(self, user: User | UserOauth, auto_flush: bool) -> User:
         """Save user"""

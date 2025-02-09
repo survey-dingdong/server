@@ -2,7 +2,6 @@ from typing import cast
 
 from sqlalchemy import and_, func, select, update
 
-from app.workspace.application.dto import GetWorkspaceRepsonseDTO
 from app.workspace.domain.entity.workspace import Workspace
 from app.workspace.domain.repository.workspace import WorkspaceRepo
 from core.db.session import session

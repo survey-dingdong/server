@@ -4,11 +4,12 @@ from pydantic import SecretStr
 
 from app.user.application.dto import (
     CreateUserResponseDTO,
+    GetUserListResponseDTO,
+    GetUserResponseDTO,
     LoginResponseDTO,
     UpdateUserRequestDTO,
 )
-from app.user.domain.command import CreateUserCommand, UserOauthCommand
-from app.user.domain.entity.user import User
+from app.user.domain.vo import OauthProviderTypeEnum
 
 
 class UserUseCase(ABC):
@@ -17,15 +18,20 @@ class UserUseCase(ABC):
         """Validate user email"""
 
     @abstractmethod
-    async def get_user_list(self, page: int, size: int) -> list[User]:
+    async def get_user_list(self, page: int, size: int) -> list[GetUserListResponseDTO]:
         """Get user list"""
 
     @abstractmethod
-    async def get_user_by_id(self, user_id: int) -> User | None:
-        """Get user list"""
+    async def get_user_by_id(self, user_id: int) -> GetUserResponseDTO:
+        """Get user"""
 
     @abstractmethod
-    async def create_user(self, command: CreateUserCommand) -> CreateUserResponseDTO:
+    async def create_user(
+        self,
+        email: str,
+        username: str,
+        password: SecretStr,
+    ) -> CreateUserResponseDTO:
         """Create User"""
 
     @abstractmethod
@@ -45,7 +51,13 @@ class UserUseCase(ABC):
         """Login"""
 
     @abstractmethod
-    async def oauth_login(self, command: UserOauthCommand) -> LoginResponseDTO:
+    async def oauth_login(
+        self,
+        email: str,
+        username: str,
+        provider: OauthProviderTypeEnum,
+        oauth_id: str,
+    ) -> LoginResponseDTO:
         """Oauth Login"""
 
     @abstractmethod

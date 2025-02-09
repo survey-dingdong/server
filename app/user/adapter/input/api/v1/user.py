@@ -10,62 +10,61 @@ from app.user.adapter.input.api.v1.request import (
     OauthLoginRequest,
     UpdateUserRequest,
 )
-from app.user.adapter.input.api.v1.response import (
-    CreateUserResponse,
-    GetUserListResponse,
-    LoginResponse,
+from app.user.application.dto import (
+    CreateUserResponseDTO,
+    GetUserListResponseDTO,
+    GetUserResponseDTO,
+    LoginResponseDTO,
+    UpdateUserRequestDTO,
 )
-from app.user.application.dto import UpdateUserRequestDTO
 from app.user.container import UserContainer
-from app.user.domain.command import CreateUserCommand, UserOauthCommand
 from app.user.domain.usecase.user import UserUseCase
 from app.user.domain.vo import OauthProviderTypeEnum
 from core.fastapi.dependencies import IsAdmin, IsAuthenticated, PermissionDependency
 
-user_router = APIRouter()
+user_router = APIRouter(prefix="/users", tags=["User"])
 
 
 @user_router.get(
     "",
-    response_model=list[GetUserListResponse],
+    response_model=list[GetUserListResponseDTO],
     dependencies=[Depends(PermissionDependency([IsAdmin]))],
 )
 @inject
 async def get_user_list(
-    page: int = Query(default=1),
-    size: int = Query(default=10),
+    page: int = Query(default=1, ge=1, le=1_000),
+    size: int = Query(default=10, ge=1, le=10),
     usecase: UserUseCase = Depends(Provide[UserContainer.user_service]),
-) -> list[GetUserListResponse]:
+) -> list[GetUserListResponseDTO]:
     return await usecase.get_user_list(page=page, size=size)
 
 
 @user_router.get(
     "/me",
-    response_model=GetUserListResponse,
+    response_model=GetUserResponseDTO,
     dependencies=[Depends(PermissionDependency([IsAuthenticated]))],
 )
 @inject
 async def get_user_me(
     auth_info: Request,
     usecase: UserUseCase = Depends(Provide[UserContainer.user_service]),
-) -> GetUserListResponse:
+) -> GetUserResponseDTO:
     return await usecase.get_user_by_id(user_id=auth_info.user.id)
 
 
 @user_router.post(
     "",
-    response_model=CreateUserResponse,
+    response_model=CreateUserResponseDTO,
     status_code=status.HTTP_201_CREATED,
 )
 @inject
 async def create_user(
     request: CreateUserRequest,
     usecase: UserUseCase = Depends(Provide[UserContainer.user_service]),
-) -> CreateUserResponse:
-    command = CreateUserCommand(
-        email=request.email, password=request.password, username=request.username
+) -> CreateUserResponseDTO:
+    return await usecase.create_user(
+        email=request.email, username=request.username, password=request.password
     )
-    return await usecase.create_user(command=command)
 
 
 @user_router.patch(
@@ -85,36 +84,34 @@ async def update_user(
 
 @user_router.post(
     "/login",
-    response_model=LoginResponse,
+    response_model=LoginResponseDTO,
 )
 @inject
 async def login(
     request: LoginRequest,
     usecase: UserUseCase = Depends(Provide[UserContainer.user_service]),
-) -> LoginResponse:
+) -> LoginResponseDTO:
     token = await usecase.login(email=request.email, password=request.password)
-    return LoginResponse(token=token.token, refresh_token=token.refresh_token)
+    return LoginResponseDTO(token=token.token, refresh_token=token.refresh_token)
 
 
 @user_router.post(
     "/login/oauth",
-    response_model=LoginResponse,
+    response_model=LoginResponseDTO,
 )
 @inject
 async def login_oauth(
     provider: OauthProviderTypeEnum,
     request: OauthLoginRequest,
     usecase: UserUseCase = Depends(Provide[UserContainer.user_service]),
-) -> LoginResponse:
-    command = UserOauthCommand(
+) -> LoginResponseDTO:
+    token = await usecase.oauth_login(
         email=request.email,
         username=request.username,
         provider=provider,
         oauth_id=request.oauth_id,
     )
-
-    token = await usecase.oauth_login(command=command)
-    return LoginResponse(token=token.token, refresh_token=token.refresh_token)
+    return LoginResponseDTO(token=token.token, refresh_token=token.refresh_token)
 
 
 @user_router.patch(

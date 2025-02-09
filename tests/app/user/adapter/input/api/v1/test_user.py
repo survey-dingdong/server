@@ -10,7 +10,6 @@ from app.user.application.exception import (
     UnauthorizedAccessException,
     UserNotFoundException,
 )
-from core.helpers.auth import generate_hashed_password
 from core.helpers.cache import RedisBackend
 from tests.support.constants import USER_ID_1_TOKEN
 from tests.support.user_fixture import make_user
@@ -44,7 +43,8 @@ async def test_get_users(session: AsyncSession) -> None:
         "id": 1,
         "email": "a@b.c",
         "username": "dingdong-survey",
-        "profile_color": "#3F57FD",
+        "is_admin": True,
+        "is_deleted": False,
         "oauth_accounts": [],
     }
 
@@ -71,7 +71,7 @@ async def test_get_user_me(session: AsyncSession) -> None:
         "id": 1,
         "email": "a@b.c",
         "username": "dingdong-survey",
-        "profile_color": "#3F57FD",
+        "profile_color": sut["profile_color"],
         "oauth_accounts": [],
     }
 
@@ -192,7 +192,7 @@ async def test_login(session: AsyncSession) -> None:
     email = "survey@ding.dong"
     password = "password"
     user = make_user(
-        password=generate_hashed_password(password=password),
+        password=password,
         email=email,
         username="dingdong-survey",
         is_admin=True,

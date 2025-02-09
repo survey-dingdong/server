@@ -1,11 +1,9 @@
-from typing import cast
 from unittest.mock import AsyncMock
 
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.user.adapter.output.persistence.repository_adapter import UserRepositoryAdapter
-from app.user.domain.entity.user import User
 from app.user.domain.repository.user import UserRepo
 from tests.support.user_fixture import make_user
 
@@ -93,25 +91,3 @@ async def test_get_user_by_email(session: AsyncSession) -> None:
     repository_adapter.repository.get_user_by_email.assert_awaited_once_with(
         email=user.email
     )
-
-
-@pytest.mark.asyncio
-async def test_save(session: AsyncSession) -> None:
-    # Given
-    user = make_user(
-        id=1,
-        password="password",
-        email="a@b.c",
-        username="dingdong-survey",
-        is_admin=True,
-    )
-    user_repo_mock.save.return_value = user
-    repository_adapter.repository = user_repo_mock
-
-    # When
-    sut = cast(User, await repository_adapter.save(user=user, auto_flush=True))
-
-    # Then
-    assert sut.id == user.id
-    assert sut.email == user.email
-    assert sut.username == user.username

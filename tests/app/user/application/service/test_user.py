@@ -5,6 +5,7 @@ from pydantic import SecretStr
 
 from app.auth.domain.vo import EmailVerificationType
 from app.user.adapter.output.persistence.repository_adapter import UserRepositoryAdapter
+from app.user.application.dto import GetUserResponseDTO
 from app.user.application.exception import (
     DifferentOAuthProviderException,
     DuplicateEmailOrusernameException,
@@ -16,10 +17,7 @@ from app.user.application.exception import (
     UserNotFoundException,
 )
 from app.user.application.service.user import UserService
-from app.user.domain.command import CreateUserCommand, UserOauthCommand
-from app.user.domain.entity.user import UserRead
 from app.user.domain.vo import OauthProviderTypeEnum
-from core.helpers.auth import generate_hashed_password
 from core.helpers.cache import RedisBackend
 from core.helpers.token import TokenHelper
 from tests.support.user_fixture import make_user, make_user_oauth
@@ -34,10 +32,14 @@ async def test_get_user_list() -> None:
     # Given
     page = 1
     size = 10
-    user = UserRead(
-        id=1, email="survey@ding.dong", username="dingdong-survey", oauth_accounts=[]
+    user = make_user(
+        password="password",
+        email="survey@ding.dong",
+        username="dingdong-survey",
+        is_admin=False,
     )
     repository_mock.get_users.return_value = [user]
+    repository_mock.get_user_oauth_accounts.return_value = {}
     user_service.repository = repository_mock
 
     # When
@@ -49,6 +51,10 @@ async def test_get_user_list() -> None:
 
     assert result.email == user.email
     assert result.username == user.username
+    assert result.is_admin == user.is_admin
+    assert result.is_deleted == user.is_deleted
+    assert result.oauth_accounts == []
+
     user_service.repository.get_users.assert_awaited_once_with(page=page, size=size)
 
 
@@ -66,7 +72,7 @@ async def test_get_user_me_no_exist() -> None:
 @pytest.mark.asyncio
 async def test_get_user_me() -> None:
     # Given
-    user = UserRead(
+    user = GetUserResponseDTO(
         id=1, email="survey@ding.dong", username="dingdong-survey", oauth_accounts=[]
     )
     repository_mock.get_user_by_id.return_value = user
@@ -83,33 +89,25 @@ async def test_get_user_me() -> None:
 @pytest.mark.asyncio
 async def test_create_user_duplicated() -> None:
     # Given
-    command = CreateUserCommand(
-        email="survey@ding.dong",
-        password=SecretStr("Qwer1234!"),
-        username="dingdong-survey",
-    )
     # When, Then
     with pytest.raises(UnauthorizedAccessException):
-        await user_service.create_user(command=command)
+        await user_service.create_user(
+            email="survey@ding.dong",
+            password=SecretStr("Qwer1234!"),
+            username="dingdong-survey",
+        )
 
 
 @pytest.mark.asyncio
 async def test_create_user_unauthorized() -> None:
     # Given
-    command = CreateUserCommand(
-        email="survey@ding.dong",
-        password=SecretStr("Qwer1234!"),
-        username="dingdong-survey",
-    )
     user = make_user(
         password="password",
         email="survey@ding.dong",
         username="dingdong-survey",
         is_admin=False,
     )
-    signup_redis_key = (
-        f"dingdong-survey::{EmailVerificationType.SIGNUP}::{command.email}"
-    )
+    signup_redis_key = f"dingdong-survey::{EmailVerificationType.SIGNUP}::{user.email}"
     await user_service.cache.set(response="signup_code", key=signup_redis_key)
 
     repository_mock.get_user_by_email.return_value = user
@@ -117,7 +115,11 @@ async def test_create_user_unauthorized() -> None:
 
     # When, Then
     with pytest.raises(DuplicateEmailOrusernameException):
-        await user_service.create_user(command=command)
+        await user_service.create_user(
+            email=user.email,
+            password=SecretStr("password"),
+            username=user.username,
+        )
 
     await user_service.cache.delete(key=signup_redis_key)
 
@@ -125,34 +127,29 @@ async def test_create_user_unauthorized() -> None:
 @pytest.mark.asyncio
 async def test_create_user() -> None:
     # Given
-    command = CreateUserCommand(
-        email="survey@ding.dong",
-        password=SecretStr("Qwer1234!"),
-        username="dingdong-survey",
-    )
     repository_mock.get_user_by_email.return_value = None
     user_service.repository = repository_mock
 
     user = make_user(
         id=1,
-        password="Qwer1234!",
+        password="password",
         email="survey@ding.dong",
         username="dingdong-survey",
         is_admin=False,
     )
 
-    signup_redis_key = (
-        f"dingdong-survey::{EmailVerificationType.SIGNUP}::{command.email}"
-    )
+    signup_redis_key = f"dingdong-survey::{EmailVerificationType.SIGNUP}::{user.email}"
     await user_service.cache.set(response="signup_code", key=signup_redis_key)
 
-    repository_mock.save.return_value = user
-
     # When
-    sut = await user_service.create_user(command=command)
+    sut = await user_service.create_user(
+        email=user.email,
+        password=SecretStr("password"),
+        username=user.username,
+    )
 
     # Then
-    assert "token" in sut.json()
+    assert "token" in sut.model_dump_json()
 
 
 @pytest.mark.asyncio
@@ -242,7 +239,7 @@ async def test_login_not_matched_password() -> None:
     # Given
     user = make_user(
         id=1,
-        password=generate_hashed_password(password="password"),
+        password="password",
         email="survey@ding.dong",
         username="dingdong-survey",
         is_admin=False,
@@ -262,7 +259,7 @@ async def test_login() -> None:
     # Given
     user = make_user(
         id=1,
-        password=generate_hashed_password(password="password"),
+        password="password",
         email="survey@ding.dong",
         username="dingdong-survey",
         is_admin=False,
@@ -285,50 +282,23 @@ async def test_oauth_login_already_exist() -> None:
     # Given
     user = make_user(
         id=1,
-        password=generate_hashed_password(password="password"),
+        password="password",
         email="survey@ding.dong",
         username="dingdong-survey",
         is_admin=False,
     )
     # Given
-    command = UserOauthCommand(
-        email=user.email,
-        username=user.username,
-        oauth_id="oauth_id",
-        provider=OauthProviderTypeEnum.GOOGLE,
-    )
     repository_mock.get_user_by_email.return_value = user
     user_service.repository = repository_mock
 
     # When, Then
     with pytest.raises(UserAlreadyExistsException):
-        await user_service.oauth_login(command=command)
-
-
-@pytest.mark.asyncio
-async def test_oauth_login_no_exist() -> None:
-    # Given
-    user = make_user(
-        id=1,
-        password=None,
-        email="survey@ding.dong",
-        username="dingdong-survey",
-        is_admin=False,
-    )
-    # Given
-    command = UserOauthCommand(
-        email=user.email,
-        username=user.username,
-        oauth_id="oauth_id",
-        provider=OauthProviderTypeEnum.GOOGLE,
-    )
-    repository_mock.get_user_by_email.return_value = user
-    repository_mock.get_user_by_oauth_id.return_value = None
-    user_service.repository = repository_mock
-
-    # When, Then
-    with pytest.raises(UserNotFoundException):
-        await user_service.oauth_login(command=command)
+        await user_service.oauth_login(
+            email=user.email,
+            username=user.username,
+            oauth_id="oauth_id",
+            provider=OauthProviderTypeEnum.GOOGLE,
+        )
 
 
 @pytest.mark.asyncio
@@ -347,19 +317,18 @@ async def test_oauth_login_diff_provider() -> None:
         provider=OauthProviderTypeEnum.GOOGLE,
     )
     # Given
-    command = UserOauthCommand(
-        email=user.email,
-        username=user.username,
-        oauth_id=user_oauth.oauth_id,
-        provider=OauthProviderTypeEnum.FACEBOOK,
-    )
     repository_mock.get_user_by_email.return_value = user
     repository_mock.get_user_by_oauth_id.return_value = user_oauth
     user_service.repository = repository_mock
 
     # When, Then
     with pytest.raises(DifferentOAuthProviderException):
-        await user_service.oauth_login(command=command)
+        await user_service.oauth_login(
+            email=user.email,
+            username=user.username,
+            oauth_id=user_oauth.oauth_id,
+            provider=OauthProviderTypeEnum.FACEBOOK,
+        )
 
 
 @pytest.mark.asyncio
@@ -378,18 +347,18 @@ async def test_oauth_login_first() -> None:
         provider=OauthProviderTypeEnum.GOOGLE,
     )
     # Given
-    command = UserOauthCommand(
-        email=user.email,
-        username=user.username,
-        oauth_id=user_oauth.oauth_id,
-        provider=user_oauth.provider,
-    )
     repository_mock.get_user_by_email.return_value = None
-    repository_mock.save.return_value = user
+    repository_mock.add.return_value = user
+    repository_mock.get_user_by_oauth_id.return_value = None
     token = TokenHelper.encode(payload={"user_id": user.id})
 
     # When
-    sut = await user_service.oauth_login(command=command)
+    sut = await user_service.oauth_login(
+        email=user.email,
+        username=user.username,
+        provider=user_oauth.provider,
+        oauth_id=user_oauth.oauth_id,
+    )
 
     # Then
     assert sut.token == token
@@ -411,18 +380,16 @@ async def test_oauth_login() -> None:
         provider=OauthProviderTypeEnum.GOOGLE,
     )
     # Given
-    command = UserOauthCommand(
+    repository_mock.get_user_by_email.return_value = user
+    token = TokenHelper.encode(payload={"user_id": user.id})
+
+    # When
+    sut = await user_service.oauth_login(
         email=user.email,
         username=user.username,
         oauth_id=user_oauth.oauth_id,
         provider=user_oauth.provider,
     )
-    repository_mock.get_user_by_email.return_value = user
-    repository_mock.save.return_value = user
-    token = TokenHelper.encode(payload={"user_id": user.id})
-
-    # When
-    sut = await user_service.oauth_login(command=command)
 
     # Then
     assert sut.token == token
@@ -433,7 +400,7 @@ async def test_change_password_not_matched() -> None:
     # Given
     user = make_user(
         id=1,
-        password=generate_hashed_password(password="password"),
+        password="password",
         email="survey@ding.dong",
         username="dingdong-survey",
         is_admin=False,
@@ -455,7 +422,7 @@ async def test_change_password_not_changed() -> None:
     # Given
     user = make_user(
         id=1,
-        password=generate_hashed_password(password="password"),
+        password="password",
         email="survey@ding.dong",
         username="dingdong-survey",
         is_admin=False,
@@ -477,7 +444,7 @@ async def test_change_password() -> None:
     # Given
     user = make_user(
         id=1,
-        password=generate_hashed_password(password="password"),
+        password="password",
         email="survey@ding.dong",
         username="dingdong-survey",
         is_admin=False,
@@ -498,7 +465,7 @@ async def test_reset_password_unauthorized() -> None:
     # Given
     user = make_user(
         id=1,
-        password=generate_hashed_password(password="password"),
+        password="password",
         email="survey@ding.dong",
         username="dingdong-survey",
         is_admin=False,
@@ -519,7 +486,7 @@ async def test_reset_password() -> None:
     # Given
     user = make_user(
         id=1,
-        password=generate_hashed_password(password="password"),
+        password="password",
         email="survey@ding.dong",
         username="dingdong-survey",
         is_admin=False,
