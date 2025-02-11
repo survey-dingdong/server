@@ -2,27 +2,29 @@ from abc import ABC, abstractmethod
 
 from app.project.application.dto import (
     CreateProjectResponseDTO,
+    GetExperimentParticipantsResponseDTO,
+    GetProjectListResponseDTO,
+    GetProjectResponseDTO,
     UpdateProjectRequestDTO,
 )
-from app.project.domain.command import CreateProjectCommand
-from app.project.domain.entity.experiment import (
-    ExperimentParticipantTimeslot,
-    ExperimentProjectRead,
-    ProjectRead,
-)
-from app.project.domain.vo import ExperimentAttendanceStatusTypeEnum, ProjectTypeEnum
+from app.project.domain.vo import ExperimentAttendanceStatusTypeEnum
 
 
 class ProjectUseCsae(ABC):
     @abstractmethod
+    async def create_project(
+        self, workspace_id: int, title: str
+    ) -> CreateProjectResponseDTO:
+        """Create project"""
+
+    @abstractmethod
     async def get_project_list(
         self,
         workspace_id: int,
-        project_type: ProjectTypeEnum,
         filter_title: str | None,
         page: int,
         size: int,
-    ) -> list[ProjectRead]:
+    ) -> list[GetProjectListResponseDTO]:
         """Get project list"""
 
     @abstractmethod
@@ -30,22 +32,14 @@ class ProjectUseCsae(ABC):
         self,
         user_id: int,
         project_id: int,
-        project_type: ProjectTypeEnum,
-    ) -> ExperimentProjectRead:
+    ) -> GetProjectResponseDTO:
         """Get experiment project"""
 
     @abstractmethod
-    async def create_project(
-        self, command: CreateProjectCommand
-    ) -> CreateProjectResponseDTO:
-        """Create project"""
-
-    @abstractmethod
-    async def update_project(
+    async def put_project(
         self,
         user_id: int,
         project_id: int,
-        project_type: ProjectTypeEnum,
         project_dto: UpdateProjectRequestDTO,
     ) -> None:
         """Update project"""
@@ -55,7 +49,6 @@ class ProjectUseCsae(ABC):
         self,
         user_id: int,
         project_id: int,
-        project_type: ProjectTypeEnum,
     ) -> None:
         """Delete project"""
 
@@ -64,10 +57,9 @@ class ProjectUseCsae(ABC):
         self,
         user_id: int,
         project_id: int,
-        project_type: ProjectTypeEnum,
         page: int,
         size: int,
-    ) -> list[ExperimentParticipantTimeslot]:
+    ) -> list[GetExperimentParticipantsResponseDTO]:
         """Get project participant list"""
 
     @abstractmethod
@@ -76,7 +68,6 @@ class ProjectUseCsae(ABC):
         user_id: int,
         project_id: int,
         participant_id: int,
-        project_type: ProjectTypeEnum,
         attendance_status: ExperimentAttendanceStatusTypeEnum,
     ) -> None:
         """Update project participant status"""
@@ -87,6 +78,5 @@ class ProjectUseCsae(ABC):
         user_id: int,
         project_id: int,
         participant_id: int,
-        project_type: ProjectTypeEnum,
     ) -> None:
         """Delete project paticipant"""

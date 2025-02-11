@@ -1,9 +1,4 @@
-from enum import Enum, StrEnum
-
-
-class ProjectTypeEnum(StrEnum):
-    SURVEY = "survey"
-    EXPERIMENT = "experiment"
+from enum import Enum
 
 
 class ExperimentTypeEnum(Enum):

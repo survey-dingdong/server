@@ -157,12 +157,12 @@ def upgrade():
             name=op.f("fk_b6f1f2fbcadd5c14908413d2fe01120a"),
         ),
         sa.PrimaryKeyConstraint("id", name=op.f("pk_experiment_timeslot")),
-        sa.UniqueConstraint(
-            "experiment_project_id",
-            "start_time",
-            "end_time",
-            name=op.f("uq_c05fbafd6803546999a14bdb81c63636"),
-        ),
+    )
+    op.create_index(
+        op.f("ix_c05fbafd6803546999a14bdb81c63636"),
+        "experiment_timeslot",
+        ["experiment_project_id", "start_time", "end_time"],
+        unique=True,
     )
     op.create_index(
         op.f("ix_1dda0e2bc1de5b70a3e6f189cb1e37d6"),
@@ -245,6 +245,9 @@ def downgrade():
     )
     op.drop_index(
         op.f("ix_1dda0e2bc1de5b70a3e6f189cb1e37d6"), table_name="experiment_timeslot"
+    )
+    op.drop_index(
+        "uq_c05fbafd6803546999a14bdb81c63636", table_name="experiment_timeslot"
     )
     op.drop_table("experiment_timeslot")
     op.drop_index(

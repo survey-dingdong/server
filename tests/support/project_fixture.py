@@ -1,6 +1,7 @@
-from datetime import date, datetime
+import datetime
 
-from app.project.domain.entity.experiment import (
+from app.project.application.dto import UpdateProjectRequestDTO
+from app.project.domain.entity.project import (
     ExperimentParticipantTimeslot,
     ExperimentProject,
 )
@@ -15,7 +16,7 @@ def make_experiment_project(
     is_deleted: bool = False,
     joined_participants: int = 0,
     max_participants: int = 0,
-    excluded_dates: list[str] = [],
+    excluded_dates: list[datetime.date] = [],
     experiment_type: ExperimentTypeEnum = ExperimentTypeEnum.OFFLINE,
 ) -> ExperimentProject:
     experiment_project = ExperimentProject(
@@ -32,11 +33,26 @@ def make_experiment_project(
     return experiment_project
 
 
+def make_experiment_timeslot(
+    id: int,
+    start_time: datetime.time = datetime.datetime.now().time(),
+    end_time: datetime.time = datetime.datetime.now().time(),
+    max_participants: int = 0,
+) -> UpdateProjectRequestDTO.ExperimentTimeslot:
+    experiment_timeslot = UpdateProjectRequestDTO.ExperimentTimeslot(
+        id=id,
+        start_time=start_time,
+        end_time=end_time,
+        max_participants=max_participants,
+    )
+    return experiment_timeslot
+
+
 def make_experiment_project_participant(
     id: int,
     user_id: int = 1,
     experiment_timeslot_id: int = 1,
-    experiment_date: date = datetime.now().date(),
+    experiment_date: datetime.date = datetime.datetime.now().date(),
     attendance_status: ExperimentAttendanceStatusTypeEnum = ExperimentAttendanceStatusTypeEnum.ATTENDED,
 ) -> ExperimentParticipantTimeslot:
     experiment_participant_timeslot = ExperimentParticipantTimeslot(
