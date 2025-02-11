@@ -10,10 +10,10 @@ from sqlalchemy import (
     Boolean,
     Enum,
     ForeignKey,
+    Index,
     Integer,
     String,
     Time,
-    UniqueConstraint,
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -62,7 +62,9 @@ class ExperimentProject(BaseWithInId):
         default=ExperimentTypeEnum.OFFLINE.value,
     )
 
-    excluded_dates: Mapped[list[str]] = mapped_column(JSON, default_factory=list)
+    excluded_dates: Mapped[list[datetime.date]] = mapped_column(
+        JSON, default_factory=list
+    )
 
     is_deleted: Mapped[bool] = mapped_column(Boolean, default=False)
 
@@ -93,10 +95,12 @@ class ExperimentTimeslot(BaseWithInId):
     )
 
 
-UniqueConstraint(
+Index(
+    None,
     ExperimentTimeslot.experiment_project_id,
     ExperimentTimeslot.start_time,
     ExperimentTimeslot.end_time,
+    unique=True,
 )
 
 

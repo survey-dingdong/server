@@ -6,6 +6,7 @@ from app.project.adapter.output.persistence.repository_adapter import (
 from app.project.application.dto import (
     CreateProjectResponseDTO,
     ExperimentTimeslotDTO,
+    GetExperimentParticipantsResponseDTO,
     GetProjectListResponseDTO,
     GetProjectResponseDTO,
     UpdateProjectRequestDTO,
@@ -14,15 +15,10 @@ from app.project.application.exception import (
     ParticipantNotFoundException,
     ProjectAccessDeniedException,
     ProjectNotFoundException,
-    ProjectTimeslotNotFoundException,
 )
-from app.project.domain.entity.project import (
-    ExperimentParticipantTimeslot,
-    ExperimentProject,
-    ExperimentTimeslot,
-)
+from app.project.domain.entity.project import ExperimentProject
 from app.project.domain.usecase.project import ProjectUseCsae
-from app.project.domain.vo import ExperimentAttendanceStatusTypeEnum, ProjectTypeEnum
+from app.project.domain.vo import ExperimentAttendanceStatusTypeEnum
 from core.db import Transactional
 
 
@@ -32,6 +28,16 @@ class ProjectService(ProjectUseCsae):
         repository: ProjectRepositoryAdapter,
     ) -> None:
         self.repository = repository
+
+    @Transactional()
+    async def create_project(
+        self, workspace_id: int, title: str
+    ) -> CreateProjectResponseDTO:
+        project = ExperimentProject(workspace_id=workspace_id, title=title)
+
+        project = await self.repository.add(project=project, auto_flush=True)
+
+        return CreateProjectResponseDTO(id=project.id)
 
     async def get_project_list(
         self,
@@ -49,16 +55,6 @@ class ProjectService(ProjectUseCsae):
 
         return cast(list[GetProjectListResponseDTO], projects)
 
-    @Transactional()
-    async def create_project(
-        self, workspace_id: int, title: str
-    ) -> CreateProjectResponseDTO:
-        project = ExperimentProject(workspace_id=workspace_id, title=title)
-
-        project = await self.repository.add(project=project, auto_flush=True)
-
-        return CreateProjectResponseDTO(id=project.id)
-
     async def get_project(
         self,
         user_id: int,
@@ -67,6 +63,7 @@ class ProjectService(ProjectUseCsae):
         project = await self.repository.get_project_by_id(
             project_id=project_id,
         )
+
         if project is None:
             raise ProjectNotFoundException
 
@@ -95,7 +92,7 @@ class ProjectService(ProjectUseCsae):
         )
 
     @Transactional()
-    async def update_project(
+    async def put_project(
         self,
         user_id: int,
         project_id: int,
@@ -115,25 +112,10 @@ class ProjectService(ProjectUseCsae):
         ).items():
             setattr(project, column, value)
 
-        for experiment_timeslot in project_dto.experiment_timeslots:
-            if experiment_timeslot.id is None:
-                new_project_timeslot = ExperimentTimeslot(
-                    experiment_project_id=project.id,
-                    start_time=experiment_timeslot.start_time,
-                    end_time=experiment_timeslot.end_time,
-                    max_participants=experiment_timeslot.max_participants,
-                )
-                await self.repository.add(project=new_project_timeslot)
-            else:
-                project_timeslot = await self.repository.get_project_timeslot(
-                    project_id=project.id, timeslot_id=experiment_timeslot.id
-                )
-                if project_timeslot is None:
-                    raise ProjectTimeslotNotFoundException
-
-                project_timeslot.start_time = experiment_timeslot.start_time
-                project_timeslot.end_time = experiment_timeslot.end_time
-                project_timeslot.max_participants = experiment_timeslot.max_participants
+        await self.repository.upsert_project_timeslots(
+            project_id=project.id,
+            experiment_timeslots=project_dto.experiment_timeslots,
+        )
 
     @Transactional()
     async def delete_project(
@@ -157,10 +139,9 @@ class ProjectService(ProjectUseCsae):
         self,
         user_id: int,
         project_id: int,
-        project_type: ProjectTypeEnum,
         page: int,
         size: int,
-    ) -> list[ExperimentParticipantTimeslot]:
+    ) -> list[GetExperimentParticipantsResponseDTO]:
         project = await self.repository.get_project_by_id(
             project_id=project_id,
         )
@@ -171,12 +152,13 @@ class ProjectService(ProjectUseCsae):
         if project.workspace.user_id != user_id:
             raise ProjectAccessDeniedException
 
-        return await self.repository.get_project_participants(
+        project_participants = await self.repository.get_project_participants(
             project_id=project.id,
-            project_type=project_type,
             page=page,
             size=size,
         )
+
+        return cast(list[GetExperimentParticipantsResponseDTO], project_participants)
 
     @Transactional()
     async def update_project_participant_status(
@@ -184,7 +166,6 @@ class ProjectService(ProjectUseCsae):
         user_id: int,
         project_id: int,
         participant_id: int,
-        project_type: ProjectTypeEnum,
         attendance_status: ExperimentAttendanceStatusTypeEnum,
     ) -> None:
         project = await self.repository.get_project_by_id(
@@ -200,7 +181,6 @@ class ProjectService(ProjectUseCsae):
         project_participant = await self.repository.get_project_participant_by_id(
             project_id=project.id,
             participant_id=participant_id,
-            project_type=project_type,
         )
 
         if project_participant is None:
@@ -214,7 +194,6 @@ class ProjectService(ProjectUseCsae):
         user_id: int,
         project_id: int,
         participant_id: int,
-        project_type: ProjectTypeEnum,
     ) -> None:
         project = await self.repository.get_project_by_id(
             project_id=project_id,
@@ -229,7 +208,6 @@ class ProjectService(ProjectUseCsae):
         project_participant = await self.repository.get_project_participant_by_id(
             project_id=project.id,
             participant_id=participant_id,
-            project_type=project_type,
         )
 
         if project_participant is None:

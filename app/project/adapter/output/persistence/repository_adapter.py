@@ -1,11 +1,10 @@
-from app.project.application.dto import ExperimentTimeslotDTO
+from app.project.application.dto import ExperimentTimeslotDTO, UpdateProjectRequestDTO
 from app.project.domain.entity.project import (
     ExperimentParticipantTimeslot,
     ExperimentProject,
     ExperimentTimeslot,
 )
 from app.project.domain.repository.project import ProjectRepo
-from app.project.domain.vo import ProjectTypeEnum
 
 
 class ProjectRepositoryAdapter:
@@ -52,16 +51,24 @@ class ProjectRepositoryAdapter:
             timeslot_id=timeslot_id,
         )
 
+    async def upsert_project_timeslots(
+        self,
+        project_id: int,
+        experiment_timeslots: list[UpdateProjectRequestDTO.ExperimentTimeslot],
+    ) -> None:
+        await self.repository.upsert_project_timeslots(
+            project_id=project_id,
+            experiment_timeslots=experiment_timeslots,
+        )
+
     async def get_project_participants(
         self,
         project_id: int,
-        project_type: ProjectTypeEnum,
         page: int,
         size: int,
     ) -> list[ExperimentParticipantTimeslot]:
         return await self.repository.get_project_participants(
             project_id=project_id,
-            project_type=project_type,
             page=page,
             size=size,
         )
@@ -70,12 +77,10 @@ class ProjectRepositoryAdapter:
         self,
         project_id: int,
         participant_id: int,
-        project_type: ProjectTypeEnum,
     ) -> ExperimentParticipantTimeslot | None:
         return await self.repository.get_project_participant_by_id(
             project_id=project_id,
             participant_id=participant_id,
-            project_type=project_type,
         )
 
     async def update_timeslots(

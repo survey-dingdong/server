@@ -1,11 +1,11 @@
 from abc import ABC, abstractmethod
 
+from app.project.application.dto import UpdateProjectRequestDTO
 from app.project.domain.entity.project import (
     ExperimentParticipantTimeslot,
     ExperimentProject,
     ExperimentTimeslot,
 )
-from app.project.domain.vo import ProjectTypeEnum
 
 
 class ProjectRepo(ABC):
@@ -42,10 +42,17 @@ class ProjectRepo(ABC):
         """Get project timeslot by id"""
 
     @abstractmethod
+    async def upsert_project_timeslots(
+        self,
+        project_id: int,
+        experiment_timeslots: list[UpdateProjectRequestDTO.ExperimentTimeslot],
+    ) -> None:
+        """Upsert project timeslots"""
+
+    @abstractmethod
     async def get_project_participants(
         self,
         project_id: int,
-        project_type: ProjectTypeEnum,
         page: int,
         size: int,
     ) -> list[ExperimentParticipantTimeslot]:
@@ -56,7 +63,6 @@ class ProjectRepo(ABC):
         self,
         project_id: int,
         participant_id: int,
-        project_type: ProjectTypeEnum,
     ) -> ExperimentParticipantTimeslot | None:
         """Get project participant by id"""
 
