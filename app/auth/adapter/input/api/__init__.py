@@ -1,9 +1,3 @@
-from fastapi import APIRouter
-
-from app.auth.adapter.input.api.v1.auth import auth_router as auth_v1_router
-
-router = APIRouter()
-router.include_router(auth_v1_router, prefix="/auth", tags=["Auth"])
-
+from app.auth.adapter.input.api.v1.auth import auth_router as router
 
 __all__ = ["router"]

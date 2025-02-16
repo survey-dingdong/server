@@ -7,46 +7,42 @@ from app.auth.adapter.input.api.v1.request import (
     ResetPasswordRequest,
     VerifyEmailRequest,
 )
-from app.auth.adapter.input.api.v1.response import (
-    RefreshTokenResponse,
-    ValidateEmailResponse,
-)
-from app.auth.container import Container
+from app.auth.application.dto import RefreshTokenResponseDTO, ValidateEmailResponseDTO
+from app.auth.container import AuthContainer
 from app.auth.domain.usecase.auth import AuthUseCase
 from app.auth.domain.vo import EmailVerificationType
 from app.user.container import UserContainer
 from app.user.domain.usecase.user import UserUseCase
 
-auth_router = APIRouter()
+auth_router = APIRouter(prefix="/auth", tags=["Auth"])
 
 
 @auth_router.post(
     "/refresh",
-    response_model=RefreshTokenResponse,
+    response_model=RefreshTokenResponseDTO,
     status_code=status.HTTP_201_CREATED,
 )
 @inject
 async def refresh_token(
     request: RefreshTokenRequest,
-    auth_usecase: AuthUseCase = Depends(Provide[Container.auth_service]),
-) -> RefreshTokenResponse:
-    token = await auth_usecase.create_refresh_token(
+    auth_usecase: AuthUseCase = Depends(Provide[AuthContainer.auth_service]),
+) -> RefreshTokenResponseDTO:
+    return await auth_usecase.create_refresh_token(
         token=request.token, refresh_token=request.refresh_token
     )
-    return RefreshTokenResponse(token=token.token, refresh_token=token.refresh_token)
 
 
 @auth_router.post(
     "/email-availability",
-    response_model=ValidateEmailResponse,
+    response_model=ValidateEmailResponseDTO,
 )
 @inject
 async def check_email_availability(
     request: EmailVerificationRequest,
     user_usecase: UserUseCase = Depends(Provide[UserContainer.user_service]),
-) -> ValidateEmailResponse:
+) -> ValidateEmailResponseDTO:
     availability = await user_usecase.is_email_available(email=request.email)
-    return ValidateEmailResponse(availability=availability)
+    return ValidateEmailResponseDTO(availability=availability)
 
 
 @auth_router.post(
@@ -56,7 +52,7 @@ async def check_email_availability(
 async def send_verification_email(
     request: EmailVerificationRequest,
     verification_type: EmailVerificationType,
-    auth_usecase: AuthUseCase = Depends(Provide[Container.auth_service]),
+    auth_usecase: AuthUseCase = Depends(Provide[AuthContainer.auth_service]),
 ) -> None:
     await auth_usecase.send_verification_email(
         email=request.email, verification_type=verification_type
@@ -70,7 +66,7 @@ async def send_verification_email(
 async def validate_verification_email(
     request: VerifyEmailRequest,
     verification_type: EmailVerificationType,
-    auth_usecase: AuthUseCase = Depends(Provide[Container.auth_service]),
+    auth_usecase: AuthUseCase = Depends(Provide[AuthContainer.auth_service]),
 ) -> None:
     await auth_usecase.validate_verification_email(
         email=request.email,

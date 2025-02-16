@@ -13,7 +13,7 @@ from app.workspace.container import WorkspaceContainer
 from app.workspace.domain.usecase.workspace import WorkspaceUseCase
 from core.fastapi.dependencies import IsAuthenticated, PermissionDependency
 
-workspace_router = APIRouter()
+workspace_router = APIRouter(prefix="/workspaces", tags=["Workspace"])
 
 
 @workspace_router.get(
