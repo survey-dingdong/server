@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from fastapi import Depends, FastAPI, Request, status
 from fastapi.middleware import Middleware
 from fastapi.middleware.cors import CORSMiddleware
@@ -6,7 +8,7 @@ from pydantic_core import ValidationError
 from sqlalchemy.exc import DataError, IntegrityError
 
 from app.auth.adapter.input.api import router as auth_router
-from app.auth.container import Container
+from app.auth.container import AuthContainer
 from app.project.adapter.input.api import router as project_router
 from app.project.container import ProjectContainer
 from app.user.adapter.input.api import router as user_router
@@ -23,24 +25,22 @@ from core.fastapi.middlewares import (
     SQLAlchemyMiddleware,
 )
 
+if TYPE_CHECKING:
+    from dependency_injector.containers import DeclarativeContainer
+    from fastapi import APIRouter
+
 
 def init_routers(app_: FastAPI) -> None:
-    container = Container()
-    setattr(auth_router, "container", container)
+    containers_and_routers: list[tuple[type[DeclarativeContainer], APIRouter]] = [
+        (AuthContainer, auth_router),
+        (UserContainer, user_router),
+        (WorkspaceContainer, workspace_router),
+        (ProjectContainer, project_router),
+    ]
 
-    user_container = UserContainer()
-    setattr(user_router, "container", user_container)
-
-    workspace_container = WorkspaceContainer()
-    setattr(workspace_router, "container", workspace_container)
-
-    project_container = ProjectContainer()
-    setattr(project_router, "container", project_container)
-
-    app_.include_router(auth_router)
-    app_.include_router(user_router)
-    app_.include_router(workspace_router)
-    app_.include_router(project_router)
+    for container, router in containers_and_routers:
+        setattr(router, "container", container())
+        app_.include_router(router)
 
 
 def init_listeners(app_: FastAPI) -> None:

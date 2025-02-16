@@ -24,12 +24,13 @@ class AuthService(AuthUseCase):
         refresh_token: str,
     ) -> RefreshTokenResponseDTO:
         decoede_created_token = TokenHelper.decode_expired_token(token=token)
-        decoded_refresh_token = TokenHelper.decode(token=refresh_token)
 
         user_id = decoede_created_token.get("user_id")
         refresh_token_sub_value = await self.cache.get(
             key=f"{config.REDIS_KEY_PREFIX}::{user_id}"
         )
+
+        decoded_refresh_token = TokenHelper.decode(token=refresh_token)
         if decoded_refresh_token.get("sub") != refresh_token_sub_value:
             raise DecodeTokenException
 

@@ -9,7 +9,7 @@ from app.auth.application.service.auth import AuthService
 from core.helpers.cache.redis_backend import RedisBackend
 
 
-class Container(DeclarativeContainer):
+class AuthContainer(DeclarativeContainer):
     wiring_config = WiringConfiguration(packages=["app.auth.adapter.input.api.v1.auth"])
 
     auth_email_sender = Singleton(EmailSender)
