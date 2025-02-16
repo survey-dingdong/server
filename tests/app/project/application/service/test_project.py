@@ -138,7 +138,14 @@ async def test_updated_project() -> None:
         start_date=project.start_date,
         end_date=project.end_date,
         excluded_dates=project.excluded_dates,
-        experiment_timeslots=[experiment_timeslot],
+        experiment_timeslots=[
+            UpdateProjectRequestDTO.ExperimentTimeslot(
+                id=experiment_timeslot.id,
+                start_time=experiment_timeslot.start_time,
+                end_time=experiment_timeslot.end_time,
+                max_participants=experiment_timeslot.max_participants,
+            )
+        ],
         max_participants=project.max_participants,
         experiment_type=project.experiment_type,
         location="Change location",
