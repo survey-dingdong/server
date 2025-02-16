@@ -89,6 +89,7 @@ class ProjectSQLAlchemyRepo(ProjectRepo):
         insert_stmt = mysql_dialect.insert(ExperimentTimeslot).values(
             [
                 {
+                    "id": experiment_timeslot.id,
                     "experiment_project_id": project_id,
                     "start_time": experiment_timeslot.start_time,
                     "end_time": experiment_timeslot.end_time,

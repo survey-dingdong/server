@@ -5,7 +5,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.project.application.exception import ProjectNotFoundException
 from app.server import app
 from tests.support.constants import USER_ID_1_TOKEN
-from tests.support.project_fixture import make_experiment_project
+from tests.support.project_fixture import (
+    make_experiment_project,
+    make_experiment_timeslot,
+)
 from tests.support.user_fixture import make_user
 from tests.support.workspace_fixture import make_workspace
 
@@ -221,7 +224,11 @@ async def test_update_project(session: AsyncSession) -> None:
 
     experiment_project = make_experiment_project(id=1, workspace_id=workspace.id)
 
-    session.add_all([user, workspace, experiment_project])
+    experiment_timeslot = make_experiment_timeslot(
+        id=1, experiment_project_id=experiment_project.id
+    )
+
+    session.add_all([user, workspace, experiment_project, experiment_timeslot])
     await session.commit()
 
     body = {
@@ -233,9 +240,10 @@ async def test_update_project(session: AsyncSession) -> None:
         "excluded_dates": ["2024-05-10"],
         "experiment_timeslots": [
             {
+                "id": experiment_timeslot.id,
                 "start_time": "10:00",
                 "end_time": "10:30",
-                "max_participants": 0,
+                "max_participants": 5,
             },
             {
                 "start_time": "11:00",
