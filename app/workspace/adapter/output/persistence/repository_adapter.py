@@ -15,6 +15,9 @@ class WorkspaceRepositoryAdapter:
     async def reorder_workspace(self, user_id: int, order_no: int) -> None:
         await self.repository.reorder_workspace(user_id=user_id, order_no=order_no)
 
+    async def max_order_no(self, user_id: int) -> int:
+        return await self.repository.max_order_no(user_id=user_id)
+
     async def count(self, user_id: int) -> int:
         return await self.repository.count(user_id=user_id)
 
