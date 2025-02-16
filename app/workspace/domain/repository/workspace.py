@@ -17,6 +17,10 @@ class WorkspaceRepo(ABC):
         """Reorder workspace"""
 
     @abstractmethod
+    async def max_order_no(self, user_id: int) -> int:
+        """Get workspace max order no"""
+
+    @abstractmethod
     async def count(self, user_id: int) -> int:
         """Count workspaces"""
 

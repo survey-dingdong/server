@@ -50,6 +50,16 @@ class WorkspaceSQLAlchemyRepo(WorkspaceRepo):
         )
         await session.execute(query)
 
+    async def max_order_no(self, user_id: int) -> int:
+        query = select(func.max(Workspace.order_no)).where(
+            and_(
+                Workspace.user_id == user_id,
+                ~Workspace.is_deleted,
+            )
+        )
+        max_order_no = await session.scalar(query) or 0
+        return max_order_no
+
     async def count(self, user_id: int) -> int:
         query = select(func.count(Workspace.id)).where(
             and_(

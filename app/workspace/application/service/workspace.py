@@ -44,10 +44,12 @@ class WorkspaceService(WorkspaceUseCase):
         if workspace_count >= 10:
             raise TooManyWorkspacesException
 
+        workspace_max_order_no = await self.repository.max_order_no(user_id=user_id)
+
         workspace = Workspace(
             user_id=user_id,
             title=title,
-            order_no=workspace_count + 1,
+            order_no=workspace_max_order_no + 1,
         )
 
         workspace = await self.repository.add(
