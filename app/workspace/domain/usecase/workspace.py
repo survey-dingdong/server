@@ -17,10 +17,6 @@ class WorkspaceUseCase(ABC):
         """Get workspace list"""
 
     @abstractmethod
-    async def get_workspace_by_id(self, workspace_id: int) -> Workspace | None:
-        """Get workspace by id"""
-
-    @abstractmethod
     async def create_workspace(
         self, user_id: int, title: str
     ) -> CreateWorkspaceResponseDTO:

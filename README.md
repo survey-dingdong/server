@@ -1,19 +1,35 @@
-# FastAPI Boilerplate
+# dingdong-survey
+> 연구자와 참여자를 손쉽게 연결하는 실험-인터뷰 중개 플랫폼
 
-# Features
-- Async SQLAlchemy session
-- Custom user class
-- Dependencies for specific permissions
-- Celery
-- Dockerize(Hot reload)
-- Event dispatcher
-- Cache
+## 프로젝트 개요
 
-## Run
+본 프로젝트는 연구자와 실험 참여자를 손쉽게 연결하는 실험-인터뷰 중개 플랫폼입니다. 연구자는 실험을 등록하고 참여자를 모집할 수 있으며, 참여자는 실험 정보를 확인하고 예약을 진행할 수 있습니다. 또한, 연구자와 참여자가 직접 1:1 채팅을 통해 소통할 수 있는 기능을 제공합니다.
+
+## 주요 기능
+
+- **계정 관리**: 회원 가입, 로그인, 프로필 수정, 비밀번호 재설정
+- **실험 관리**: 연구자의 실험 생성, 수정, 삭제, 참여자 관리
+- **참여자 관리**: 참여자의 실험 목록 조회, 예약, 취소
+- **채팅 기능**: 연구자와 참여자 간의 1:1 실시간 채팅
+- **알림 시스템**: 실험 일정 및 채팅 알림
+
+## 기능 구성도
+![Image](https://github.com/user-attachments/assets/601928d4-26bf-45b5-80eb-c8a4fa82d04a)
+
+
+## 기술 스택
+
+- **백엔드**: Python 3.11 (FastAPI)
+- **데이터베이스**: MySQL
+- **인증**: Google OAuth, JWT 기반 인증
+- **클라우드**: AWS
+- **기타**: WebSocket (실시간 채팅), Celery (비동기 작업 처리)
+
+## 설치 및 실행 방법
 
 ### Launch docker
 ```shell
-> docker-compose -f docker/docker-compose.yml up
+> docker-compose up
 ```
 
 ### Install dependency
@@ -45,182 +61,7 @@
 ### Formatting
 
 ```shell
-> pre-commit
+> make format
 ```
 
-## SQLAlchemy for asyncio context
 
-```python
-from core.db import Transactional, session
-
-
-@Transactional()
-async def create_user(self):
-    session.add(User(email="padocon@naver.com"))
-```
-
-Do not use explicit `commit()`. `Transactional` class automatically do.
-
-### Multiple databases
-
-Go to `core/config.py` and edit `DB_URL` and `DB_URL` in the config class.
-
-
-If you need additional logic to use the database, refer to the `get_bind()` method of `RoutingClass`.
-
-## Custom user for authentication
-
-```python
-from fastapi import Request
-
-
-@home_router.get("/")
-def home(request: Request):
-    return request.user.id
-```
-
-**Note. you have to pass jwt token via header like `Authorization: Bearer 1234`**
-
-Custom user class automatically decodes header token and store user information into `request.user`
-
-If you want to modify custom user class, you have to update below files.
-
-1. `core/fastapi/schemas/current_user.py`
-2. `core/fastapi/middlewares/authentication.py`
-
-### CurrentUser
-
-```python
-class CurrentUser(BaseModel):
-    id: int = Field(None, description="ID")
-```
-
-Simply add more fields based on your needs.
-
-### AuthBackend
-
-```python
-current_user = CurrentUser()
-```
-
-After line 18, assign values that you added on `CurrentUser`.
-
-## Top-level dependency
-
-**Note. Available from version 0.62 or higher.**
-
-Set a callable function when initialize FastAPI() app through `dependencies` argument.
-
-Refer `Logging` class inside of `core/fastapi/dependencies/logging.py`
-
-## Dependencies for specific permissions
-
-Permissions `IsAdmin`, `IsAuthenticated`, `AllowAll` have already been implemented.
-
-```python
-from core.fastapi.dependencies import (
-    PermissionDependency,
-    IsAdmin,
-)
-
-
-user_router = APIRouter()
-
-
-@user_router.get(
-    "",
-    response_model=List[GetUserListResponseSchema],
-    response_model_exclude={"id"},
-    responses={"400": {"model": ExceptionResponseSchema}},
-    dependencies=[Depends(PermissionDependency([IsAdmin]))],  # HERE
-)
-async def get_user_list(
-    limit: int = Query(10, description="Limit"),
-    prev: int = Query(None, description="Prev ID"),
-):
-    pass
-```
-Insert permission through `dependencies` argument.
-
-If you want to make your own permission, inherit `BasePermission` and implement `has_permission()` function.
-
-**Note. In order to use swagger's authorize function, you must put `PermissionDependency` as an argument of `dependencies`.**
-
-## Event dispatcher
-
-Refer the README of https://github.com/teamhide/fastapi-event
-
-## Cache
-
-### Caching by prefix
-```python
-from core.helpers.cache import Cache
-
-
-@Cache.cached(prefix="get_user", ttl=60)
-async def get_user():
-    ...
-```
-
-### Caching by tag
-```python
-from core.helpers.cache import Cache, CacheTag
-
-
-@Cache.cached(tag=CacheTag.GET_USER_LIST, ttl=60)
-async def get_user():
-    ...
-```
-
-Use the `Cache` decorator to cache the return value of a function.
-
-Depending on the argument of the function, caching is stored with a different value through internal processing.
-
-### Custom Key builder
-
-```python
-from core.helpers.cache.base import BaseKeyMaker
-
-
-class CustomKeyMaker(BaseKeyMaker):
-    async def make(self, function: Callable, prefix: str) -> str:
-        ...
-```
-
-If you want to create a custom key, inherit the BaseKeyMaker class and implement the make() method.
-
-### Custom Backend
-
-```python
-from core.helpers.cache.base import BaseBackend
-
-
-class RedisBackend(BaseBackend):
-    async def get(self, key: str) -> Any:
-        ...
-
-    async def set(self, response: Any, key: str, ttl: int = 60) -> None:
-        ...
-
-    async def delete_startswith(self, value: str) -> None:
-        ...
-```
-
-If you want to create a custom key, inherit the BaseBackend class and implement the `get()`, `set()`, `delete_startswith()` method.
-
-Pass your custom backend or keymaker as an argument to init. (`/app/server.py`)
-
-```python
-def init_cache() -> None:
-    Cache.init(backend=RedisBackend(), key_maker=CustomKeyMaker())
-```
-
-### Remove all cache by prefix/tag
-
-```python
-from core.helpers.cache import Cache, CacheTag
-
-
-await Cache.remove_by_prefix(prefix="get_user_list")
-await Cache.remove_by_tag(tag=CacheTag.GET_USER_LIST)
-```
