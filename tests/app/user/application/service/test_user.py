@@ -17,7 +17,7 @@ from app.user.application.exception import (
     UserNotFoundException,
 )
 from app.user.application.service.user import UserService
-from app.user.domain.vo import OauthProviderTypeEnum
+from app.user.domain.vo import LoginTypeEnum, OauthProviderTypeEnum
 from core.helpers.cache import RedisBackend
 from core.helpers.token import TokenHelper
 from tests.support.user_fixture import make_user, make_user_oauth
@@ -211,7 +211,9 @@ async def test_login_user_no_exist() -> None:
 
     # When, Then
     with pytest.raises(UserNotFoundException):
-        await user_service.login(email="email", password=SecretStr("password"))
+        await user_service.login(
+            email="email", password=SecretStr("password"), login_type=LoginTypeEnum.Web
+        )
 
 
 @pytest.mark.asyncio
@@ -230,7 +232,9 @@ async def test_oauth_login_with_password() -> None:
     # When, Then
     with pytest.raises(OAuthLoginWithPasswordAttemptException):
         await user_service.login(
-            email="survey@ding.dong", password=SecretStr("password")
+            email="survey@ding.dong",
+            password=SecretStr("password"),
+            login_type=LoginTypeEnum.Web,
         )
 
 
@@ -250,7 +254,9 @@ async def test_login_not_matched_password() -> None:
     # When, Then
     with pytest.raises(PasswordDoesNotMatchException):
         await user_service.login(
-            email="survey@ding.dong", password=SecretStr("wrong password")
+            email="survey@ding.dong",
+            password=SecretStr("wrong password"),
+            login_type=LoginTypeEnum.Web,
         )
 
 
@@ -270,7 +276,9 @@ async def test_login() -> None:
 
     # When
     sut = await user_service.login(
-        email="survey@ding.dong", password=SecretStr("password")
+        email="survey@ding.dong",
+        password=SecretStr("password"),
+        login_type=LoginTypeEnum.Web,
     )
 
     # Then

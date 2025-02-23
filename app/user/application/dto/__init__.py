@@ -27,7 +27,7 @@ class GetUserResponseDTO(BaseModel):
 
 
 class CreateUserResponseDTO(BaseModel):
-    token: str
+    access_token: str
 
 
 class UpdateUserRequestDTO(BaseModel):
@@ -36,5 +36,5 @@ class UpdateUserRequestDTO(BaseModel):
 
 
 class LoginResponseDTO(BaseModel):
-    token: str
+    access_token: str
     refresh_token: str

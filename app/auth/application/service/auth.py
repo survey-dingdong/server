@@ -1,4 +1,5 @@
 import asyncio
+from typing import cast
 
 from app.auth.adapter.output.external_system.external_system_adapter import (
     ExternalSystemAdapter,
@@ -7,7 +8,8 @@ from app.auth.application.dto import RefreshTokenResponseDTO
 from app.auth.application.exception import DecodeTokenException, InvalidTokenException
 from app.auth.domain.usecase.auth import AuthUseCase
 from app.auth.domain.vo import EmailVerificationType
-from core.config import config
+from app.user.domain.vo import LoginTypeEnum
+from core.constants import EMAIL_VERIFICATION_PREFIX
 from core.helpers.cache.base import BaseBackend
 from core.helpers.token import TokenHelper
 from core.helpers.utils import generate_random_digit_string
@@ -18,25 +20,25 @@ class AuthService(AuthUseCase):
         self.port = port
         self.cache = cache
 
-    async def create_refresh_token(
+    async def refresh_access_token(
         self,
-        token: str,
+        access_token: str,
         refresh_token: str,
+        login_type: LoginTypeEnum,
     ) -> RefreshTokenResponseDTO:
-        decoede_created_token = TokenHelper.decode_expired_token(token=token)
-
-        user_id = decoede_created_token.get("user_id")
-        refresh_token_sub_value = await self.cache.get(
-            key=f"{config.REDIS_KEY_PREFIX}::{user_id}"
-        )
-
         decoded_refresh_token = TokenHelper.decode(token=refresh_token)
-        if decoded_refresh_token.get("sub") != refresh_token_sub_value:
+
+        decoded_access_token = TokenHelper.decode_ignore_exp(token=access_token)
+        user_id = cast(int, decoded_access_token.get("user_id"))
+        refresh_token_value = await self.cache.get_refresh_token(user_id=user_id)
+        if decoded_refresh_token.get("sub") != refresh_token_value:
             raise DecodeTokenException
 
         return RefreshTokenResponseDTO(
-            token=TokenHelper.encode(payload={"user_id": user_id}),
-            refresh_token=TokenHelper.encode(payload={"sub": refresh_token_sub_value}),
+            access_token=TokenHelper.encode(
+                payload={"user_id": user_id, "login_type": login_type}
+            ),
+            refresh_token=TokenHelper.encode(payload={"sub": refresh_token_value}),
         )
 
     async def send_verification_email(
@@ -45,7 +47,7 @@ class AuthService(AuthUseCase):
         code = generate_random_digit_string()
         await self.cache.set(
             response=code,
-            key=f"{config.REDIS_KEY_PREFIX}::{verification_type}::{email}",
+            key=f"{EMAIL_VERIFICATION_PREFIX}::{verification_type}::email::{email}",
             ttl=300,
         )
         asyncio.create_task(
@@ -58,7 +60,7 @@ class AuthService(AuthUseCase):
         self, email: str, code: str, verification_type: EmailVerificationType
     ) -> None:
         cached_code = await self.cache.get(
-            key=f"{config.REDIS_KEY_PREFIX}::{verification_type}::{email}"
+            key=f"{EMAIL_VERIFICATION_PREFIX}::{verification_type}::email::{email}"
         )
         if str(cached_code) != code:
             raise InvalidTokenException

@@ -9,7 +9,7 @@ from app.user.application.dto import (
     LoginResponseDTO,
     UpdateUserRequestDTO,
 )
-from app.user.domain.vo import OauthProviderTypeEnum
+from app.user.domain.vo import LoginTypeEnum, OauthProviderTypeEnum
 
 
 class UserUseCase(ABC):
@@ -47,7 +47,9 @@ class UserUseCase(ABC):
         """Is admin"""
 
     @abstractmethod
-    async def login(self, email: str, password: SecretStr) -> LoginResponseDTO:
+    async def login(
+        self, email: str, password: SecretStr, login_type: LoginTypeEnum
+    ) -> LoginResponseDTO:
         """Login"""
 
     @abstractmethod
@@ -57,6 +59,7 @@ class UserUseCase(ABC):
         username: str,
         provider: OauthProviderTypeEnum,
         oauth_id: str,
+        login_type: LoginTypeEnum,
     ) -> LoginResponseDTO:
         """Oauth Login"""
 

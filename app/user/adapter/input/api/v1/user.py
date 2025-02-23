@@ -19,7 +19,7 @@ from app.user.application.dto import (
 )
 from app.user.container import UserContainer
 from app.user.domain.usecase.user import UserUseCase
-from app.user.domain.vo import OauthProviderTypeEnum
+from app.user.domain.vo import LoginTypeEnum, OauthProviderTypeEnum
 from core.fastapi.dependencies import IsAdmin, IsAuthenticated, PermissionDependency
 
 user_router = APIRouter(prefix="/users", tags=["User"])
@@ -88,11 +88,16 @@ async def update_user(
 )
 @inject
 async def login(
+    login_type: LoginTypeEnum,
     request: LoginRequest,
     usecase: UserUseCase = Depends(Provide[UserContainer.user_service]),
 ) -> LoginResponseDTO:
-    token = await usecase.login(email=request.email, password=request.password)
-    return LoginResponseDTO(token=token.token, refresh_token=token.refresh_token)
+    token = await usecase.login(
+        email=request.email, password=request.password, login_type=login_type
+    )
+    return LoginResponseDTO(
+        access_token=token.access_token, refresh_token=token.refresh_token
+    )
 
 
 @user_router.post(
@@ -101,6 +106,7 @@ async def login(
 )
 @inject
 async def login_oauth(
+    login_type: LoginTypeEnum,
     provider: OauthProviderTypeEnum,
     request: OauthLoginRequest,
     usecase: UserUseCase = Depends(Provide[UserContainer.user_service]),
@@ -110,8 +116,12 @@ async def login_oauth(
         username=request.username,
         provider=provider,
         oauth_id=request.oauth_id,
+        login_type=login_type,
     )
-    return LoginResponseDTO(token=token.token, refresh_token=token.refresh_token)
+    return LoginResponseDTO(
+        access_token=token.access_token,
+        refresh_token=token.refresh_token,
+    )
 
 
 @user_router.patch(

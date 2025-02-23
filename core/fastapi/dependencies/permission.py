@@ -2,12 +2,12 @@ from abc import ABC, abstractmethod
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, Request
-from fastapi.openapi.models import APIKey, APIKeyIn
-from fastapi.security.base import SecurityBase
+from fastapi.security import HTTPBearer
 from starlette import status
 
 from app.user.container import UserContainer
 from app.user.domain.usecase.user import UserUseCase
+from app.user.domain.vo import LoginTypeEnum
 from core.exceptions import CustomException
 
 
@@ -32,6 +32,28 @@ class IsAuthenticated(BasePermission):
         return request.user.id is not None
 
 
+class IsResearcher(BasePermission):
+    exception = UnauthorizedException
+
+    async def has_permission(self, request: Request) -> bool:
+        login_type = request.user.login_type
+        if login_type is None:
+            return False
+
+        return LoginTypeEnum(login_type).is_researcher
+
+
+class IsParticipant(BasePermission):
+    exception = UnauthorizedException
+
+    async def has_permission(self, request: Request) -> bool:
+        login_type = request.user.login_type
+        if login_type is None:
+            return False
+
+        return LoginTypeEnum(login_type).is_participant
+
+
 class IsAdmin(BasePermission):
     exception = UnauthorizedException
 
@@ -48,11 +70,10 @@ class IsAdmin(BasePermission):
         return await usecase.is_admin(user_id=user_id)
 
 
-class PermissionDependency(SecurityBase):
+class PermissionDependency(HTTPBearer):
     def __init__(self, permissions: list[type[BasePermission]]):
         self.permissions = permissions
-        self.model: APIKey = APIKey(**{"in": APIKeyIn.header}, name="Authorization")  # type: ignore [arg-type]
-        self.scheme_name = self.__class__.__name__
+        super().__init__()
 
     async def __call__(self, request: Request) -> None:
         for permission in self.permissions:

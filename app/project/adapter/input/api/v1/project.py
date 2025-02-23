@@ -17,7 +17,7 @@ from app.project.domain.usecase.project import ProjectUseCsae
 from app.project.domain.vo import ExperimentAttendanceStatusTypeEnum
 from app.workspace.container import WorkspaceContainer
 from app.workspace.domain.usecase.workspace import WorkspaceUseCase
-from core.fastapi.dependencies import IsAuthenticated, PermissionDependency
+from core.fastapi.dependencies import IsResearcher, PermissionDependency
 
 project_router = APIRouter()
 
@@ -26,7 +26,7 @@ project_router = APIRouter()
     "/workspaces/{workspace_id}/projects",
     tags=["Workspace"],
     response_model=list[GetProjectListResponseDTO],
-    dependencies=[Depends(PermissionDependency([IsAuthenticated]))],
+    dependencies=[Depends(PermissionDependency([IsResearcher]))],
 )
 @inject
 async def get_project_list(
@@ -57,7 +57,7 @@ async def get_project_list(
     "/workspaces/{workspace_id}/projects",
     tags=["Workspace"],
     response_model=CreateProjectResponseDTO,
-    dependencies=[Depends(PermissionDependency([IsAuthenticated]))],
+    dependencies=[Depends(PermissionDependency([IsResearcher]))],
     status_code=status.HTTP_201_CREATED,
 )
 @inject
@@ -84,7 +84,7 @@ async def create_project(
     "/projects/{project_id}",
     tags=["Project"],
     response_model=GetProjectResponseDTO,
-    dependencies=[Depends(PermissionDependency([IsAuthenticated]))],
+    dependencies=[Depends(PermissionDependency([IsResearcher]))],
 )
 @inject
 async def get_project(
@@ -103,7 +103,7 @@ async def get_project(
 @project_router.put(
     "/projects/{project_id}",
     tags=["Project"],
-    dependencies=[Depends(PermissionDependency([IsAuthenticated]))],
+    dependencies=[Depends(PermissionDependency([IsResearcher]))],
 )
 @inject
 async def put_project(
@@ -124,7 +124,7 @@ async def put_project(
 @project_router.delete(
     "/projects/{project_id}",
     tags=["Project"],
-    dependencies=[Depends(PermissionDependency([IsAuthenticated]))],
+    dependencies=[Depends(PermissionDependency([IsResearcher]))],
 )
 @inject
 async def delete_project(
@@ -144,7 +144,7 @@ async def delete_project(
     "/projects/{project_id}/participants",
     tags=["Project"],
     response_model=list[GetExperimentParticipantsResponseDTO],
-    dependencies=[Depends(PermissionDependency([IsAuthenticated]))],
+    dependencies=[Depends(PermissionDependency([IsResearcher]))],
 )
 @inject
 async def get_project_participant_list(
@@ -167,7 +167,7 @@ async def get_project_participant_list(
 @project_router.patch(
     "/projects/{project_id}/participants/{participant_id}",
     tags=["Project"],
-    dependencies=[Depends(PermissionDependency([IsAuthenticated]))],
+    dependencies=[Depends(PermissionDependency([IsResearcher]))],
 )
 @inject
 async def update_project_participant_status(
@@ -190,7 +190,7 @@ async def update_project_participant_status(
 @project_router.delete(
     "/projects/{project_id}/participants/{participant_id}",
     tags=["Project"],
-    dependencies=[Depends(PermissionDependency([IsAuthenticated]))],
+    dependencies=[Depends(PermissionDependency([IsResearcher]))],
 )
 @inject
 async def delete_project_participant(

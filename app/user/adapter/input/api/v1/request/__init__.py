@@ -1,12 +1,12 @@
 import re
 
-from pydantic import BaseModel, EmailStr, Field, SecretStr, field_validator
+from pydantic import BaseModel, EmailStr, SecretStr, field_validator
 
 
 class CreateUserRequest(BaseModel):
-    email: EmailStr = Field(..., description="Email")
-    password: SecretStr = Field(..., description="Password")
-    username: str = Field(..., description="Username")
+    email: EmailStr
+    password: SecretStr
+    username: str
 
     @field_validator("password")
     @classmethod
@@ -23,21 +23,21 @@ class CreateUserRequest(BaseModel):
 
 
 class UpdateUserRequest(BaseModel):
-    username: str | None = Field(None, description="User username")
-    phone_num: str | None = Field(None, description="Phone Number")
+    username: str | None
+    phone_num: str | None
 
 
 class LoginRequest(BaseModel):
-    email: EmailStr = Field(..., description="Email")
-    password: SecretStr = Field(..., description="Password")
+    email: EmailStr
+    password: SecretStr
 
 
 class OauthLoginRequest(BaseModel):
-    email: EmailStr = Field(..., description="Email")
-    username: str = Field(..., description="User username")
-    oauth_id: str = Field(..., description="OAuth ID")
+    email: EmailStr
+    username: str
+    oauth_id: str
 
 
 class ChangePasswordRequest(BaseModel):
-    old_password: SecretStr = Field(..., description="Origin Password")
-    new_password: SecretStr = Field(..., description="New Password")
+    old_password: SecretStr
+    new_password: SecretStr

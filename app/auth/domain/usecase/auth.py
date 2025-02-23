@@ -2,16 +2,18 @@ from abc import ABC, abstractmethod
 
 from app.auth.application.dto import RefreshTokenResponseDTO
 from app.auth.domain.vo import EmailVerificationType
+from app.user.domain.vo import LoginTypeEnum
 
 
 class AuthUseCase(ABC):
     @abstractmethod
-    async def create_refresh_token(
+    async def refresh_access_token(
         self,
-        token: str,
+        access_token: str,
         refresh_token: str,
+        login_type: LoginTypeEnum,
     ) -> RefreshTokenResponseDTO:
-        """Create refresh token"""
+        """Refresh access token"""
 
     @abstractmethod
     async def send_verification_email(
