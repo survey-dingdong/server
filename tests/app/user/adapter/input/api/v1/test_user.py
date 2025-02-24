@@ -11,17 +11,15 @@ from app.user.application.exception import (
     UserNotFoundException,
 )
 from core.helpers.cache import RedisBackend
-from tests.support.constants import USER_ID_1_TOKEN
 from tests.support.user_fixture import make_user
 
-HEADERS = {"Authorization": f"Bearer {USER_ID_1_TOKEN}"}
 BASE_URL = "http://test"
 
 redis_backend = RedisBackend()
 
 
 @pytest.mark.asyncio
-async def test_get_users(session: AsyncSession) -> None:
+async def test_get_users(session: AsyncSession, access_token: str) -> None:
     # Given
     user = make_user(
         password="password",
@@ -34,7 +32,10 @@ async def test_get_users(session: AsyncSession) -> None:
 
     # When
     async with AsyncClient(app=app, base_url="http://test") as client:
-        response = await client.get("/users", headers=HEADERS)
+        response = await client.get(
+            "/users",
+            headers={"Authorization": f"Bearer {access_token}"},
+        )
 
     # Then
     sut = response.json()
@@ -50,7 +51,7 @@ async def test_get_users(session: AsyncSession) -> None:
 
 
 @pytest.mark.asyncio
-async def test_get_user_me(session: AsyncSession) -> None:
+async def test_get_user_me(session: AsyncSession, access_token: str) -> None:
     # Given
     user = make_user(
         password="password",
@@ -63,7 +64,10 @@ async def test_get_user_me(session: AsyncSession) -> None:
 
     # When
     async with AsyncClient(app=app, base_url="http://test") as client:
-        response = await client.get("/users/me", headers=HEADERS)
+        response = await client.get(
+            "/users/me",
+            headers={"Authorization": f"Bearer {access_token}"},
+        )
 
     # Then
     sut = response.json()
@@ -77,7 +81,9 @@ async def test_get_user_me(session: AsyncSession) -> None:
 
 
 @pytest.mark.asyncio
-async def test_create_user_unauthorized(session: AsyncSession) -> None:
+async def test_create_user_unauthorized(
+    session: AsyncSession, access_token: str
+) -> None:
     # Given
     user = make_user(
         password="password",
@@ -97,7 +103,9 @@ async def test_create_user_unauthorized(session: AsyncSession) -> None:
 
     # When
     async with AsyncClient(app=app, base_url="http://test") as client:
-        response = await client.post("/users", headers=HEADERS, json=body)
+        response = await client.post(
+            "/users", headers={"Authorization": f"Bearer {access_token}"}, json=body
+        )
 
     # Then
     assert response.json() == {
@@ -107,7 +115,9 @@ async def test_create_user_unauthorized(session: AsyncSession) -> None:
 
 
 @pytest.mark.asyncio
-async def test_create_user_duplicated_user(session: AsyncSession) -> None:
+async def test_create_user_duplicated_user(
+    session: AsyncSession, access_token: str
+) -> None:
     # Given
     user = make_user(
         password="password",
@@ -130,7 +140,9 @@ async def test_create_user_duplicated_user(session: AsyncSession) -> None:
 
     # When
     async with AsyncClient(app=app, base_url="http://test") as client:
-        response = await client.post("/users", headers=HEADERS, json=body)
+        response = await client.post(
+            "/users", headers={"Authorization": f"Bearer {access_token}"}, json=body
+        )
 
     # Then
     assert response.json() == {
@@ -141,7 +153,7 @@ async def test_create_user_duplicated_user(session: AsyncSession) -> None:
 
 
 @pytest.mark.asyncio
-async def test_create_user(session: AsyncSession) -> None:
+async def test_create_user(access_token: str) -> None:
     # Given
     email = "survey@ding.dong"
     username = "dingdong-survey"
@@ -155,7 +167,9 @@ async def test_create_user(session: AsyncSession) -> None:
 
     # When
     async with AsyncClient(app=app, base_url="http://test") as client:
-        await client.post("/users", headers=HEADERS, json=body)
+        await client.post(
+            "/users", headers={"Authorization": f"Bearer {access_token}"}, json=body
+        )
 
     # Then
     user_repo = UserSQLAlchemyRepo()
@@ -168,7 +182,7 @@ async def test_create_user(session: AsyncSession) -> None:
 
 
 @pytest.mark.asyncio
-async def test_login_user_not_found(session: AsyncSession) -> None:
+async def test_login_user_not_found(access_token: str) -> None:
     # Given
     email = "survey@ding.dong"
     password = "password"
@@ -177,7 +191,11 @@ async def test_login_user_not_found(session: AsyncSession) -> None:
 
     # When
     async with AsyncClient(app=app, base_url="http://test") as client:
-        response = await client.post("/users/login", headers=HEADERS, json=body)
+        response = await client.post(
+            "/users/login",
+            headers={"Authorization": f"Bearer {access_token}"},
+            json=body,
+        )
 
     # Then
     assert response.json() == {
@@ -187,7 +205,7 @@ async def test_login_user_not_found(session: AsyncSession) -> None:
 
 
 @pytest.mark.asyncio
-async def test_login(session: AsyncSession) -> None:
+async def test_login(session: AsyncSession, access_token: str) -> None:
     # Given
     email = "survey@ding.dong"
     password = "password"
@@ -204,7 +222,11 @@ async def test_login(session: AsyncSession) -> None:
 
     # When
     async with AsyncClient(app=app, base_url="http://test") as client:
-        response = await client.post("/users/login", headers=HEADERS, json=body)
+        response = await client.post(
+            "/users/login",
+            headers={"Authorization": f"Bearer {access_token}"},
+            json=body,
+        )
 
     # Then
     sut = response.json()

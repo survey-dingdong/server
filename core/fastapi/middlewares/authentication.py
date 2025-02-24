@@ -53,21 +53,20 @@ class AuthBackend(AuthenticationBackend):
         except jwt.exceptions.PyJWTError:
             return False, current_user
 
-        user_id = payload.get("user_id")
-        login_type = payload.get("login_type")
+        current_user.id = payload.get("user_id")
+        current_user.login_type = payload.get("login_type")
 
-        if user_id is None or login_type is None:
+        if current_user.id is None or current_user.login_type is None:
             return False, current_user
 
         is_valid = await redis_client.validate_login_session(
-            user_id=user_id, login_type=login_type, token=credentials
+            user_id=current_user.id,
+            login_type=current_user.login_type,
+            token=credentials,
         )
 
         if not is_valid:
             return False, current_user
-
-        current_user.id = user_id
-        current_user.login_type = login_type
 
         return True, current_user
 
