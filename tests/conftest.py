@@ -1,20 +1,18 @@
 import asyncio
 from asyncio import AbstractEventLoop
 from collections.abc import AsyncGenerator, Generator, Iterator
-from unittest.mock import Mock
 from uuid import uuid4
 
 import jwt
 import pytest
 import pytest_asyncio
-from fastapi import Request
 from sqlalchemy.ext.asyncio import AsyncSession, async_scoped_session
 
 from app.user.domain.vo import LoginTypeEnum
 from core.config import config
-from core.db.session import reset_session_context
+from core.db.session import reset_session_context, set_session_context
 from core.db.session import session as db_session
-from core.db.session import set_session_context
+from core.helpers.cache.redis_backend import RedisBackend
 from tests.support.constants import DEFAULT_USER_ID
 from tests.support.test_db_coordinator import TestDbCoordinator
 
@@ -36,15 +34,23 @@ def event_loop() -> Iterator[AbstractEventLoop]:
     loop.close()
 
 
-@pytest_asyncio.fixture
-async def session() -> AsyncGenerator[
-    async_scoped_session[AsyncSession],
-    None,
-]:
+@pytest_asyncio.fixture(scope="function")
+async def session() -> (
+    AsyncGenerator[
+        async_scoped_session[AsyncSession],
+        None,
+    ]
+):
     test_db_coordinator.apply_alembic()
     yield db_session
     await db_session.remove()
     test_db_coordinator.truncate_all()
+
+
+@pytest_asyncio.fixture(scope="function")
+async def redis_backend() -> AsyncGenerator[RedisBackend, None]:
+    redis_backend = RedisBackend()
+    yield redis_backend
 
 
 @pytest.fixture(scope="function")

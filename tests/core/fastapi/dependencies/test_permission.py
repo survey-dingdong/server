@@ -87,7 +87,7 @@ class TestPermission:
         mock_request.user = AsyncMock(id=1, login_type=LoginTypeEnum.Web)
 
         # When
-        result = await dependency(request=mock_request)
+        result = await dependency(request=mock_request)  # type: ignore [func-returns-value]
 
         # Then
         assert result is None
@@ -113,7 +113,7 @@ class TestPermission:
         mock_request.user = AsyncMock(id=1, login_type=LoginTypeEnum.App)
 
         # When
-        result = await dependency(request=mock_request)
+        result = await dependency(request=mock_request)  # type: ignore [func-returns-value]
 
         # Then
         assert result is None
