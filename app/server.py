@@ -8,14 +8,11 @@ from pydantic_core import ValidationError
 from sqlalchemy.exc import DataError, IntegrityError
 
 from app.auth.adapter.input.api import router as auth_router
-from app.auth.container import AuthContainer
 from app.project.adapter.input.api import router as project_router
-from app.project.container import ProjectContainer
 from app.user.adapter.input.api import router as user_router
-from app.user.container import UserContainer
 from app.workspace.adapter.input.api import router as workspace_router
-from app.workspace.container import WorkspaceContainer
 from core.config import config
+from core.container import AppContainer
 from core.exceptions import CustomException
 from core.fastapi.dependencies import Logging
 from core.fastapi.middlewares import (
@@ -26,20 +23,22 @@ from core.fastapi.middlewares import (
 )
 
 if TYPE_CHECKING:
-    from dependency_injector.containers import DeclarativeContainer
     from fastapi import APIRouter
 
 
+def init_containers() -> None:
+    AppContainer()
+
+
 def init_routers(app_: FastAPI) -> None:
-    containers_and_routers: list[tuple[type[DeclarativeContainer], APIRouter]] = [
-        (AuthContainer, auth_router),
-        (UserContainer, user_router),
-        (WorkspaceContainer, workspace_router),
-        (ProjectContainer, project_router),
+    routers: list[APIRouter] = [
+        auth_router,
+        user_router,
+        workspace_router,
+        project_router,
     ]
 
-    for container, router in containers_and_routers:
-        setattr(router, "container", container())
+    for router in routers:
         app_.include_router(router)
 
 
@@ -133,8 +132,10 @@ def create_app() -> FastAPI:
         dependencies=[Depends(Logging)],
         middleware=make_middleware(),
     )
+    init_containers()
     init_routers(app_=app_)
     init_listeners(app_=app_)
+
     return app_
 
 

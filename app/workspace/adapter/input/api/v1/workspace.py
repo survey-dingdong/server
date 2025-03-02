@@ -11,7 +11,7 @@ from app.workspace.application.dto import (
 )
 from app.workspace.container import WorkspaceContainer
 from app.workspace.domain.usecase.workspace import WorkspaceUseCase
-from core.fastapi.dependencies import IsAuthenticated, PermissionDependency
+from core.fastapi.dependencies import IsResearcher, PermissionDependency
 
 workspace_router = APIRouter(prefix="/workspaces", tags=["Workspace"])
 
@@ -19,7 +19,7 @@ workspace_router = APIRouter(prefix="/workspaces", tags=["Workspace"])
 @workspace_router.get(
     "",
     response_model=list[GetWorkspaceRepsonseDTO],
-    dependencies=[Depends(PermissionDependency([IsAuthenticated]))],
+    dependencies=[Depends(PermissionDependency([IsResearcher]))],
 )
 @inject
 async def get_workspace_list(
@@ -32,7 +32,7 @@ async def get_workspace_list(
 @workspace_router.post(
     "",
     response_model=CreateWorkspaceResponseDTO,
-    dependencies=[Depends(PermissionDependency([IsAuthenticated]))],
+    dependencies=[Depends(PermissionDependency([IsResearcher]))],
     status_code=status.HTTP_201_CREATED,
 )
 @inject
@@ -48,7 +48,7 @@ async def create_workspace(
 
 @workspace_router.patch(
     "/{workspace_id}",
-    dependencies=[Depends(PermissionDependency([IsAuthenticated]))],
+    dependencies=[Depends(PermissionDependency([IsResearcher]))],
 )
 @inject
 async def update_workspace(
@@ -67,7 +67,7 @@ async def update_workspace(
 
 @workspace_router.delete(
     "/{workspace_id}",
-    dependencies=[Depends(PermissionDependency([IsAuthenticated]))],
+    dependencies=[Depends(PermissionDependency([IsResearcher]))],
 )
 @inject
 async def delete_workspace(

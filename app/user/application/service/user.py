@@ -21,8 +21,9 @@ from app.user.application.exception import (
 )
 from app.user.domain.entity.user import User, UserOauth
 from app.user.domain.usecase.user import UserUseCase
-from app.user.domain.vo import OauthProviderTypeEnum
+from app.user.domain.vo import LoginTypeEnum, OauthProviderTypeEnum
 from core.config import config
+from core.constants import EMAIL_VERIFICATION_PREFIX
 from core.db import Transactional
 from core.exceptions.base import InvalidAccessException
 from core.helpers.auth import (
@@ -89,7 +90,7 @@ class UserService(UserUseCase):
         self, email: str, username: str, password: SecretStr
     ) -> CreateUserResponseDTO:
         signup_code = await self.cache.get(
-            key=f"{config.REDIS_KEY_PREFIX}::{EmailVerificationType.SIGNUP}::{email}"
+            key=f"{EMAIL_VERIFICATION_PREFIX}::{EmailVerificationType.SIGNUP}::email::{email}"
         )
         if signup_code is None:
             raise UnauthorizedAccessException
@@ -107,11 +108,11 @@ class UserService(UserUseCase):
         await self.repository.add(user=user, auto_flush=True)
 
         await self.cache.delete(
-            key=f"{config.REDIS_KEY_PREFIX}::{EmailVerificationType.SIGNUP}::{email}"
+            key=f"{EMAIL_VERIFICATION_PREFIX}::{EmailVerificationType.SIGNUP}::email::{email}"
         )
 
         return CreateUserResponseDTO(
-            token=TokenHelper.encode(payload={"user_id": user.id}),
+            access_token=TokenHelper.encode(payload={"user_id": user.id}),
         )
 
     @Transactional()
@@ -141,7 +142,9 @@ class UserService(UserUseCase):
 
         return True
 
-    async def login(self, email: str, password: SecretStr) -> LoginResponseDTO:
+    async def login(
+        self, email: str, password: SecretStr, login_type: LoginTypeEnum
+    ) -> LoginResponseDTO:
         user = await self.repository.get_user_by_email(email=email)
         if user is None:
             raise UserNotFoundException
@@ -154,23 +157,26 @@ class UserService(UserUseCase):
         ):
             raise PasswordDoesNotMatchException
 
-        await self.cache.delete(key=f"{config.REDIS_KEY_PREFIX}::{user.id}")
+        access_token = TokenHelper.encode(
+            payload={"user_id": user.id, "login_type": login_type}
+        )
+
+        await self.cache.store_login_session(
+            user_id=user.id, login_type=login_type, token=access_token
+        )
 
         refresh_token_sub_value = make_random_string(16)
 
-        await self.cache.set(
-            response=refresh_token_sub_value,
-            key=f"{config.REDIS_KEY_PREFIX}::{user.id}",
-            ttl=config.REFRESH_TOKEN_TTL,
+        refresh_token = TokenHelper.encode(
+            payload={"sub": refresh_token_sub_value},
+            expire_period=config.REFRESH_TOKEN_TTL,
         )
 
-        return LoginResponseDTO(
-            token=TokenHelper.encode(payload={"user_id": user.id}),
-            refresh_token=TokenHelper.encode(
-                payload={"sub": refresh_token_sub_value},
-                expire_period=config.REFRESH_TOKEN_TTL,
-            ),
+        await self.cache.store_refresh_token(
+            user_id=user.id, value=refresh_token_sub_value
         )
+
+        return LoginResponseDTO(access_token=access_token, refresh_token=refresh_token)
 
     @Transactional()
     async def oauth_login(
@@ -179,6 +185,7 @@ class UserService(UserUseCase):
         username: str,
         provider: OauthProviderTypeEnum,
         oauth_id: str,
+        login_type: LoginTypeEnum,
     ) -> LoginResponseDTO:
         user = await self.repository.get_user_by_email(email=email)
         if user is None:
@@ -205,14 +212,26 @@ class UserService(UserUseCase):
         if user_oauth.provider != provider:
             raise DifferentOAuthProviderException
 
-        response = LoginResponseDTO(
-            token=TokenHelper.encode(payload={"user_id": user.id}),
-            refresh_token=TokenHelper.encode(
-                payload={"sub": make_random_string(16)},
-                expire_period=config.REFRESH_TOKEN_TTL,
-            ),
+        access_token = TokenHelper.encode(
+            payload={"user_id": user.id, "login_type": login_type}
         )
-        return response
+
+        await self.cache.store_login_session(
+            user_id=user.id, login_type=login_type, token=access_token
+        )
+
+        refresh_token_sub_value = make_random_string(16)
+
+        refresh_token = TokenHelper.encode(
+            payload={"sub": refresh_token_sub_value},
+            expire_period=config.REFRESH_TOKEN_TTL,
+        )
+
+        await self.cache.store_refresh_token(
+            user_id=user.id, value=refresh_token_sub_value
+        )
+
+        return LoginResponseDTO(access_token=access_token, refresh_token=refresh_token)
 
     @Transactional()
     async def change_password(
@@ -244,7 +263,7 @@ class UserService(UserUseCase):
             raise UserNotFoundException
 
         cached_code = await self.cache.get(
-            key=f"{config.REDIS_KEY_PREFIX}::{EmailVerificationType.RESET_PASSWORD}::{email}"
+            key=f"{EMAIL_VERIFICATION_PREFIX}::{EmailVerificationType.RESET_PASSWORD}::email::{email}"
         )
         if cached_code is None:
             raise UnauthorizedAccessException
@@ -254,5 +273,5 @@ class UserService(UserUseCase):
         )
 
         await self.cache.delete(
-            key=f"{config.REDIS_KEY_PREFIX}::{EmailVerificationType.RESET_PASSWORD}::{email}"
+            key=f"{EMAIL_VERIFICATION_PREFIX}::{EmailVerificationType.RESET_PASSWORD}::email::{email}"
         )

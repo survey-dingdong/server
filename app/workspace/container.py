@@ -1,5 +1,4 @@
-from dependency_injector.containers import DeclarativeContainer, WiringConfiguration
-from dependency_injector.providers import Factory, Singleton
+from dependency_injector import containers, providers
 
 from app.workspace.adapter.output.persistence.repository_adapter import (
     WorkspaceRepositoryAdapter,
@@ -10,19 +9,19 @@ from app.workspace.adapter.output.persistence.sqlalchemy.workspace import (
 from app.workspace.application.service.workspace import WorkspaceService
 
 
-class WorkspaceContainer(DeclarativeContainer):
-    wiring_config = WiringConfiguration(
+class WorkspaceContainer(containers.DeclarativeContainer):
+    wiring_config = containers.WiringConfiguration(
         modules=[
-            ".adapter.input.api.v1.workspace",
+            "app.workspace.adapter.input.api.v1.workspace",
             "app.project.adapter.input.api.v1.project",
         ]
     )
 
-    workspace_sqlalchemy_repo = Singleton(WorkspaceSQLAlchemyRepo)
-    workspace_repository_adapter = Factory(
+    workspace_sqlalchemy_repo = providers.Singleton(WorkspaceSQLAlchemyRepo)
+    workspace_repository_adapter = providers.Factory(
         WorkspaceRepositoryAdapter,
         repository=workspace_sqlalchemy_repo,
     )
-    workspace_service = Factory(
+    workspace_service = providers.Factory(
         WorkspaceService, repository=workspace_repository_adapter
     )

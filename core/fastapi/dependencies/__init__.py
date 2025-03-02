@@ -1,9 +1,17 @@
 from .logging import Logging
-from .permission import IsAdmin, IsAuthenticated, PermissionDependency
+from .permission import (
+    IsAdmin,
+    IsAuthenticated,
+    IsParticipant,
+    IsResearcher,
+    PermissionDependency,
+)
 
 __all__ = [
     "Logging",
-    "PermissionDependency",
-    "IsAuthenticated",
     "IsAdmin",
+    "IsAuthenticated",
+    "IsParticipant",
+    "IsResearcher",
+    "PermissionDependency",
 ]

@@ -61,7 +61,7 @@ async def test_decode_expired_token() -> None:
     token = EXPIRED_TOKEN
 
     # When
-    sut: dict[str, Any] = TokenHelper.decode_expired_token(token=token)
+    sut: dict[str, Any] = TokenHelper.decode_ignore_exp(token=token)
 
     # Then
     assert sut["user_id"] == 1
@@ -74,4 +74,4 @@ async def test_decode_expired_token_decode_error() -> None:
 
     # When, Then
     with pytest.raises(DecodeTokenException):
-        TokenHelper.decode_expired_token(token=token)
+        TokenHelper.decode_ignore_exp(token=token)

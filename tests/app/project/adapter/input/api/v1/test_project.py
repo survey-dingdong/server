@@ -4,7 +4,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.project.application.exception import ProjectNotFoundException
 from app.server import app
-from tests.support.constants import USER_ID_1_TOKEN
 from tests.support.project_fixture import (
     make_experiment_project,
     make_experiment_timeslot,
@@ -12,12 +11,11 @@ from tests.support.project_fixture import (
 from tests.support.user_fixture import make_user
 from tests.support.workspace_fixture import make_workspace
 
-HEADERS = {"Authorization": f"Bearer {USER_ID_1_TOKEN}"}
 BASE_URL = "http://test"
 
 
 @pytest.mark.asyncio
-async def test_get_project_list(session: AsyncSession) -> None:
+async def test_get_project_list(session: AsyncSession, access_token: str) -> None:
     # Given
     user = make_user(
         password="password",
@@ -36,7 +34,8 @@ async def test_get_project_list(session: AsyncSession) -> None:
     # When
     async with AsyncClient(app=app, base_url="http://test") as client:
         response = await client.get(
-            f"/workspaces/{workspace.id}/projects", headers=HEADERS
+            f"/workspaces/{workspace.id}/projects",
+            headers={"Authorization": f"Bearer {access_token}"},
         )
 
     # Then
@@ -53,7 +52,7 @@ async def test_get_project_list(session: AsyncSession) -> None:
 
 
 @pytest.mark.asyncio
-async def test_get_project_not_exist(session: AsyncSession) -> None:
+async def test_get_project_not_exist(session: AsyncSession, access_token: str) -> None:
     # Given
     user = make_user(
         password="password",
@@ -76,7 +75,7 @@ async def test_get_project_not_exist(session: AsyncSession) -> None:
     async with AsyncClient(app=app, base_url="http://test") as client:
         response = await client.get(
             f"/projects/{invalid_experiment_project_id}",
-            headers=HEADERS,
+            headers={"Authorization": f"Bearer {access_token}"},
         )
 
     # Then
@@ -87,7 +86,7 @@ async def test_get_project_not_exist(session: AsyncSession) -> None:
 
 
 @pytest.mark.asyncio
-async def test_get_project_by_id(session: AsyncSession) -> None:
+async def test_get_project_by_id(session: AsyncSession, access_token: str) -> None:
     # Given
     user = make_user(
         password="password",
@@ -107,7 +106,7 @@ async def test_get_project_by_id(session: AsyncSession) -> None:
     async with AsyncClient(app=app, base_url="http://test") as client:
         response = await client.get(
             f"/projects/{experiment_project.id}",
-            headers=HEADERS,
+            headers={"Authorization": f"Bearer {access_token}"},
         )
 
     # Then
@@ -126,7 +125,7 @@ async def test_get_project_by_id(session: AsyncSession) -> None:
 
 
 @pytest.mark.asyncio
-async def test_create_project(session: AsyncSession) -> None:
+async def test_create_project(session: AsyncSession, access_token: str) -> None:
     # Given
     user = make_user(
         password="password",
@@ -147,7 +146,7 @@ async def test_create_project(session: AsyncSession) -> None:
     async with AsyncClient(app=app, base_url="http://test") as client:
         response = await client.post(
             f"/workspaces/{workspace.id}/projects",
-            headers=HEADERS,
+            headers={"Authorization": f"Bearer {access_token}"},
             json=body,
         )
 
@@ -157,7 +156,9 @@ async def test_create_project(session: AsyncSession) -> None:
 
 
 @pytest.mark.asyncio
-async def test_update_project_not_exist(session: AsyncSession) -> None:
+async def test_update_project_not_exist(
+    session: AsyncSession, access_token: str
+) -> None:
     # Given
     user = make_user(
         password="password",
@@ -199,7 +200,7 @@ async def test_update_project_not_exist(session: AsyncSession) -> None:
     async with AsyncClient(app=app, base_url="http://test") as client:
         response = await client.put(
             f"/projects/{invalid_experiment_project_id}",
-            headers=HEADERS,
+            headers={"Authorization": f"Bearer {access_token}"},
             json=body,
         )
 
@@ -211,7 +212,7 @@ async def test_update_project_not_exist(session: AsyncSession) -> None:
 
 
 @pytest.mark.asyncio
-async def test_update_project(session: AsyncSession) -> None:
+async def test_update_project(session: AsyncSession, access_token: str) -> None:
     # Given
     user = make_user(
         password="password",
@@ -260,7 +261,7 @@ async def test_update_project(session: AsyncSession) -> None:
     async with AsyncClient(app=app, base_url="http://test") as client:
         response = await client.put(
             f"/projects/{experiment_project.id}",
-            headers=HEADERS,
+            headers={"Authorization": f"Bearer {access_token}"},
             json=body,
         )
 
@@ -270,7 +271,9 @@ async def test_update_project(session: AsyncSession) -> None:
 
 
 @pytest.mark.asyncio
-async def test_delete_project_not_exist(session: AsyncSession) -> None:
+async def test_delete_project_not_exist(
+    session: AsyncSession, access_token: str
+) -> None:
     # Given
     user = make_user(
         password="password",
@@ -291,7 +294,7 @@ async def test_delete_project_not_exist(session: AsyncSession) -> None:
     async with AsyncClient(app=app, base_url="http://test") as client:
         response = await client.delete(
             f"/projects/{invalid_experiment_project_id}",
-            headers=HEADERS,
+            headers={"Authorization": f"Bearer {access_token}"},
         )
 
     # Then
@@ -302,7 +305,7 @@ async def test_delete_project_not_exist(session: AsyncSession) -> None:
 
 
 @pytest.mark.asyncio
-async def test_delete_project(session: AsyncSession) -> None:
+async def test_delete_project(session: AsyncSession, access_token: str) -> None:
     # Given
     user = make_user(
         password="password",
@@ -322,7 +325,7 @@ async def test_delete_project(session: AsyncSession) -> None:
     async with AsyncClient(app=app, base_url="http://test") as client:
         response = await client.delete(
             f"/projects/{experiment_project.id}",
-            headers=HEADERS,
+            headers={"Authorization": f"Bearer {access_token}"},
         )
 
     # Then

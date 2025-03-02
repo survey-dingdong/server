@@ -3,12 +3,17 @@ from asyncio import AbstractEventLoop
 from collections.abc import AsyncGenerator, Generator, Iterator
 from uuid import uuid4
 
+import jwt
 import pytest
 import pytest_asyncio
 from sqlalchemy.ext.asyncio import AsyncSession, async_scoped_session
 
+from app.user.domain.vo import LoginTypeEnum
+from core.config import config
 from core.db.session import reset_session_context, set_session_context
 from core.db.session import session as db_session
+from core.helpers.cache.redis_backend import RedisBackend
+from tests.support.constants import DEFAULT_USER_ID
 from tests.support.test_db_coordinator import TestDbCoordinator
 
 test_db_coordinator = TestDbCoordinator()
@@ -29,7 +34,7 @@ def event_loop() -> Iterator[AbstractEventLoop]:
     loop.close()
 
 
-@pytest_asyncio.fixture
+@pytest_asyncio.fixture(scope="function")
 async def session() -> (
     AsyncGenerator[
         async_scoped_session[AsyncSession],
@@ -40,3 +45,59 @@ async def session() -> (
     yield db_session
     await db_session.remove()
     test_db_coordinator.truncate_all()
+
+
+@pytest_asyncio.fixture(scope="function")
+async def redis_backend() -> AsyncGenerator[RedisBackend, None]:
+    redis_backend = RedisBackend()
+    yield redis_backend
+
+
+@pytest.fixture(scope="function")
+def invalid_access_token() -> str:
+    token = jwt.encode(
+        payload={
+            "user_id": DEFAULT_USER_ID,
+            "login_type": LoginTypeEnum.Web,
+        },
+        key=config.JWT_SECRET_KEY,
+        algorithm=config.JWT_ALGORITHM,
+    )
+    return token
+
+
+@pytest.fixture(scope="function")
+def access_token() -> str:
+    token = jwt.encode(
+        payload={
+            "user_id": DEFAULT_USER_ID,
+            "login_type": LoginTypeEnum.Web,
+        },
+        key=config.JWT_SECRET_KEY,
+        algorithm=config.JWT_ALGORITHM,
+    )
+    return token
+
+
+@pytest.fixture(scope="function")
+def invalid_refresh_token() -> str:
+    token = jwt.encode(
+        payload={
+            "sub": "invalid_refresh_token_value",
+        },
+        key=config.JWT_SECRET_KEY,
+        algorithm=config.JWT_ALGORITHM,
+    )
+    return token
+
+
+@pytest.fixture(scope="function")
+def refresh_token() -> str:
+    token = jwt.encode(
+        payload={
+            "sub": "refresh_token_value",
+        },
+        key=config.JWT_SECRET_KEY,
+        algorithm=config.JWT_ALGORITHM,
+    )
+    return token

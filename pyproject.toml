@@ -105,7 +105,8 @@ ignore = [
     "S107", # Possible hardcoded password assigned to function default
     "S311", # Standard pseudo-random generators are not suitable for cryptographic purposes
     "S701", # jinja2 template injection
-    "SIM117"
+    "SIM117",
+    "PLR0911", # Too many return statements
 ]
 
 # Allow autofix for all enabled rules is provided.

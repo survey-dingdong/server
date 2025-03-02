@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+import datetime
 from typing import Any, cast
 
 import jwt
@@ -21,12 +21,13 @@ class ExpiredTokenException(CustomException):
 
 class TokenHelper:
     @staticmethod
-    def encode(payload: dict, expire_period: int = 3600) -> str:
+    def encode(payload: dict[str, Any], expire_period: int = 3600) -> str:
         token = jwt.encode(
             payload={
                 "iss": "dingdong-survey",
                 **payload,
-                "exp": datetime.now() + timedelta(seconds=expire_period),
+                "exp": datetime.datetime.now()
+                + datetime.timedelta(seconds=expire_period),
             },
             key=config.JWT_SECRET_KEY,
             algorithm=config.JWT_ALGORITHM,
@@ -50,7 +51,7 @@ class TokenHelper:
             raise ExpiredTokenException from e
 
     @staticmethod
-    def decode_expired_token(token: str) -> dict[str, Any]:
+    def decode_ignore_exp(token: str) -> dict[str, Any]:
         try:
             return cast(
                 dict[str, Any],

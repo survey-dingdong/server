@@ -9,16 +9,14 @@ from app.workspace.application.exception import (
     WorkspaceNotFoundeException,
     WrongOrderNoWorkspacesException,
 )
-from tests.support.constants import USER_ID_1_TOKEN
 from tests.support.user_fixture import make_user
 from tests.support.workspace_fixture import make_workspace
 
-HEADERS = {"Authorization": f"Bearer {USER_ID_1_TOKEN}"}
 BASE_URL = "http://test"
 
 
 @pytest.mark.asyncio
-async def test_get_workspaces(session: AsyncSession) -> None:
+async def test_get_workspaces(session: AsyncSession, access_token: str) -> None:
     # Given
     user = make_user(
         password="password",
@@ -34,7 +32,10 @@ async def test_get_workspaces(session: AsyncSession) -> None:
 
     # When
     async with AsyncClient(app=app, base_url="http://test") as client:
-        response = await client.get("/workspaces", headers=HEADERS)
+        response = await client.get(
+            "/workspaces",
+            headers={"Authorization": f"Bearer {access_token}"},
+        )
 
     # Then
     sut = response.json()
@@ -43,7 +44,9 @@ async def test_get_workspaces(session: AsyncSession) -> None:
 
 
 @pytest.mark.asyncio
-async def test_create_workspace_too_many(session: AsyncSession) -> None:
+async def test_create_workspace_too_many(
+    session: AsyncSession, access_token: str
+) -> None:
     # Given
     user = make_user(
         id=1,
@@ -72,7 +75,11 @@ async def test_create_workspace_too_many(session: AsyncSession) -> None:
     }
     # When
     async with AsyncClient(app=app, base_url="http://test") as client:
-        response = await client.post("/workspaces", headers=HEADERS, json=body)
+        response = await client.post(
+            "/workspaces",
+            headers={"Authorization": f"Bearer {access_token}"},
+            json=body,
+        )
 
     # Then
     assert response.json() == {
@@ -82,7 +89,7 @@ async def test_create_workspace_too_many(session: AsyncSession) -> None:
 
 
 @pytest.mark.asyncio
-async def test_create_workspace(session: AsyncSession) -> None:
+async def test_create_workspace(session: AsyncSession, access_token: str) -> None:
     # Given
     user = make_user(
         password="password",
@@ -99,7 +106,11 @@ async def test_create_workspace(session: AsyncSession) -> None:
 
     # When
     async with AsyncClient(app=app, base_url="http://test") as client:
-        response = await client.post("/workspaces", headers=HEADERS, json=body)
+        response = await client.post(
+            "/workspaces",
+            headers={"Authorization": f"Bearer {access_token}"},
+            json=body,
+        )
 
     # Then
     sut = response.json()
@@ -107,7 +118,9 @@ async def test_create_workspace(session: AsyncSession) -> None:
 
 
 @pytest.mark.asyncio
-async def test_update_workspace_not_exist(session: AsyncSession) -> None:
+async def test_update_workspace_not_exist(
+    session: AsyncSession, access_token: str
+) -> None:
     # Given
     user = make_user(
         password="password",
@@ -130,7 +143,9 @@ async def test_update_workspace_not_exist(session: AsyncSession) -> None:
     invalid_workspace_id = 2
     async with AsyncClient(app=app, base_url="http://test") as client:
         response = await client.patch(
-            f"/workspaces/{invalid_workspace_id}", headers=HEADERS, json=body
+            f"/workspaces/{invalid_workspace_id}",
+            headers={"Authorization": f"Bearer {access_token}"},
+            json=body,
         )
 
     # Then
@@ -141,7 +156,9 @@ async def test_update_workspace_not_exist(session: AsyncSession) -> None:
 
 
 @pytest.mark.asyncio
-async def test_update_workspace_access_denied(session: AsyncSession) -> None:
+async def test_update_workspace_access_denied(
+    session: AsyncSession, access_token: str
+) -> None:
     # Given
     user1 = make_user(
         password="password",
@@ -171,7 +188,9 @@ async def test_update_workspace_access_denied(session: AsyncSession) -> None:
     # When
     async with AsyncClient(app=app, base_url="http://test") as client:
         response = await client.patch(
-            f"/workspaces/{workspace2.id}", headers=HEADERS, json=body
+            f"/workspaces/{workspace2.id}",
+            headers={"Authorization": f"Bearer {access_token}"},
+            json=body,
         )
 
     # Then
@@ -182,7 +201,9 @@ async def test_update_workspace_access_denied(session: AsyncSession) -> None:
 
 
 @pytest.mark.asyncio
-async def test_update_workspace_wrong_order_no(session: AsyncSession) -> None:
+async def test_update_workspace_wrong_order_no(
+    session: AsyncSession, access_token: str
+) -> None:
     # Given
     user = make_user(
         password="password",
@@ -204,7 +225,9 @@ async def test_update_workspace_wrong_order_no(session: AsyncSession) -> None:
     # When
     async with AsyncClient(app=app, base_url="http://test") as client:
         response = await client.patch(
-            f"/workspaces/{workspace.id}", headers=HEADERS, json=body
+            f"/workspaces/{workspace.id}",
+            headers={"Authorization": f"Bearer {access_token}"},
+            json=body,
         )
 
     # Then
@@ -215,7 +238,7 @@ async def test_update_workspace_wrong_order_no(session: AsyncSession) -> None:
 
 
 @pytest.mark.asyncio
-async def test_update_workspace(session: AsyncSession) -> None:
+async def test_update_workspace(session: AsyncSession, access_token: str) -> None:
     # Given
     user = make_user(
         password="password",
@@ -236,7 +259,9 @@ async def test_update_workspace(session: AsyncSession) -> None:
     # When
     async with AsyncClient(app=app, base_url="http://test") as client:
         response = await client.patch(
-            f"/workspaces/{workspace.id}", headers=HEADERS, json=body
+            f"/workspaces/{workspace.id}",
+            headers={"Authorization": f"Bearer {access_token}"},
+            json=body,
         )
 
     # Then
@@ -245,7 +270,9 @@ async def test_update_workspace(session: AsyncSession) -> None:
 
 
 @pytest.mark.asyncio
-async def test_delete_workspace_not_exist(session: AsyncSession) -> None:
+async def test_delete_workspace_not_exist(
+    session: AsyncSession, access_token: str
+) -> None:
     # Given
     user = make_user(
         password="password",
@@ -265,7 +292,8 @@ async def test_delete_workspace_not_exist(session: AsyncSession) -> None:
     invalid_workspace_id = 2
     async with AsyncClient(app=app, base_url="http://test") as client:
         response = await client.delete(
-            f"/workspaces/{invalid_workspace_id}", headers=HEADERS
+            f"/workspaces/{invalid_workspace_id}",
+            headers={"Authorization": f"Bearer {access_token}"},
         )
 
     # Then
@@ -276,7 +304,9 @@ async def test_delete_workspace_not_exist(session: AsyncSession) -> None:
 
 
 @pytest.mark.asyncio
-async def test_delete_workspace_access_denied(session: AsyncSession) -> None:
+async def test_delete_workspace_access_denied(
+    session: AsyncSession, access_token: str
+) -> None:
     # Given
     user = make_user(
         password="password",
@@ -296,7 +326,8 @@ async def test_delete_workspace_access_denied(session: AsyncSession) -> None:
     invalid_workspace_id = 2
     async with AsyncClient(app=app, base_url="http://test") as client:
         response = await client.delete(
-            f"/workspaces/{invalid_workspace_id}", headers=HEADERS
+            f"/workspaces/{invalid_workspace_id}",
+            headers={"Authorization": f"Bearer {access_token}"},
         )
 
     # Then
@@ -307,7 +338,7 @@ async def test_delete_workspace_access_denied(session: AsyncSession) -> None:
 
 
 @pytest.mark.asyncio
-async def test_delete_workspace(session: AsyncSession) -> None:
+async def test_delete_workspace(session: AsyncSession, access_token: str) -> None:
     # Given
     user1 = make_user(
         password="password",
@@ -333,7 +364,10 @@ async def test_delete_workspace(session: AsyncSession) -> None:
 
     # When
     async with AsyncClient(app=app, base_url="http://test") as client:
-        response = await client.delete(f"/workspaces/{workspace2.id}", headers=HEADERS)
+        response = await client.delete(
+            f"/workspaces/{workspace2.id}",
+            headers={"Authorization": f"Bearer {access_token}"},
+        )
 
     # Then
     assert response.json() == {

@@ -13,6 +13,7 @@ from app.auth.domain.usecase.auth import AuthUseCase
 from app.auth.domain.vo import EmailVerificationType
 from app.user.container import UserContainer
 from app.user.domain.usecase.user import UserUseCase
+from app.user.domain.vo import LoginTypeEnum
 
 auth_router = APIRouter(prefix="/auth", tags=["Auth"])
 
@@ -24,11 +25,14 @@ auth_router = APIRouter(prefix="/auth", tags=["Auth"])
 )
 @inject
 async def refresh_token(
+    login_type: LoginTypeEnum,
     request: RefreshTokenRequest,
     auth_usecase: AuthUseCase = Depends(Provide[AuthContainer.auth_service]),
 ) -> RefreshTokenResponseDTO:
-    return await auth_usecase.create_refresh_token(
-        token=request.token, refresh_token=request.refresh_token
+    return await auth_usecase.refresh_access_token(
+        access_token=request.access_token,
+        refresh_token=request.refresh_token,
+        login_type=login_type,
     )
 
 

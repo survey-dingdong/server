@@ -9,6 +9,19 @@ class OauthProviderTypeEnum(StrEnum):
     NAVER = "naver"
 
 
-class UserRoleEnum(StrEnum):
+class UserRolesEnum(StrEnum):
     Researcher = "researcher"
     Participant = "participant"
+
+
+class LoginTypeEnum(StrEnum):
+    App = "app"
+    Web = "web"
+
+    @property
+    def is_researcher(self) -> bool:
+        return self == LoginTypeEnum.Web
+
+    @property
+    def is_participant(self) -> bool:
+        return self == LoginTypeEnum.App
